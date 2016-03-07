@@ -1,5 +1,7 @@
 
 
+package de.jfalk.GradleJFPlugins;
+
 
 class MyTestStuff {
 

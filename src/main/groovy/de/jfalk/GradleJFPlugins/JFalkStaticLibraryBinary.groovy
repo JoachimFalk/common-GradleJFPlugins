@@ -14,6 +14,8 @@
 // this program; If not, write to the Free Software Foundation, Inc., 59 Temple
 // Place - Suite 330, Boston, MA 02111-1307, USA.
 
+package de.jfalk.GradleJFPlugins;
+
 import org.gradle.nativeplatform.StaticLibraryBinary;
 import org.gradle.nativeplatform.Flavor;
 import org.gradle.nativeplatform.BuildType;
@@ -25,7 +27,7 @@ import org.gradle.api.internal.file.collections.SimpleFileCollection;
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-import JFalkPrebuiltLibrary;
+//import JFalkPrebuiltLibrary;
 
 /// A {@link NativeLibrary} that has been compiled and archived into a static library.
 class JFalkStaticLibraryBinary implements StaticLibraryBinary {

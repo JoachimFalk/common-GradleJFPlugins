@@ -14,25 +14,7 @@
 // this program; If not, write to the Free Software Foundation, Inc., 59 Temple
 // Place - Suite 330, Boston, MA 02111-1307, USA.
 
-//@Managed
-//trait JFalkPrebuiltLibraryX implements PrebuiltLibrary {
-//
-//    private final String name;
-//    private final SourceDirectorySet headers;
-//    private final DomainObjectSet<NativeLibraryBinary> binaries;
-//
-//    public String getName() {
-//        return name;
-//    }
-//
-//    public SourceDirectorySet getHeaders() {
-//        return headers;
-//    }
-//
-//    public DomainObjectSet<NativeLibraryBinary> getBinaries() {
-//        return binaries;
-//    }
-//}
+package de.jfalk.GradleJFPlugins;
 
 import org.gradle.api.Project;
 import org.gradle.api.DomainObjectSet;
@@ -109,5 +91,25 @@ class JFalkPrebuiltLibrary implements PrebuiltLibrary {
     return binaries;
   }
 }
+
+//@Managed
+//trait JFalkPrebuiltLibraryX implements PrebuiltLibrary {
+//
+//    private final String name;
+//    private final SourceDirectorySet headers;
+//    private final DomainObjectSet<NativeLibraryBinary> binaries;
+//
+//    public String getName() {
+//        return name;
+//    }
+//
+//    public SourceDirectorySet getHeaders() {
+//        return headers;
+//    }
+//
+//    public DomainObjectSet<NativeLibraryBinary> getBinaries() {
+//        return binaries;
+//    }
+//}
 
 
