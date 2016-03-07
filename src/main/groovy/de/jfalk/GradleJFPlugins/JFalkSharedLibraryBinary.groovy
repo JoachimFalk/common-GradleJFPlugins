@@ -84,12 +84,18 @@ class JFalkSharedLibraryBinary implements SharedLibraryBinary {
 
   FileCollection getLinkFiles() {
     logger.debug("JFalkSharedLibraryBinary::getLinkFiles() [CALLED]");
-    return new SimpleFileCollection();
+    if (sharedLibraryFile != null)
+      return new SimpleFileCollection(sharedLibraryFile);
+    else
+      return new SimpleFileCollection();
   }
 
   FileCollection getRuntimeFiles() {
     logger.debug("JFalkSharedLibraryBinary::getRuntimeFiles() [CALLED]");
-    return new SimpleFileCollection();
+    if (sharedLibraryFile != null)
+      return new SimpleFileCollection(sharedLibraryFile);
+    else
+      return new SimpleFileCollection();
   }
 
   // Implement interface of SharedLibraryBinary.
