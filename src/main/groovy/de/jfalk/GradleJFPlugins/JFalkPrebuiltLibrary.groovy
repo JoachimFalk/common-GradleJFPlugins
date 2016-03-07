@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory
 
 class JFalkPrebuiltLibrary implements PrebuiltLibrary {
 
+  private final Project                               parentProject;
   private final Logger                                logger;
 
   // Properties required by gradle
@@ -47,26 +48,27 @@ class JFalkPrebuiltLibrary implements PrebuiltLibrary {
   private final DomainObjectSet<NativeLibraryBinary>  binaries;
 
   public JFalkPrebuiltLibrary(String name, Project project) {
-    this.logger    = LoggerFactory.getLogger(this.class);
-    this.name     = name;
-    this.headers  = new DefaultSourceDirectorySet("headers", project.fileResolver);
-    this.binaries = new DefaultDomainObjectSet<NativeLibraryBinary>(NativeLibraryBinary.class);
+    this.parentProject = project;
+    this.logger        = LoggerFactory.getLogger(this.class);
+    this.name          = name;
+    this.headers       = new DefaultSourceDirectorySet("headers", parentProject.fileResolver);
+    this.binaries      = new DefaultDomainObjectSet<NativeLibraryBinary>(NativeLibraryBinary.class);
 
-//    ModelRegistry   modelRegistry   = project.getModelRegistry();
+//  ModelRegistry   modelRegistry   = project.getModelRegistry();
     ServiceRegistry serviceRegistry = project.getServices();
 
     NativePlatforms   nativePlatforms = serviceRegistry.get(NativePlatforms.class);
-//    FileResolver      fileResolver    = serviceRegistry.get(FileResolver.class);
+//  FileResolver      fileResolver    = serviceRegistry.get(FileResolver.class);
     PlatformContainer platforms       = project.getExtensions().findByName("platforms");
 
     Set<NativePlatform> allPlatforms = new LinkedHashSet<NativePlatform>();
 
     // toolChains = project.getExtensions().getByType(NativeToolChainRegistryInternal.class);
-//    logger.debug( "platforms:       " + platforms.withType(NativePlatform.class));
-//    logger.debug( "nativePlatforms: " + nativePlatforms.defaultPlatformDefinitions());
+//  logger.debug( "platforms:       " + platforms.withType(NativePlatform.class));
+//  logger.debug( "nativePlatforms: " + nativePlatforms.defaultPlatformDefinitions());
     allPlatforms.addAll(platforms.withType(NativePlatform.class));
     allPlatforms.addAll(nativePlatforms.defaultPlatformDefinitions());
-//    logger.debug( "allPlatforms: " + allPlatforms);
+//  logger.debug( "allPlatforms: " + allPlatforms);
 
     for (NativePlatform platform : allPlatforms) {
       for (BuildType buildType : project.getExtensions().getByType(BuildTypeContainer.class)) {
@@ -111,5 +113,3 @@ class JFalkPrebuiltLibrary implements PrebuiltLibrary {
 //        return binaries;
 //    }
 //}
-
-

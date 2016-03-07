@@ -22,7 +22,13 @@ import org.gradle.nativeplatform.BuildType;
 import org.gradle.nativeplatform.platform.NativePlatform;
 
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.internal.file.collections.SimpleFileCollection;
+import org.gradle.api.internal.file.DefaultSourceDirectorySet;
+
+import java.io.File;
+import java.util.Collection;
+import java.util.ArrayList;
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -33,8 +39,8 @@ import org.slf4j.LoggerFactory
 class JFalkStaticLibraryBinary implements StaticLibraryBinary {
 
   private final JFalkPrebuiltLibrary parent;
-
   private final Logger               logger;
+  private final SourceDirectorySet   headers;
 
   // Properties required by gradle
   private final String               name;
@@ -45,6 +51,7 @@ class JFalkStaticLibraryBinary implements StaticLibraryBinary {
   public JFalkStaticLibraryBinary(JFalkPrebuiltLibrary parent, Flavor flavor, NativePlatform platform, BuildType buildType) {
     this.parent    = parent;
     this.logger    = LoggerFactory.getLogger(this.class);
+    this.headers   = new DefaultSourceDirectorySet("headers", parent.parentProject.fileResolver);
     this.name      = parent.name;
     this.flavor    = flavor;
     this.platform  = platform;
@@ -67,7 +74,12 @@ class JFalkStaticLibraryBinary implements StaticLibraryBinary {
 
   FileCollection getHeaderDirs() {
     logger.debug( "JFalkStaticLibraryBinary::getHeaderDirs() [CALLED]");
-    return new SimpleFileCollection(parent.headers.getSrcDirs());
+    Collection<File> retval = new ArrayList<File>();
+    retval.addAll(headers.getSrcDirs());
+    retval.addAll(parent.headers.getSrcDirs());
+    retval.each { entry ->
+      logger.debug("  header dir: " + entry); }
+    return new SimpleFileCollection(retval);
   }
 
   FileCollection getLinkFiles() {
