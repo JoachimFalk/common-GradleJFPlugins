@@ -22,16 +22,28 @@ import org.gradle.nativeplatform.platform.NativePlatform;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.internal.file.collections.SimpleFileCollection;
 
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
+import JFalkPrebuiltLibrary;
+
 /// A {@link NativeLibrary} that has been compiled and archived into a static library.
 class JFalkStaticLibraryBinary implements StaticLibraryBinary {
 
-  private final String          name;
-  private final Flavor          flavor;
-  private final NativePlatform  platform;
-  private final BuildType       buildType;
+  private final JFalkPrebuiltLibrary parent;
 
-  public JFalkStaticLibraryBinary(String name, Flavor flavor, NativePlatform platform, BuildType buildType) {
-    this.name      = name;
+  private final Logger               logger;
+
+  // Properties required by gradle
+  private final String               name;
+  private final Flavor               flavor;
+  private final NativePlatform       platform;
+  private final BuildType            buildType;
+
+  public JFalkStaticLibraryBinary(JFalkPrebuiltLibrary parent, Flavor flavor, NativePlatform platform, BuildType buildType) {
+    this.parent    = parent;
+    this.logger    = LoggerFactory.getLogger(this.class);
+    this.name      = parent.name;
     this.flavor    = flavor;
     this.platform  = platform;
     this.buildType = buildType;
@@ -52,17 +64,17 @@ class JFalkStaticLibraryBinary implements StaticLibraryBinary {
   BuildType getBuildType() { return buildType; }
 
   FileCollection getHeaderDirs() {
-    println "JFalkStaticLibraryBinary::getHeaderDirs() [CALLED]";
-    return new SimpleFileCollection();
+    logger.debug( "JFalkStaticLibraryBinary::getHeaderDirs() [CALLED]");
+    return new SimpleFileCollection(parent.headers.getSrcDirs());
   }
 
   FileCollection getLinkFiles() {
-    println "JFalkStaticLibraryBinary::getLinkFiles() [CALLED]";
+    logger.debug( "JFalkStaticLibraryBinary::getLinkFiles() [CALLED]");
     return new SimpleFileCollection();
   }
 
   FileCollection getRuntimeFiles() {
-    println "JFalkStaticLibraryBinary::getRuntimeFiles() [CALLED]";
+    logger.debug( "JFalkStaticLibraryBinary::getRuntimeFiles() [CALLED]");
     return new SimpleFileCollection();
   }
 
@@ -70,8 +82,8 @@ class JFalkStaticLibraryBinary implements StaticLibraryBinary {
 
   /// The static library file. 
   File getStaticLibraryFile() {
-    println "JFalkStaticLibraryBinary::getStaticLibraryFile() [CALLED]";
-    return null;
+    logger.debug( "JFalkStaticLibraryBinary::getStaticLibraryFile() [CALLED]");
+    return staticLibraryFile;
   }
 
   // Model configuration properties.

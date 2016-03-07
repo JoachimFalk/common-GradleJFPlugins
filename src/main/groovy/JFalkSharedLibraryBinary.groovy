@@ -22,16 +22,28 @@ import org.gradle.nativeplatform.platform.NativePlatform;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.internal.file.collections.SimpleFileCollection;
 
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
+import JFalkPrebuiltLibrary;
+
 /// A {@link NativeLibrary} that has been compiled and linked as a shared library.
 class JFalkSharedLibraryBinary implements SharedLibraryBinary {
 
-  private final String          name;
-  private final Flavor          flavor;
-  private final NativePlatform  platform;
-  private final BuildType       buildType;
+  private final JFalkPrebuiltLibrary parent;
 
-  public JFalkSharedLibraryBinary(String name, Flavor flavor, NativePlatform platform, BuildType buildType) {
-    this.name      = name;
+  private final Logger               logger;
+
+  // Properties required by gradle
+  private final String               name;
+  private final Flavor               flavor;
+  private final NativePlatform       platform;
+  private final BuildType            buildType;
+
+  public JFalkSharedLibraryBinary(JFalkPrebuiltLibrary parent, Flavor flavor, NativePlatform platform, BuildType buildType) {
+    this.parent    = parent;
+    this.logger    = LoggerFactory.getLogger(this.class);
+    this.name      = parent.name;
     this.flavor    = flavor;
     this.platform  = platform;
     this.buildType = buildType;
@@ -52,17 +64,19 @@ class JFalkSharedLibraryBinary implements SharedLibraryBinary {
   BuildType getBuildType() { return buildType; }
 
   FileCollection getHeaderDirs() {
-    println "JFalkSharedLibraryBinary::getHeaderDirs() [CALLED]";
-    return new SimpleFileCollection();
+    logger.debug( "JFalkSharedLibraryBinary::getHeaderDirs() [CALLED]");
+    SimpleFileCollection retval = new SimpleFileCollection(parent.headers.getSrcDirs());
+
+    return retval;
   }
 
   FileCollection getLinkFiles() {
-    println "JFalkSharedLibraryBinary::getLinkFiles() [CALLED]";
+    logger.debug( "JFalkSharedLibraryBinary::getLinkFiles() [CALLED]");
     return new SimpleFileCollection();
   }
 
   FileCollection getRuntimeFiles() {
-    println "JFalkSharedLibraryBinary::getRuntimeFiles() [CALLED]";
+    logger.debug( "JFalkSharedLibraryBinary::getRuntimeFiles() [CALLED]");
     return new SimpleFileCollection();
   }
 
@@ -70,14 +84,14 @@ class JFalkSharedLibraryBinary implements SharedLibraryBinary {
 
   /// The shared library file.
   File getSharedLibraryFile() {
-    println "JFalkSharedLibraryBinary::getSharedLibraryFile() [CALLED]";
-    return null;
+    logger.debug( "JFalkSharedLibraryBinary::getSharedLibraryFile() [CALLED]");
+    return sharedLibraryFile;
   }
 
   /// The shared library link file.
   File getSharedLibraryLinkFile() {
-    println "JFalkSharedLibraryBinary::getSharedLibraryLinkFile() [CALLED]";
-    return null;
+    logger.debug( "JFalkSharedLibraryBinary::getSharedLibraryLinkFile() [CALLED]");
+    return sharedLibraryFile;
   }
 
   // Model configuration properties.
