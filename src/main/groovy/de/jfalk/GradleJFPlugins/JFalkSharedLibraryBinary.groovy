@@ -84,16 +84,16 @@ class JFalkSharedLibraryBinary implements SharedLibraryBinary {
 
   FileCollection getLinkFiles() {
     logger.debug("JFalkSharedLibraryBinary::getLinkFiles() [CALLED]");
-    if (sharedLibraryFile != null)
-      return new SimpleFileCollection(sharedLibraryFile);
+    if (getSharedLibraryFile() != null)
+      return new SimpleFileCollection(getSharedLibraryFile());
     else
       return new SimpleFileCollection();
   }
 
   FileCollection getRuntimeFiles() {
     logger.debug("JFalkSharedLibraryBinary::getRuntimeFiles() [CALLED]");
-    if (sharedLibraryFile != null)
-      return new SimpleFileCollection(sharedLibraryFile);
+    if (getSharedLibraryFile() != null)
+      return new SimpleFileCollection(getSharedLibraryFile());
     else
       return new SimpleFileCollection();
   }
@@ -103,17 +103,15 @@ class JFalkSharedLibraryBinary implements SharedLibraryBinary {
   /// The shared library file.
   File getSharedLibraryFile() {
     logger.debug("JFalkSharedLibraryBinary::getSharedLibraryFile() [CALLED]");
-    return sharedLibraryFile;
+    return libraryFile;
   }
 
   /// The shared library link file.
   File getSharedLibraryLinkFile() {
     logger.debug("JFalkSharedLibraryBinary::getSharedLibraryLinkFile() [CALLED]");
-    return sharedLibraryFile;
+    return libraryFile;
   }
 
   // Model configuration properties.
-  private File sharedLibraryFile;
+  private File libraryFile;
 }
-
-

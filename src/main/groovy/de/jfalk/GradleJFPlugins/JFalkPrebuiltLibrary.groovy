@@ -73,7 +73,7 @@ class JFalkPrebuiltLibrary implements PrebuiltLibrary {
     for (NativePlatform platform : allPlatforms) {
       for (BuildType buildType : project.getExtensions().getByType(BuildTypeContainer.class)) {
         for (Flavor flavor : project.getExtensions().getByType(FlavorContainer.class)) {
-          println "FLUMMY: " + platform + " " + buildType + " " + flavor
+          logger.debug("BINARY "+name+" on platform: " + platform + " " + buildType + " " + flavor);
           binaries.add(new JFalkStaticLibraryBinary(this, flavor, platform, buildType));
           binaries.add(new JFalkSharedLibraryBinary(this, flavor, platform, buildType));
         }

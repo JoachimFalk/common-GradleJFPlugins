@@ -84,7 +84,10 @@ class JFalkStaticLibraryBinary implements StaticLibraryBinary {
 
   FileCollection getLinkFiles() {
     logger.debug( "JFalkStaticLibraryBinary::getLinkFiles() [CALLED]");
-    return new SimpleFileCollection();
+    if (getStaticLibraryFile() != null)
+      return new SimpleFileCollection(getStaticLibraryFile());
+    else
+      return new SimpleFileCollection();
   }
 
   FileCollection getRuntimeFiles() {
@@ -97,9 +100,9 @@ class JFalkStaticLibraryBinary implements StaticLibraryBinary {
   /// The static library file. 
   File getStaticLibraryFile() {
     logger.debug( "JFalkStaticLibraryBinary::getStaticLibraryFile() [CALLED]");
-    return staticLibraryFile;
+    return libraryFile;
   }
 
   // Model configuration properties.
-  private File staticLibraryFile;
+  private File libraryFile;
 }
