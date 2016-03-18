@@ -64,11 +64,11 @@ class JFalkPrebuiltLibrary implements PrebuiltLibrary {
     Set<NativePlatform> allPlatforms = new LinkedHashSet<NativePlatform>();
 
     // toolChains = project.getExtensions().getByType(NativeToolChainRegistryInternal.class);
-//  logger.debug( "platforms:       " + platforms.withType(NativePlatform.class));
-//  logger.debug( "nativePlatforms: " + nativePlatforms.defaultPlatformDefinitions());
+//  logger.debug("platforms:       " + platforms.withType(NativePlatform.class));
+//  logger.debug("nativePlatforms: " + nativePlatforms.defaultPlatformDefinitions());
     allPlatforms.addAll(platforms.withType(NativePlatform.class));
     allPlatforms.addAll(nativePlatforms.defaultPlatformDefinitions());
-//  logger.debug( "allPlatforms: " + allPlatforms);
+//  logger.debug("allPlatforms: " + allPlatforms);
 
     for (NativePlatform platform : allPlatforms) {
       for (BuildType buildType : project.getExtensions().getByType(BuildTypeContainer.class)) {

@@ -73,7 +73,7 @@ class JFalkStaticLibraryBinary implements StaticLibraryBinary {
   BuildType getBuildType() { return buildType; }
 
   FileCollection getHeaderDirs() {
-    logger.debug( "JFalkStaticLibraryBinary::getHeaderDirs() [CALLED]");
+    logger.debug("JFalkStaticLibraryBinary::getHeaderDirs() [CALLED]");
     Collection<File> retval = new ArrayList<File>();
     retval.addAll(headers.getSrcDirs());
     retval.addAll(parent.headers.getSrcDirs());
@@ -83,7 +83,7 @@ class JFalkStaticLibraryBinary implements StaticLibraryBinary {
   }
 
   FileCollection getLinkFiles() {
-    logger.debug( "JFalkStaticLibraryBinary::getLinkFiles() [CALLED]");
+    logger.debug("JFalkStaticLibraryBinary::getLinkFiles() [CALLED]");
     if (getStaticLibraryFile() != null)
       return new SimpleFileCollection(getStaticLibraryFile());
     else
@@ -91,7 +91,7 @@ class JFalkStaticLibraryBinary implements StaticLibraryBinary {
   }
 
   FileCollection getRuntimeFiles() {
-    logger.debug( "JFalkStaticLibraryBinary::getRuntimeFiles() [CALLED]");
+    logger.debug("JFalkStaticLibraryBinary::getRuntimeFiles() [CALLED]");
     return new SimpleFileCollection();
   }
 
@@ -99,7 +99,7 @@ class JFalkStaticLibraryBinary implements StaticLibraryBinary {
 
   /// The static library file. 
   File getStaticLibraryFile() {
-    logger.debug( "JFalkStaticLibraryBinary::getStaticLibraryFile() [CALLED]");
+    logger.debug("JFalkStaticLibraryBinary::getStaticLibraryFile() [CALLED]");
     return libraryFile;
   }
 
