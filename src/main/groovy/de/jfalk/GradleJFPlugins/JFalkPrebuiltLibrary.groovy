@@ -20,7 +20,8 @@ import org.gradle.api.Project;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.internal.DefaultDomainObjectSet;
 import org.gradle.api.file.SourceDirectorySet;
-import org.gradle.api.internal.file.DefaultSourceDirectorySet;
+import org.gradle.api.internal.file.SourceDirectorySetFactory;
+//import org.gradle.api.internal.file.DefaultSourceDirectorySet;
 
 import org.gradle.nativeplatform.PrebuiltLibrary;
 import org.gradle.nativeplatform.NativeLibraryBinary;
@@ -48,14 +49,15 @@ class JFalkPrebuiltLibrary implements PrebuiltLibrary {
   private final DomainObjectSet<NativeLibraryBinary>  binaries;
 
   public JFalkPrebuiltLibrary(String name, Project project) {
+    ServiceRegistry serviceRegistry = project.getServices();
+
     this.parentProject = project;
     this.logger        = LoggerFactory.getLogger(this.class);
     this.name          = name;
-    this.headers       = new DefaultSourceDirectorySet("headers", parentProject.fileResolver);
+    this.headers       = serviceRegistry.get(SourceDirectorySetFactory.class).create("headers");
     this.binaries      = new DefaultDomainObjectSet<NativeLibraryBinary>(NativeLibraryBinary.class);
 
 //  ModelRegistry   modelRegistry   = project.getModelRegistry();
-    ServiceRegistry serviceRegistry = project.getServices();
 
     NativePlatforms   nativePlatforms = serviceRegistry.get(NativePlatforms.class);
 //  FileResolver      fileResolver    = serviceRegistry.get(FileResolver.class);

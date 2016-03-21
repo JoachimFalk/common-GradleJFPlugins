@@ -16,15 +16,19 @@
 
 package de.jfalk.GradleJFPlugins;
 
+import org.gradle.internal.service.ServiceRegistry;
+
 import org.gradle.nativeplatform.SharedLibraryBinary;
 import org.gradle.nativeplatform.Flavor;
 import org.gradle.nativeplatform.BuildType;
 import org.gradle.nativeplatform.platform.NativePlatform;
 
 import org.gradle.api.file.FileCollection;
-import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.internal.file.collections.SimpleFileCollection;
-import org.gradle.api.internal.file.DefaultSourceDirectorySet;
+
+import org.gradle.api.file.SourceDirectorySet;
+import org.gradle.api.internal.file.SourceDirectorySetFactory;
+//import org.gradle.api.internal.file.DefaultSourceDirectorySet;
 
 import java.io.File;
 import java.util.Collection;
@@ -49,9 +53,11 @@ class JFalkSharedLibraryBinary implements SharedLibraryBinary {
   private final BuildType            buildType;
 
   public JFalkSharedLibraryBinary(JFalkPrebuiltLibrary parent, Flavor flavor, NativePlatform platform, BuildType buildType) {
+    ServiceRegistry serviceRegistry = parent.parentProject.getServices();
+
     this.parent    = parent;
     this.logger    = LoggerFactory.getLogger(this.class);
-    this.headers   = new DefaultSourceDirectorySet("headers", parent.parentProject.fileResolver);
+    this.headers   = serviceRegistry.get(SourceDirectorySetFactory.class).create("headers");
     this.name      = parent.name;
     this.flavor    = flavor;
     this.platform  = platform;
