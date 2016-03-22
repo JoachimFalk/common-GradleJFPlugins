@@ -111,6 +111,11 @@ class JFCppPlugin implements Plugin<Project> {
 //  project.task('hello') << {
 //    println "Hello from the GreetingPlugin"
 //  }
+
+    // Fake imports in the project applying this plugin.
+    project.ext.JFNativeLibrarySpec  = JFNativeLibrarySpec.class;
+    // new JFalkPrebuiltLibrary(...) does not work in the build.grald! Why?
+    project.ext.JFalkPrebuiltLibrary = JFalkPrebuiltLibrary.class; 
   }
 
   static class Rules extends RuleSource {
