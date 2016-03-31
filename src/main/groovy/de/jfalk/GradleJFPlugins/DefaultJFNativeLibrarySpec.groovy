@@ -16,6 +16,11 @@
 
 package de.jfalk.GradleJFPlugins;
 
+import org.gradle.platform.base.PlatformAwareComponentSpec;
+
+
+import org.gradle.nativeplatform.Flavor;
+import org.gradle.nativeplatform.BuildType;
 import org.gradle.nativeplatform.NativeLibraryRequirement;
 import org.gradle.nativeplatform.NativeLibrarySpec;
 import org.gradle.nativeplatform.internal.AbstractTargetedNativeComponentSpec;
@@ -29,10 +34,27 @@ interface JFNativeLibrarySpec extends NativeLibrarySpec {
 
 public class DefaultJFNativeLibrarySpec extends AbstractTargetedNativeComponentSpec implements JFNativeLibrarySpec {
   private final Logger logger;
+  protected boolean enableFlavorsAndBuildTypes = false;
 
   public DefaultJFNativeLibrarySpec() {
     this.logger = LoggerFactory.getLogger(this.class);
     logger.debug("DefaultJFNativeLibrarySpec::DefaultJFNativeLibrarySpec() [CALLED]");
+  }
+
+  @Override
+  public Set<Flavor> chooseFlavors(Set<? extends Flavor> candidates) {
+    if (enableFlavorsAndBuildTypes)
+      return super.chooseFlavors(candidates);
+    else
+      return new HashSet<Flavor>();
+  }
+
+  @Override
+  public Set<BuildType> chooseBuildTypes(Set<? extends BuildType> candidates) {
+    if (enableFlavorsAndBuildTypes)
+      return super.chooseBuildTypes(candidates);
+    else
+      return new HashSet<BuildType>();
   }
 
 //// This methods is used by the AbstractComponentSpec base class in getDisplayName().

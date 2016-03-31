@@ -23,7 +23,7 @@ class JFHelperFunctions implements Plugin<Project> {
 
   static void analysis(String prefix, Object obj) {
     println "================================================================================"
-    println prefix+": " + obj 
+    println prefix+" of " + obj.getClass() + ": " + obj 
     try {
       obj.properties.sort().each  { prop, val ->
         println prefix+"."+prop+": " + val

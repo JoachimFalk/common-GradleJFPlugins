@@ -38,10 +38,12 @@ import org.gradle.internal.service.ServiceRegistry;
 import org.gradle.model.Defaults;
 import org.gradle.model.Each;
 import org.gradle.model.Finalize;
+import org.gradle.model.internal.core.ModelNode;
 import org.gradle.model.internal.core.ModelNodes;
 import org.gradle.model.internal.core.MutableModelNode;
 import org.gradle.model.internal.core.NodeBackedModelMap;
 import org.gradle.model.internal.registry.ModelRegistry;
+//import org.gradle.model.internal.registry.ModelElementNode;
 import org.gradle.model.ModelMap;
 import org.gradle.model.Mutate;
 import org.gradle.model.RuleSource;
@@ -113,12 +115,17 @@ class JFCppPlugin implements Plugin<Project> {
 //  }
 
     // Fake imports in the project applying this plugin.
-    project.ext.JFNativeLibrarySpec  = JFNativeLibrarySpec.class;
+    project.ext.JFNativeLibrarySpec       = JFNativeLibrarySpec.class;
+    project.ext.JFSharedLibraryBinarySpec = JFSharedLibraryBinarySpec.class;
+    project.ext.JFStaticLibraryBinarySpec = JFStaticLibraryBinarySpec.class;
     // new JFalkPrebuiltLibrary(...) does not work in the build.grald! Why?
     project.ext.JFalkPrebuiltLibrary = JFalkPrebuiltLibrary.class; 
   }
 
   static class Rules extends RuleSource {
+
+    private static final Logger logger = LoggerFactory.getLogger(Rules.class);
+
     @ComponentType
     void nativeLibrary(TypeBuilder<JFNativeLibrarySpec> builder) {
       builder.defaultImplementation(DefaultJFNativeLibrarySpec.class);
@@ -144,20 +151,46 @@ class JFCppPlugin implements Plugin<Project> {
         FlavorContainer                   flavors,
         ServiceRegistry                   serviceRegistry
     ) {
+      logger.debug("createBinariesForJFNativeLibrarySpec(...) for " + nativeComponent + " [CALLED]");
 //    binaries.create("${component.name}Binary", SampleBinary)
-      println "createBinariesForJFNativeLibrarySpec: " + nativeComponent;
+      JFHelperFunctions.analysis("nativeComponent", nativeComponent);
+//    JFHelperFunctions.analysis("nativeComponent.getBackingNode(): ", nativeComponent.getBackingNode());
 //    JFHelperFunctions.analysis("binaries", binaries);
+//    JFHelperFunctions.analysis("binaries.getBackingNode()", binaries.getBackingNode());
 
-      NodeBackedModelMap<NativeLibraryBinarySpec> bins = (NodeBackedModelMap<NativeLibraryBinarySpec>) binaries;
-      Set<String> links = new HashSet<String>(bins.getBackingNode().getLinkNames(ModelNodes.all()));
-      for (String link : links) {
-        bins.getBackingNode().removeLink(link);
-//      println "YYYY: " + link;
-      }
+//    L1:{
+//      println nativeComponent.getBackingNode();
+//      Set<String> links = new HashSet<String>(nativeComponent.getBackingNode().getLinkNames(ModelNodes.all()));
+//      for (String link : links) {
+//        println "  ZZZZ: " + link;
+//      }
+//    }
+//    L2:{
+//      NodeBackedModelMap<NativeLibraryBinarySpec> bins = (NodeBackedModelMap<NativeLibraryBinarySpec>) binaries;
+//
+////    for (MutableModelNode node : bins.getBackingNode().getLinks(ModelNodes.all())) {
+////      node.modelRegistry.transition(node, ModelNode.State.Created, true);
+////      if (node.getPrivateData() instanceof SharedLibraryBinarySpec) {
+////        JFSharedLibraryBinarySpec.create(JFSharedLibraryBinarySpec.class, DefaultJFSharedLibraryBinarySpec.class, node.getPrivateData().getIdentifier(), node);
+//////      node.setPrivateData(new DefaultJFSharedLibraryBinarySpec());
+////      } else if (node.getPrivateData() instanceof StaticLibraryBinarySpec) {
+////        JFStaticLibraryBinarySpec.create(JFStaticLibraryBinarySpec.class, DefaultJFStaticLibraryBinarySpec.class, node.getPrivateData().getIdentifier(), node);
+//////      node.setPrivateData(new DefaultJFStaticLibraryBinarySpec());
+////      } else {
+////        assert "Oops, unknown node type" + node.getPrivateData().getClass();
+////      }
+//////    JFHelperFunctions.analysis("node.getPrivateData()", node.getPrivateData());
+////    }
+//      for (String link : bins.getBackingNode().getLinkNames(ModelNodes.all())) {
+//        bins.getBackingNode().removeLink(link);
+//        logger.debug("Removing model element '" + bins.getBackingNode().getPath().child(link)+"'");
+//      }
+//    }
+      nativeComponent.getBackingNode().getPrivateData().enableFlavorsAndBuildTypes = true;
+
       NativePlatforms nativePlatforms = serviceRegistry.get(NativePlatforms.class);
       NativeDependencyResolver nativeDependencyResolver = serviceRegistry.get(NativeDependencyResolver.class);
       FileCollectionFactory fileCollectionFactory = serviceRegistry.get(FileCollectionFactory.class);
-//    NativeComponentRules.createBinariesImpl(nativeComponent, platforms, buildTypes, flavors, nativePlatforms, nativeDependencyResolver, fileCollectionFactory);
       List<NativePlatform> resolvedPlatforms = NativeComponentRules.resolvePlatforms(nativeComponent, nativePlatforms, platforms);
 
       for (NativePlatform platform : resolvedPlatforms) {
@@ -180,6 +213,25 @@ class JFCppPlugin implements Plugin<Project> {
           }
         }
       }
+      logger.debug("createBinariesForJFNativeLibrarySpec(...) for " + nativeComponent + " [DONE]");
+    }
+
+    @Defaults
+    void defaultsForJFNativeLibrarySpec(@Each final JFNativeLibrarySpec nativeComponent) {
+      logger.debug("defaultsForJFNativeLibrarySpec(...) for " + nativeComponent + " [CALLED]");
+      for (NativeLibraryBinarySpec lib : nativeComponent.getBinaries()) {
+        println "defaultsForJFNativeLibrarySpec:   " + lib;
+      }
+      logger.debug("defaultsForJFNativeLibrarySpec(...) for " + nativeComponent + " [DONE]");
+    }
+
+    @Mutate
+    void mutateForJFNativeLibrarySpec(@Each final JFNativeLibrarySpec nativeComponent) {
+      logger.debug("mutateForJFNativeLibrarySpec(...) for " + nativeComponent + " [CALLED]");
+      for (NativeLibraryBinarySpec lib : nativeComponent.getBinaries()) {
+        println "mutateForJFNativeLibrarySpec:   " + lib;
+      }
+      logger.debug("mutateForJFNativeLibrarySpec(...) for " + nativeComponent + " [DONE]");
     }
 
 //  @Finalize
@@ -192,14 +244,6 @@ class JFCppPlugin implements Plugin<Project> {
 //  @Defaults
 //  void flummy(ServiceRegistry serviceRegistry, FlavorContainer flavors, PlatformContainer platforms, BuildTypeContainer buildTypes) {
 //
-//  }
-
-//  @Defaults
-//  void flammy(@Each final JFNativeLibrarySpec component) {
-//    println "flammy: " + component;
-//    for (NativeLibraryBinarySpec lib : component.getBinaries()) {
-//      println "flammy:   " + lib;
-//    }
 //  }
 
 //  @Finalize

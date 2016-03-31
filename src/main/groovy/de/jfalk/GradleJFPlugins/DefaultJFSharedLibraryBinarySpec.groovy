@@ -20,12 +20,22 @@ import org.gradle.nativeplatform.SharedLibraryBinarySpec;
 import org.gradle.nativeplatform.internal.DefaultSharedLibraryBinarySpec;
 
 interface JFSharedLibraryBinarySpec extends SharedLibraryBinarySpec {
-  static final String flummy;
+
+  String getFlummy();
+
+  void setFlummy(String flummy);
 }
 
 class DefaultJFSharedLibraryBinarySpec extends DefaultSharedLibraryBinarySpec implements JFSharedLibraryBinarySpec {
 
+  private String flummy;
+
+  @Override
+  String getFlummy()
+    { return this.flummy; }
+
+  @Override
+  void setFlummy(String flummy)
+    { this.flummy = flummy; }
 
 }
-
-

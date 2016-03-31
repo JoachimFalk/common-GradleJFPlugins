@@ -20,10 +20,22 @@ import org.gradle.nativeplatform.StaticLibraryBinarySpec;
 import org.gradle.nativeplatform.internal.DefaultStaticLibraryBinarySpec;
 
 interface JFStaticLibraryBinarySpec extends StaticLibraryBinarySpec {
-  static final String flammy;
+
+  String getFlammy();
+
+  void setFlammy(String flammy);
 }
 
 class DefaultJFStaticLibraryBinarySpec extends DefaultStaticLibraryBinarySpec implements JFStaticLibraryBinarySpec {
 
+  private String flammy;
+
+  @Override
+  String getFlammy()
+    { return this.flammy; }
+
+  @Override
+  void setFlammy(String flammy)
+    { this.flammy = flammy; }
 
 }
