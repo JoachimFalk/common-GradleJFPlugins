@@ -27,17 +27,21 @@ import javax.inject.Inject;
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+import org.gradle.language.base.internal.LanguageSourceSetInternal;
+
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.internal.file.FileCollectionFactory;
 import org.gradle.api.InvalidUserDataException;
 import org.gradle.api.Named;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.tasks.TaskContainer;
 import org.gradle.internal.reflect.Instantiator;
 import org.gradle.internal.service.ServiceRegistry;
 import org.gradle.model.Defaults;
 import org.gradle.model.Each;
 import org.gradle.model.Finalize;
+import org.gradle.model.Managed;
 import org.gradle.model.internal.core.ModelNode;
 import org.gradle.model.internal.core.ModelNodes;
 import org.gradle.model.internal.core.MutableModelNode;
@@ -47,6 +51,8 @@ import org.gradle.model.internal.registry.ModelRegistry;
 import org.gradle.model.ModelMap;
 import org.gradle.model.Mutate;
 import org.gradle.model.RuleSource;
+import org.gradle.nativeplatform.NativeDependencySet;
+import org.gradle.nativeplatform.NativeBinarySpec;
 import org.gradle.nativeplatform.BuildType;
 import org.gradle.nativeplatform.BuildTypeContainer;
 import org.gradle.nativeplatform.Flavor;
@@ -64,6 +70,7 @@ import org.gradle.nativeplatform.platform.NativePlatform;
 import org.gradle.nativeplatform.SharedLibraryBinarySpec;
 import org.gradle.nativeplatform.StaticLibraryBinarySpec;
 import org.gradle.nativeplatform.toolchain.internal.NativeToolChainRegistryInternal;
+import org.gradle.platform.base.BinaryContainer;
 import org.gradle.platform.base.BinaryType;
 import org.gradle.platform.base.ComponentBinaries;
 import org.gradle.platform.base.ComponentSpec;
@@ -75,6 +82,23 @@ import org.gradle.platform.base.internal.BinaryNamingScheme;
 import org.gradle.platform.base.internal.PlatformRequirement;
 import org.gradle.platform.base.internal.PlatformResolvers;
 import org.gradle.platform.base.internal.DefaultBinaryNamingScheme;
+
+//@Managed
+trait JFNativeBinarySpecView implements NativeBinarySpec {
+  String internalData;
+
+  String getInternalData() {
+    return this.internalData;
+  }
+  
+  void setInternalData(String internal) {
+     this.internalData = internal;
+  }
+
+//void flummy() {
+//  printn "flummy() [CALLED]";
+//}
+}
 
 class JFCppPlugin implements Plugin<Project> {
   private final Logger          logger;
@@ -141,6 +165,11 @@ class JFCppPlugin implements Plugin<Project> {
       builder.defaultImplementation(DefaultJFStaticLibraryBinarySpec.class);
     }
 
+    @ComponentType
+    void nativeBinary(TypeBuilder<NativeBinarySpec> builder) {
+      builder.internalView(JFNativeBinarySpecView.class);
+    }
+
     @ComponentBinaries
     void createBinariesForJFNativeLibrarySpec(
         ModelMap<NativeLibraryBinarySpec> binaries, // Create this
@@ -153,7 +182,7 @@ class JFCppPlugin implements Plugin<Project> {
     ) {
       logger.debug("createBinariesForJFNativeLibrarySpec(...) for " + nativeComponent + " [CALLED]");
 //    binaries.create("${component.name}Binary", SampleBinary)
-      JFHelperFunctions.analysis("nativeComponent", nativeComponent);
+//    JFHelperFunctions.analysis("nativeComponent", nativeComponent);
 //    JFHelperFunctions.analysis("nativeComponent.getBackingNode(): ", nativeComponent.getBackingNode());
 //    JFHelperFunctions.analysis("binaries", binaries);
 //    JFHelperFunctions.analysis("binaries.getBackingNode()", binaries.getBackingNode());
@@ -216,23 +245,78 @@ class JFCppPlugin implements Plugin<Project> {
       logger.debug("createBinariesForJFNativeLibrarySpec(...) for " + nativeComponent + " [DONE]");
     }
 
-    @Defaults
-    void defaultsForJFNativeLibrarySpec(@Each final JFNativeLibrarySpec nativeComponent) {
-      logger.debug("defaultsForJFNativeLibrarySpec(...) for " + nativeComponent + " [CALLED]");
-      for (NativeLibraryBinarySpec lib : nativeComponent.getBinaries()) {
-        println "defaultsForJFNativeLibrarySpec:   " + lib;
-      }
-      logger.debug("defaultsForJFNativeLibrarySpec(...) for " + nativeComponent + " [DONE]");
+//  @Defaults
+//  void defaultsForJFNativeLibrarySpec(@Each final JFNativeLibrarySpec nativeComponent) {
+//    logger.debug("defaultsForJFNativeLibrarySpec(...) for " + nativeComponent + " [CALLED]");
+//    for (NativeLibraryBinarySpec lib : nativeComponent.getBinaries()) {
+//      println "defaultsForJFNativeLibrarySpec:   " + lib;
+//    }
+//    logger.debug("defaultsForJFNativeLibrarySpec(...) for " + nativeComponent + " [DONE]");
+//  }
+
+//  @Mutate
+//  void mutateForJFNativeLibrarySpec(@Each final JFNativeLibrarySpec nativeComponent) {
+//    logger.debug("mutateForJFNativeLibrarySpec(...) for " + nativeComponent + " [CALLED]");
+//    for (NativeLibraryBinarySpec lib : nativeComponent.getBinaries()) {
+//      println "mutateForJFNativeLibrarySpec:   " + lib;
+//    }
+//    logger.debug("mutateForJFNativeLibrarySpec(...) for " + nativeComponent + " [DONE]");
+//  }
+
+//  @Finalize
+//  void finalizeForJFNativeLibrarySpec(@Each final JFNativeLibrarySpec nativeComponent) {
+//    logger.debug("finalizeForJFNativeLibrarySpec(...) for " + nativeComponent + " [CALLED]");
+//    for (NativeLibraryBinarySpec lib : nativeComponent.getBinaries()) {
+//      println "finalizeForJFNativeLibrarySpec:   " + lib;
+//    }
+//    logger.debug("finalizeForJFNativeLibrarySpec(...) for " + nativeComponent + " [DONE]");
+//  }
+
+//  @Mutate
+//  void mutateForNativeBinarySpec(@Each final NativeBinarySpec nativeBinary) {
+//    logger.debug("mutateForNativeBinarySpec(...) for " + nativeBinary + " [CALLED]");
+//    JFHelperFunctions.analysis("nativeBinary", nativeBinary);
+//    logger.debug("mutateForNativeBinarySpec(...) for " + nativeBinary + " [DONE]");
+//  }
+
+    @Finalize
+    void finalizeForNativeBinarySpec(@Each final JFNativeBinarySpecView nativeBinary) {
+      logger.debug("finalizeForNativeBinarySpec(...) for " + nativeBinary + " [CALLED]");
+      println "nativeBinary.class: " + nativeBinary.getClass();
+      println "nativeBinary.base: " + nativeBinary.getClass().getSuperclass();
+
+      println "nativeBinary.getBackingNode().class: " + nativeBinary.getBackingNode().getClass();
+      println "nativeBinary.getBackingNode().base: " + nativeBinary.getBackingNode().getClass().getSuperclass();
+
+      println "nativeBinary.getBackingNode().getPrivateData().class: " + nativeBinary.getBackingNode().getPrivateData().getClass();
+      println "nativeBinary.getBackingNode().getPrivateData().base: " + nativeBinary.getBackingNode().getPrivateData().getClass().getSuperclass();
+
+      nativeBinary.setInternalData("flummy");
+      println "nativeBinary.internalData: " + nativeBinary.internalData;
+
+//    nativeBinary.flummy();
+
+//    for (NativeDependencySet lib : nativeBinary.getLibs()) {
+//      println "lib.class: " + lib.getClass();
+//    }
+//    JFHelperFunctions.analysis("nativeBinary", nativeBinary);
+      logger.debug("finalizeForNativeBinarySpec(...) for " + nativeBinary + " [DONE]");
     }
 
-    @Mutate
-    void mutateForJFNativeLibrarySpec(@Each final JFNativeLibrarySpec nativeComponent) {
-      logger.debug("mutateForJFNativeLibrarySpec(...) for " + nativeComponent + " [CALLED]");
-      for (NativeLibraryBinarySpec lib : nativeComponent.getBinaries()) {
-        println "mutateForJFNativeLibrarySpec:   " + lib;
-      }
-      logger.debug("mutateForJFNativeLibrarySpec(...) for " + nativeComponent + " [DONE]");
-    }
+//  @Mutate
+//  void hix(final TaskContainer tasks, BinaryContainer binaries) {
+//    for (final NativeBinarySpec nativeBinary : binaries) {
+//      println "XXXX: " + nativeBinary;
+//      for (NativeDependencySet lib : nativeBinary.getLibs()) {
+//        println "XXXX:  lib.class: " + lib.getClass();
+//      }
+//    }
+//  }
+
+//  @Finalize
+//  void flummy(@Each LanguageSourceSetInternal languageSourceSet) {
+//    JFHelperFunctions.analysis("languageSourceSet", languageSourceSet);
+//  }
 
 //  @Finalize
 //  public void flummy(NativeToolChainRegistryInternal toolChains, FlavorContainer flavors, BuildTypeContainer buildTypes) {
@@ -261,25 +345,6 @@ class JFCppPlugin implements Plugin<Project> {
 //      println "flummy: " + component;
 //    }
 //    println "========================= flummy ========================="
-//  }
-    
-//  @ComponentType
-//  void register(TypeBuilder<ComponentWithValue> builder) {
-//    println "register(ComponentTypeBuilder<ComponentWithValue> builder) [CALLED]"
-//  }
-//  @BinaryType
-//  void register(BinaryTypeBuilder<BinaryWithValue> builder) {
-//    println "register(BinaryTypeBuilder<BinaryWithValue> builder) [CALLED]"
-//  }
-//    
-//  @ComponentBinaries
-//  void createBinaries(ModelMap<BinaryWithValue> binaries, ComponentWithValue component) {
-//    println "createBinaries(ModelMap<BinaryWithValue> binaries, ComponentWithValue component) [CALLED]"
-//    assert component.valueForBinary == "configured-value"
-//    binaries.create("myBinary") {
-//      assert component.valueForBinary == "configured-value"
-//      valueFromComponent = component.valueForBinary
-//    }
 //  }
   }
 
