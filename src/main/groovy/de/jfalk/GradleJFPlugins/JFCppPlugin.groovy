@@ -333,17 +333,14 @@ class JFCppPlugin implements Plugin<Project> {
     @Finalize
     void finalizeForNativeBinarySpec(@Each final JFNativeBinarySpecView nativeBinary) {
       logger.debug("finalizeForNativeBinarySpec(...) for " + nativeBinary + " [CALLED]");
-      println "nativeBinary.class: " + nativeBinary.getClass();
-      println "nativeBinary.base: " + nativeBinary.getClass().getSuperclass();
-
-      println "nativeBinary.getBackingNode().class: " + nativeBinary.getBackingNode().getClass();
-      println "nativeBinary.getBackingNode().base: " + nativeBinary.getBackingNode().getClass().getSuperclass();
-
-      println "nativeBinary.getBackingNode().getPrivateData().class: " + nativeBinary.getBackingNode().getPrivateData().getClass();
-      println "nativeBinary.getBackingNode().getPrivateData().base: " + nativeBinary.getBackingNode().getPrivateData().getClass().getSuperclass();
-
-      nativeBinary.setInternalData("flummy");
-      println "nativeBinary.internalData: " + nativeBinary.internalData;
+//    println "nativeBinary.class: " + nativeBinary.getClass();
+//    println "nativeBinary.base: " + nativeBinary.getClass().getSuperclass();
+//    println "nativeBinary.getBackingNode().class: " + nativeBinary.getBackingNode().getClass();
+//    println "nativeBinary.getBackingNode().base: " + nativeBinary.getBackingNode().getClass().getSuperclass();
+//    println "nativeBinary.getBackingNode().getPrivateData().class: " + nativeBinary.getBackingNode().getPrivateData().getClass();
+//   println "nativeBinary.getBackingNode().getPrivateData().base: " + nativeBinary.getBackingNode().getPrivateData().getClass().getSuperclass();
+//    nativeBinary.setInternalData("flummy");
+//    println "nativeBinary.internalData: " + nativeBinary.internalData;
 
 //    nativeBinary.flummy();
 
