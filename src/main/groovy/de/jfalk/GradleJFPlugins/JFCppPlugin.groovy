@@ -53,6 +53,7 @@ import org.gradle.model.Mutate;
 import org.gradle.model.RuleSource;
 import org.gradle.nativeplatform.NativeDependencySet;
 import org.gradle.nativeplatform.NativeBinarySpec;
+import org.gradle.nativeplatform.NativeExecutableBinarySpec;
 import org.gradle.nativeplatform.BuildType;
 import org.gradle.nativeplatform.BuildTypeContainer;
 import org.gradle.nativeplatform.Flavor;
@@ -139,9 +140,12 @@ class JFCppPlugin implements Plugin<Project> {
 //  }
 
     // Fake imports in the project applying this plugin.
-    project.ext.JFNativeLibrarySpec       = JFNativeLibrarySpec.class;
-    project.ext.JFSharedLibraryBinarySpec = JFSharedLibraryBinarySpec.class;
-    project.ext.JFStaticLibraryBinarySpec = JFStaticLibraryBinarySpec.class;
+    project.ext.JFNativeLibrarySpec          = JFNativeLibrarySpec.class;
+    project.ext.JFSharedLibraryBinarySpec    = JFSharedLibraryBinarySpec.class;
+    project.ext.JFStaticLibraryBinarySpec    = JFStaticLibraryBinarySpec.class;
+    project.ext.JFNativeExecutableSpec       = JFNativeExecutableSpec.class;
+    project.ext.JFNativeExecutableBinarySpec = JFNativeExecutableBinarySpec.class;
+
     // new JFalkPrebuiltLibrary(...) does not work in the build.grald! Why?
     project.ext.JFalkPrebuiltLibrary = JFalkPrebuiltLibrary.class; 
   }
@@ -163,6 +167,16 @@ class JFCppPlugin implements Plugin<Project> {
     @ComponentType
     void staticLibraryBinary(TypeBuilder<JFStaticLibraryBinarySpec> builder) {
       builder.defaultImplementation(DefaultJFStaticLibraryBinarySpec.class);
+    }
+
+    @ComponentType
+    void nativeExecutable(TypeBuilder<JFNativeExecutableSpec> builder) {
+      builder.defaultImplementation(DefaultJFNativeExecutableSpec.class);
+    }
+
+    @ComponentType
+    void executableBinary(TypeBuilder<JFNativeExecutableBinarySpec> builder) {
+      builder.defaultImplementation(DefaultJFNativeExecutableBinarySpec.class);
     }
 
     @ComponentType
@@ -243,6 +257,43 @@ class JFCppPlugin implements Plugin<Project> {
         }
       }
       logger.debug("createBinariesForJFNativeLibrarySpec(...) for " + nativeComponent + " [DONE]");
+    }
+
+    @ComponentBinaries
+    void createBinariesForJFNativeExecutableSpec(
+        ModelMap<NativeExecutableBinarySpec> binaries, // Create this
+        JFNativeExecutableSpec               nativeComponent, // From this input
+        // Via usage of the following factories and stuff.
+        PlatformResolvers                    platforms,
+        BuildTypeContainer                   buildTypes,
+        FlavorContainer                      flavors,
+        ServiceRegistry                      serviceRegistry
+    ) {
+      logger.debug("createBinariesForJFNativeExecutableSpec(...) for " + nativeComponent + " [CALLED]");
+      nativeComponent.getBackingNode().getPrivateData().enableFlavorsAndBuildTypes = true;
+
+      NativePlatforms nativePlatforms = serviceRegistry.get(NativePlatforms.class);
+      NativeDependencyResolver nativeDependencyResolver = serviceRegistry.get(NativeDependencyResolver.class);
+      FileCollectionFactory fileCollectionFactory = serviceRegistry.get(FileCollectionFactory.class);
+      List<NativePlatform> resolvedPlatforms = NativeComponentRules.resolvePlatforms(nativeComponent, nativePlatforms, platforms);
+
+      for (NativePlatform platform : resolvedPlatforms) {
+        BinaryNamingScheme namingScheme = DefaultBinaryNamingScheme.component(nativeComponent.getName());
+        namingScheme = namingScheme.withVariantDimension(platform, resolvedPlatforms);
+        Set<BuildType> targetBuildTypes = nativeComponent.chooseBuildTypes(buildTypes);
+        for (BuildType buildType : targetBuildTypes) {
+          BinaryNamingScheme namingSchemeWithBuildType = namingScheme.withVariantDimension(buildType, targetBuildTypes);
+          Set<Flavor> targetFlavors = nativeComponent.chooseFlavors(flavors);
+          for (Flavor flavor : targetFlavors) {
+            BinaryNamingScheme namingSchemeWithFlavor = namingScheme.withVariantDimension(flavor, targetFlavors);
+            NativeBinaries.createNativeBinary(
+              JFNativeExecutableBinarySpec.class, binaries, nativeDependencyResolver, fileCollectionFactory,
+              namingScheme.withBinaryType("Executable").withRole("executable", true),
+              platform, buildType, flavor);
+          }
+        }
+      }
+      logger.debug("createBinariesForJFNativeExecutableSpec(...) for " + nativeComponent + " [DONE]");
     }
 
 //  @Defaults

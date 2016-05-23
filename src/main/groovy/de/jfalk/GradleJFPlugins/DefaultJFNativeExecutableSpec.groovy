@@ -19,24 +19,22 @@ package de.jfalk.GradleJFPlugins;
 //import org.gradle.platform.base.PlatformAwareComponentSpec;
 import org.gradle.nativeplatform.Flavor;
 import org.gradle.nativeplatform.BuildType;
-import org.gradle.nativeplatform.NativeLibraryRequirement;
-import org.gradle.nativeplatform.NativeLibrarySpec;
+import org.gradle.nativeplatform.NativeExecutableSpec;
 import org.gradle.nativeplatform.internal.AbstractTargetedNativeComponentSpec;
-import org.gradle.nativeplatform.internal.ProjectNativeLibraryRequirement;
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-interface JFNativeLibrarySpec extends NativeLibrarySpec {
+interface JFNativeExecutableSpec extends NativeExecutableSpec {
 }
 
-public class DefaultJFNativeLibrarySpec extends AbstractTargetedNativeComponentSpec implements JFNativeLibrarySpec {
+public class DefaultJFNativeExecutableSpec extends AbstractTargetedNativeComponentSpec implements JFNativeExecutableSpec {
   private final Logger logger;
   protected boolean enableFlavorsAndBuildTypes = false;
 
-  public DefaultJFNativeLibrarySpec() {
+  public DefaultJFNativeExecutableSpec() {
     this.logger = LoggerFactory.getLogger(this.class);
-    logger.debug("DefaultJFNativeLibrarySpec::DefaultJFNativeLibrarySpec() [CALLED]");
+    logger.debug("DefaultJFNativeExecutableSpec::DefaultJFNativeExecutableSpec() [CALLED]");
   }
 
   @Override
@@ -58,23 +56,7 @@ public class DefaultJFNativeLibrarySpec extends AbstractTargetedNativeComponentS
 //// This methods is used by the AbstractComponentSpec base class in getDisplayName().
 //@Override
 //protected String getTypeName() {
-//  logger.debug("DefaultJFNativeLibrarySpec::getTypeName() [CALLED]");
-//  return "DefaultJFNativeLibrarySpec";
+//  logger.debug("DefaultJFNativeExecutableSpec::getTypeName() [CALLED]");
+//  return "DefaultJFNativeExecutableSpec";
 //}
-
-  @Override
-  public NativeLibraryRequirement getShared() {
-    return new ProjectNativeLibraryRequirement(getProjectPath(), this.getName(), "shared");
-  }
-
-  @Override
-  public NativeLibraryRequirement getStatic() {
-    return new ProjectNativeLibraryRequirement(getProjectPath(), this.getName(), "static");
-  }
-
-  @Override
-  public NativeLibraryRequirement getApi() {
-    return new ProjectNativeLibraryRequirement(getProjectPath(), this.getName(), "api");
-  }
-
 }
