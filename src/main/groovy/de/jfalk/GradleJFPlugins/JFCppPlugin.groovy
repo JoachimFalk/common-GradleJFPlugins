@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory
 
 import org.gradle.language.base.internal.LanguageSourceSetInternal;
 
+import org.gradle.language.base.LanguageSourceSet;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.internal.file.FileCollectionFactory;
 import org.gradle.api.InvalidUserDataException;
@@ -349,6 +350,15 @@ class JFCppPlugin implements Plugin<Project> {
 //    }
 //    JFHelperFunctions.analysis("nativeBinary", nativeBinary);
       logger.debug("finalizeForNativeBinarySpec(...) for " + nativeBinary + " [DONE]");
+    }
+
+    @Finalize
+    void finalizeForLanguageSourceSet(@Each final LanguageSourceSet langSourceSet) {
+      logger.debug("finalizeForLanguageSourceSet(...) for " + langSourceSet + " [CALLED]");
+      langSourceSet.source.exclude "**/*.sw*"
+      langSourceSet.source.exclude "**/*~"
+      langSourceSet.source.exclude "**/*.bak"
+      logger.debug("finalizeForLanguageSourceSet(...) for " + langSourceSet + " [DONE]");
     }
 
 //  @Mutate
