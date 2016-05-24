@@ -245,14 +245,14 @@ class JFCppPlugin implements Plugin<Project> {
           BinaryNamingScheme namingSchemeWithBuildType = namingScheme.withVariantDimension(buildType, targetBuildTypes);
           Set<Flavor> targetFlavors = nativeComponent.chooseFlavors(flavors);
           for (Flavor flavor : targetFlavors) {
-            BinaryNamingScheme namingSchemeWithFlavor = namingScheme.withVariantDimension(flavor, targetFlavors);
+            BinaryNamingScheme namingSchemeWithFlavor = namingSchemeWithBuildType.withVariantDimension(flavor, targetFlavors);
             NativeBinaries.createNativeBinary(
               JFSharedLibraryBinarySpec.class, binaries, nativeDependencyResolver, fileCollectionFactory,
-              namingScheme.withBinaryType("SharedLibrary").withRole("shared", false),
+              namingSchemeWithFlavor.withBinaryType("SharedLibrary").withRole("shared", false),
               platform, buildType, flavor);
             NativeBinaries.createNativeBinary(
               JFStaticLibraryBinarySpec.class, binaries, nativeDependencyResolver, fileCollectionFactory,
-              namingScheme.withBinaryType("StaticLibrary").withRole("static", false),
+              namingSchemeWithFlavor.withBinaryType("StaticLibrary").withRole("static", false),
               platform, buildType, flavor);
           }
         }
@@ -286,10 +286,10 @@ class JFCppPlugin implements Plugin<Project> {
           BinaryNamingScheme namingSchemeWithBuildType = namingScheme.withVariantDimension(buildType, targetBuildTypes);
           Set<Flavor> targetFlavors = nativeComponent.chooseFlavors(flavors);
           for (Flavor flavor : targetFlavors) {
-            BinaryNamingScheme namingSchemeWithFlavor = namingScheme.withVariantDimension(flavor, targetFlavors);
+            BinaryNamingScheme namingSchemeWithFlavor = namingSchemeWithBuildType.withVariantDimension(flavor, targetFlavors);
             NativeBinaries.createNativeBinary(
               JFNativeExecutableBinarySpec.class, binaries, nativeDependencyResolver, fileCollectionFactory,
-              namingScheme.withBinaryType("Executable").withRole("executable", true),
+              namingSchemeWithFlavor.withBinaryType("Executable").withRole("executable", true),
               platform, buildType, flavor);
           }
         }

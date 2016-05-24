@@ -41,18 +41,20 @@ public class DefaultJFNativeLibrarySpec extends AbstractTargetedNativeComponentS
 
   @Override
   public Set<Flavor> chooseFlavors(Set<? extends Flavor> candidates) {
+    Set<Flavor> retval = new HashSet<Flavor>();
     if (enableFlavorsAndBuildTypes)
-      return super.chooseFlavors(candidates);
-    else
-      return new HashSet<Flavor>();
+      retval = super.chooseFlavors(candidates);
+    logger.debug("DefaultJFNativeLibrarySpec::chooseFlavors(...) for " + name + " => " + retval);
+    return retval;
   }
 
   @Override
   public Set<BuildType> chooseBuildTypes(Set<? extends BuildType> candidates) {
+    Set<BuildType> retval = new HashSet<BuildType>();
     if (enableFlavorsAndBuildTypes)
-      return super.chooseBuildTypes(candidates);
-    else
-      return new HashSet<BuildType>();
+      retval = super.chooseBuildTypes(candidates);
+    logger.debug("DefaultJFNativeLibrarySpec::chooseBuildTypes(...) for " + name + " => " + retval);
+    return retval;
   }
 
 //// This methods is used by the AbstractComponentSpec base class in getDisplayName().
