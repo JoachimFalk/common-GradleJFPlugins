@@ -40,6 +40,7 @@ import org.gradle.api.Project;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.internal.reflect.Instantiator;
 import org.gradle.internal.service.ServiceRegistry;
+import org.gradle.language.cpp.plugins.CppLangPlugin;
 import org.gradle.model.Defaults;
 import org.gradle.model.Each;
 import org.gradle.model.Finalize;
@@ -71,6 +72,7 @@ import org.gradle.nativeplatform.NativeLibraryRequirement;
 import org.gradle.nativeplatform.NativeLibrarySpec;
 import org.gradle.nativeplatform.platform.internal.NativePlatforms;
 import org.gradle.nativeplatform.platform.NativePlatform;
+import org.gradle.nativeplatform.plugins.NativeComponentPlugin;
 import org.gradle.nativeplatform.SharedLibraryBinarySpec;
 import org.gradle.nativeplatform.StaticLibraryBinarySpec;
 import org.gradle.nativeplatform.toolchain.internal.NativeToolChainRegistryInternal;
@@ -117,10 +119,11 @@ class JFCppPlugin implements Plugin<Project> {
   @Inject
   public JFCppPlugin(ModelRegistry modelRegistry, ServiceRegistry serviceRegistry, Instantiator instantiator) {
     this.logger           = LoggerFactory.getLogger(this.class);
-    logger.debug("JFCppPlugin::JFCppPlugin(ModelRegistry modelRegistry, ServiceRegistry serviceRegistry, Instantiator instantiator) [CALLED]")
+    logger.debug("JFCppPlugin::JFCppPlugin(...) [CALLED]")
     this.modelRegistry    = modelRegistry;
     this.serviceRegistry  = serviceRegistry;
     this.instantiator     = instantiator;
+    logger.debug("JFCppPlugin::JFCppPlugin(...) [DONE]")
   }
 
 //Set<File> exportedHeadersOfLib(Object library) {
@@ -128,16 +131,21 @@ class JFCppPlugin implements Plugin<Project> {
 //  return new HashSet<File>();
 //}
 
-  void apply(Project project) {
+  @Override
+  void apply(final Project project) {
     logger.debug("JFCppPlugin::apply(Project project) [CALLED]")
+
+    // This should create the extensions used below.
+    project.getPluginManager().apply(NativeComponentPlugin.class);
+    project.getPluginManager().apply(JFCppLangPlugin.class);
+    // Get the extensions created by the previous plugins.
 //  project.analysis("modelRegistry.getRoot()", modelRegistry.getRoot())
     this.flavors    = project.getExtensions().getByType(FlavorContainer.class);
     this.toolChains = project.getExtensions().getByType(NativeToolChainRegistryInternal.class);
     this.buildTypes = project.getExtensions().getByType(BuildTypeContainer.class);
+//  PlatformContainer platforms = project.getExtensions().getByType(PlatformContainer.class);
     assert this.modelRegistry == project.getModelRegistry();
 //  assert this.serviceRegistry == project.getServices(); this fails!
-
-//  PlatformContainer platforms = project.getExtensions().getByType(PlatformContainer.class);
 
 //  println "flavors@apply: "    + flavors;
 //  println "toolChains@apply: " + toolChains;
@@ -155,7 +163,7 @@ class JFCppPlugin implements Plugin<Project> {
     project.ext.JFNativeExecutableSpec       = JFNativeExecutableSpec.class;
     project.ext.JFNativeExecutableBinarySpec = JFNativeExecutableBinarySpec.class;
 
-    // new JFalkPrebuiltLibrary(...) does not work in the build.grald! Why?
+    // new JFalkPrebuiltLibrary(...) does not work in a ```build.gradle'' file! Why?
     project.ext.JFalkPrebuiltLibrary = JFalkPrebuiltLibrary.class; 
 
 //  project.ext.exportedHeadersOfLib = this.&exportedHeadersOfLib;
@@ -165,10 +173,11 @@ class JFCppPlugin implements Plugin<Project> {
 
     private static final Logger logger = LoggerFactory.getLogger(Rules.class);
 
-    @ComponentType
-    void cppSourceSet(TypeBuilder<JFCppSourceSet> builder) {
-      builder.defaultImplementation(DefaultJFCppSourceSet.class);
-    }
+//  This moved to JFCppLangPlugin
+//  @ComponentType
+//  void cppSourceSet(TypeBuilder<JFCppSourceSet> builder) {
+//    builder.defaultImplementation(DefaultJFCppSourceSet.class);
+//  }
 
     @ComponentType
     void nativeLibrary(TypeBuilder<JFNativeLibrarySpec> builder) {
