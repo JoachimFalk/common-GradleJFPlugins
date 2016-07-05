@@ -16,8 +16,13 @@
 
 package de.jfalk.GradleJFPlugins;
 
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
+import org.gradle.api.file.FileCollection;
 import org.gradle.nativeplatform.StaticLibraryBinarySpec;
 import org.gradle.nativeplatform.internal.DefaultStaticLibraryBinarySpec;
+import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;
 
 interface JFStaticLibraryBinarySpec extends StaticLibraryBinarySpec {
 
@@ -28,14 +33,36 @@ interface JFStaticLibraryBinarySpec extends StaticLibraryBinarySpec {
 
 class DefaultJFStaticLibraryBinarySpec extends DefaultStaticLibraryBinarySpec implements JFStaticLibraryBinarySpec {
 
-  private String flammy;
+  private final Logger                    logger;
+  private final JFCommonLibraryBinarySpec commonHelpers;
+
+  private   String                    flammy;
+  protected NativeDependencyResolver  resolver;
+
+  DefaultJFStaticLibraryBinarySpec() {
+    this.logger        = LoggerFactory.getLogger(this.class);
+    this.commonHelpers = new JFCommonLibraryBinarySpec(this);
+  }
 
   @Override
-  String getFlammy()
+  public FileCollection getHeaderDirs() {
+    return commonHelpers.extendHeaderDirs(super.getHeaderDirs());
+  }
+
+  /// Unfortunately, AbstractNativeBinarySpec.this.resolver is private and, thus, we
+  /// have to store our own reference to the resolver.
+  @Override
+  public void setResolver(NativeDependencyResolver resolver) {
+    super.setResolver(resolver);
+    this.resolver = resolver;
+  }
+
+  @Override
+  public String getFlammy()
     { return this.flammy; }
 
   @Override
-  void setFlammy(String flammy)
+  public void setFlammy(String flammy)
     { this.flammy = flammy; }
 
 }

@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 import javax.inject.Inject;
 
@@ -64,6 +65,7 @@ import org.gradle.nativeplatform.internal.configure.NativeBinaries;
 import org.gradle.nativeplatform.internal.ProjectNativeLibraryRequirement;
 import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;
 import org.gradle.nativeplatform.internal.TargetedNativeComponentInternal;
+import org.gradle.nativeplatform.internal.resolve.NativeBinaryResolveResult;
 import org.gradle.nativeplatform.NativeLibraryBinarySpec;
 import org.gradle.nativeplatform.NativeLibraryRequirement;
 import org.gradle.nativeplatform.NativeLibrarySpec;
@@ -121,6 +123,11 @@ class JFCppPlugin implements Plugin<Project> {
     this.instantiator     = instantiator;
   }
 
+//Set<File> exportedHeadersOfLib(Object library) {
+//  logger.debug("JFCppPlugin::exportedHeadersOfLib: " + library.getClass());
+//  return new HashSet<File>();
+//}
+
   void apply(Project project) {
     logger.debug("JFCppPlugin::apply(Project project) [CALLED]")
 //  project.analysis("modelRegistry.getRoot()", modelRegistry.getRoot())
@@ -141,6 +148,7 @@ class JFCppPlugin implements Plugin<Project> {
 //  }
 
     // Fake imports in the project applying this plugin.
+    project.ext.JFCppSourceSet               = JFCppSourceSet.class;
     project.ext.JFNativeLibrarySpec          = JFNativeLibrarySpec.class;
     project.ext.JFSharedLibraryBinarySpec    = JFSharedLibraryBinarySpec.class;
     project.ext.JFStaticLibraryBinarySpec    = JFStaticLibraryBinarySpec.class;
@@ -149,11 +157,18 @@ class JFCppPlugin implements Plugin<Project> {
 
     // new JFalkPrebuiltLibrary(...) does not work in the build.grald! Why?
     project.ext.JFalkPrebuiltLibrary = JFalkPrebuiltLibrary.class; 
+
+//  project.ext.exportedHeadersOfLib = this.&exportedHeadersOfLib;
   }
 
   static class Rules extends RuleSource {
 
     private static final Logger logger = LoggerFactory.getLogger(Rules.class);
+
+    @ComponentType
+    void cppSourceSet(TypeBuilder<JFCppSourceSet> builder) {
+      builder.defaultImplementation(DefaultJFCppSourceSet.class);
+    }
 
     @ComponentType
     void nativeLibrary(TypeBuilder<JFNativeLibrarySpec> builder) {
@@ -331,26 +346,53 @@ class JFCppPlugin implements Plugin<Project> {
 //    logger.debug("mutateForNativeBinarySpec(...) for " + nativeBinary + " [DONE]");
 //  }
 
-    @Finalize
-    void finalizeForNativeBinarySpec(@Each final JFNativeBinarySpecView nativeBinary) {
-      logger.debug("finalizeForNativeBinarySpec(...) for " + nativeBinary + " [CALLED]");
+//  @Finalize
+//  void finalizeForNativeLibraryBinarySpec(
+//      @Each final NativeLibraryBinarySpec  nativeLibraryBinary, // Patch this
+//      // via usage of the following factories and services.
+//      ServiceRegistry                      serviceRegistry
+//  ) {
+//    logger.debug("finalizeForNativeLibraryBinarySpec(...) for " + nativeLibraryBinary + " [CALLED]");
+//
+//    NativeDependencyResolver nativeDependencyResolver = serviceRegistry.get(NativeDependencyResolver.class);
+//    // Handle reexporting of headers from libs via exportHeaders flag.
+//    for (JFCppSourceSet jfCppSourceSet : nativeLibraryBinary.getInputs().withType(JFCppSourceSet.class)) {
+//      logger.debug("  input: " + jfCppSourceSet);
+//      for (Object obj : jfCppSourceSet.getHeaderReexportLibs()) {
+//        logger.debug("    header reexporting lib: " + obj);
+//        NativeBinaryResolveResult resolution = new NativeBinaryResolveResult(nativeLibraryBinary, Collections.singleton(obj));
+//        nativeDependencyResolver.resolve(resolution);
+//        for (Object flummy: resolution.getAllResults()) {
+//          logger.debug("    header reexporting flummy: " + flummy.getIncludeRoots());
+//        }
+//      }
+//    }
+//    logger.debug("finalizeForNativeLibraryBinarySpec(...) for " + nativeLibraryBinary + " [DONE]");
+//  }
+
+//  @Finalize
+//  void finalizeForNativeBinarySpec(
+//      @Each final JFNativeBinarySpecView   nativeBinary, // Patch this
+//      // via usage of the following factories and services.
+//      ServiceRegistry                      serviceRegistry
+//  ) {
+//    logger.debug("finalizeForNativeBinarySpec(...) for " + nativeBinary + " [CALLED]");
 //    println "nativeBinary.class: " + nativeBinary.getClass();
 //    println "nativeBinary.base: " + nativeBinary.getClass().getSuperclass();
 //    println "nativeBinary.getBackingNode().class: " + nativeBinary.getBackingNode().getClass();
 //    println "nativeBinary.getBackingNode().base: " + nativeBinary.getBackingNode().getClass().getSuperclass();
 //    println "nativeBinary.getBackingNode().getPrivateData().class: " + nativeBinary.getBackingNode().getPrivateData().getClass();
-//   println "nativeBinary.getBackingNode().getPrivateData().base: " + nativeBinary.getBackingNode().getPrivateData().getClass().getSuperclass();
+//    println "nativeBinary.getBackingNode().getPrivateData().base: " + nativeBinary.getBackingNode().getPrivateData().getClass().getSuperclass();
 //    nativeBinary.setInternalData("flummy");
 //    println "nativeBinary.internalData: " + nativeBinary.internalData;
-
+//
 //    nativeBinary.flummy();
-
 //    for (NativeDependencySet lib : nativeBinary.getLibs()) {
 //      println "lib.class: " + lib.getClass();
 //    }
 //    JFHelperFunctions.analysis("nativeBinary", nativeBinary);
-      logger.debug("finalizeForNativeBinarySpec(...) for " + nativeBinary + " [DONE]");
-    }
+//    logger.debug("finalizeForNativeBinarySpec(...) for " + nativeBinary + " [DONE]");
+//  }
 
     @Finalize
     void finalizeForLanguageSourceSet(@Each final LanguageSourceSet langSourceSet) {

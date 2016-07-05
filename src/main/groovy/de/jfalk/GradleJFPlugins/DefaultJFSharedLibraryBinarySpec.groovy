@@ -16,8 +16,13 @@
 
 package de.jfalk.GradleJFPlugins;
 
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
+import org.gradle.api.file.FileCollection;
 import org.gradle.nativeplatform.SharedLibraryBinarySpec;
 import org.gradle.nativeplatform.internal.DefaultSharedLibraryBinarySpec;
+import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;
 
 interface JFSharedLibraryBinarySpec extends SharedLibraryBinarySpec {
 
@@ -28,14 +33,36 @@ interface JFSharedLibraryBinarySpec extends SharedLibraryBinarySpec {
 
 class DefaultJFSharedLibraryBinarySpec extends DefaultSharedLibraryBinarySpec implements JFSharedLibraryBinarySpec {
 
-  private String flummy;
+  private final Logger                    logger;
+  private final JFCommonLibraryBinarySpec commonHelpers;
+
+  private   String                    flummy;
+  protected NativeDependencyResolver  resolver;
+
+  DefaultJFSharedLibraryBinarySpec() {
+    this.logger        = LoggerFactory.getLogger(this.class);
+    this.commonHelpers = new JFCommonLibraryBinarySpec(this);
+  }
 
   @Override
-  String getFlummy()
+  public FileCollection getHeaderDirs() {
+    return commonHelpers.extendHeaderDirs(super.getHeaderDirs());
+  }
+
+  /// Unfortunately, AbstractNativeBinarySpec.this.resolver is private and, thus, we
+  /// have to store our own reference to the resolver.
+  @Override
+  public void setResolver(NativeDependencyResolver resolver) {
+    super.setResolver(resolver);
+    this.resolver = resolver;
+  }
+
+  @Override
+  public String getFlummy()
     { return this.flummy; }
 
   @Override
-  void setFlummy(String flummy)
+  public void setFlummy(String flummy)
     { this.flummy = flummy; }
 
 }
