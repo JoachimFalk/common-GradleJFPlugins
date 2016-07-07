@@ -51,17 +51,17 @@ import org.gradle.platform.base.TypeBuilder;
 
 class JFCppLangPlugin implements Plugin<Project> {
   private final Logger          logger;
-  private final ModelRegistry   modelRegistry;
-  private final ServiceRegistry serviceRegistry;
-  private final Instantiator    instantiator;
+//private final ModelRegistry   modelRegistry;
+//private final ServiceRegistry serviceRegistry;
+//private final Instantiator    instantiator;
 
   @Inject
   public JFCppLangPlugin(ModelRegistry modelRegistry, ServiceRegistry serviceRegistry, Instantiator instantiator) {
     this.logger           = LoggerFactory.getLogger(this.class);
     logger.debug("JFCppLangPlugin::JFCppLangPlugin(...) [CALLED]")
-    this.modelRegistry    = modelRegistry;
-    this.serviceRegistry  = serviceRegistry;
-    this.instantiator     = instantiator;
+//  this.modelRegistry    = modelRegistry;
+//  this.serviceRegistry  = serviceRegistry;
+//  this.instantiator     = instantiator;
     logger.debug("JFCppLangPlugin::JFCppLangPlugin(...) [DONE]")
   }
 

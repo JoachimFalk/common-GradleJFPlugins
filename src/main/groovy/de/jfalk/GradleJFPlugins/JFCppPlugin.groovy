@@ -30,6 +30,9 @@ import org.slf4j.LoggerFactory
 
 import org.gradle.language.base.internal.LanguageSourceSetInternal;
 
+import org.gradle.nativeplatform.internal.resolve.LibraryBinaryLocator;
+import org.gradle.api.internal.file.FileCollectionFactory;
+
 import org.gradle.language.base.LanguageSourceSet;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.internal.file.FileCollectionFactory;
@@ -54,6 +57,7 @@ import org.gradle.model.internal.registry.ModelRegistry;
 import org.gradle.model.ModelMap;
 import org.gradle.model.Mutate;
 import org.gradle.model.RuleSource;
+import org.gradle.model.Model;
 import org.gradle.nativeplatform.NativeDependencySet;
 import org.gradle.nativeplatform.NativeBinarySpec;
 import org.gradle.nativeplatform.NativeExecutableBinarySpec;
@@ -89,40 +93,47 @@ import org.gradle.platform.base.internal.PlatformRequirement;
 import org.gradle.platform.base.internal.PlatformResolvers;
 import org.gradle.platform.base.internal.DefaultBinaryNamingScheme;
 
-//@Managed
-trait JFNativeBinarySpecView implements NativeBinarySpec {
-  String internalData;
-
-  String getInternalData() {
-    return this.internalData;
-  }
-  
-  void setInternalData(String internal) {
-     this.internalData = internal;
-  }
-
-//void flummy() {
-//  printn "flummy() [CALLED]";
+//trait JFNativeBinarySpecView implements NativeBinarySpec {
+//  String internalData;
+//
+//  String getInternalData() {
+//    return this.internalData;
+//  }
+//  
+//  void setInternalData(String internal) {
+//     this.internalData = internal;
+//  }
+//
 //}
+
+interface Flummy {
+
 }
 
+class DefaultFlummy implements Flummy {
+
+}
+
+
 class JFCppPlugin implements Plugin<Project> {
-  private final Logger          logger;
-  private final ModelRegistry   modelRegistry;
-  private final ServiceRegistry serviceRegistry;
-  private final Instantiator    instantiator;
+  private final Logger                    logger;
+  private final ModelRegistry             modelRegistry;
+//private final Instantiator              instantiator;
 
   private FlavorContainer                 flavors;
   private NativeToolChainRegistryInternal toolChains;
   private BuildTypeContainer              buildTypes;
+  private ServiceRegistry                 serviceRegistry;
+
+  private NativeDependencyResolver        nativeDependencyResolver;
 
   @Inject
   public JFCppPlugin(ModelRegistry modelRegistry, ServiceRegistry serviceRegistry, Instantiator instantiator) {
     this.logger           = LoggerFactory.getLogger(this.class);
     logger.debug("JFCppPlugin::JFCppPlugin(...) [CALLED]")
     this.modelRegistry    = modelRegistry;
-    this.serviceRegistry  = serviceRegistry;
-    this.instantiator     = instantiator;
+//  this.serviceRegistry  = serviceRegistry;
+//  this.instantiator     = instantiator;
     logger.debug("JFCppPlugin::JFCppPlugin(...) [DONE]")
   }
 
@@ -134,18 +145,26 @@ class JFCppPlugin implements Plugin<Project> {
   @Override
   void apply(final Project project) {
     logger.debug("JFCppPlugin::apply(Project project) [CALLED]")
-
     // This should create the extensions used below.
     project.getPluginManager().apply(NativeComponentPlugin.class);
     project.getPluginManager().apply(JFCppLangPlugin.class);
     // Get the extensions created by the previous plugins.
-//  project.analysis("modelRegistry.getRoot()", modelRegistry.getRoot())
-    this.flavors    = project.getExtensions().getByType(FlavorContainer.class);
-    this.toolChains = project.getExtensions().getByType(NativeToolChainRegistryInternal.class);
-    this.buildTypes = project.getExtensions().getByType(BuildTypeContainer.class);
+//  JFHelperFunctions.analysis("modelRegistry.getRoot()", modelRegistry.getRoot())
+    this.flavors         = project.getExtensions().getByType(FlavorContainer.class);
+    this.toolChains      = project.getExtensions().getByType(NativeToolChainRegistryInternal.class);
+    this.buildTypes      = project.getExtensions().getByType(BuildTypeContainer.class);
+    this.serviceRegistry = project.getServices();
 //  PlatformContainer platforms = project.getExtensions().getByType(PlatformContainer.class);
     assert this.modelRegistry == project.getModelRegistry();
 //  assert this.serviceRegistry == project.getServices(); this fails!
+
+//  Instantiator instantiator = project.getServices().get(Instantiator.class);
+//  JFHelperFunctions.analysis("instantiator", instantiator)
+
+//  serviceRegistry.add(JFNativeDependencyResolver.class,
+//    new JFNativeDependencyResolver(
+//      serviceRegistry.get(LibraryBinaryLocator.class),
+//      serviceRegistry.get(FileCollectionFactory.class)));
 
 //  println "flavors@apply: "    + flavors;
 //  println "toolChains@apply: " + toolChains;
@@ -204,9 +223,16 @@ class JFCppPlugin implements Plugin<Project> {
       builder.defaultImplementation(DefaultJFNativeExecutableBinarySpec.class);
     }
 
-    @ComponentType
-    void nativeBinary(TypeBuilder<NativeBinarySpec> builder) {
-      builder.internalView(JFNativeBinarySpecView.class);
+//  @ComponentType
+//  void nativeBinary(TypeBuilder<NativeBinarySpec> builder) {
+//    builder.internalView(JFNativeBinarySpecView.class);
+//  }
+
+    @Model
+    JFNativeDependencyResolver createNativeDependencyResolver(ServiceRegistry serviceRegistry) {
+      new JFNativeDependencyResolver(
+        serviceRegistry.get(LibraryBinaryLocator.class),
+        serviceRegistry.get(FileCollectionFactory.class));
     }
 
     @ComponentBinaries
@@ -217,6 +243,7 @@ class JFCppPlugin implements Plugin<Project> {
         PlatformResolvers                 platforms,
         BuildTypeContainer                buildTypes,
         FlavorContainer                   flavors,
+        JFNativeDependencyResolver        nativeDependencyResolver,
         ServiceRegistry                   serviceRegistry
     ) {
       logger.debug("createBinariesForJFNativeLibrarySpec(...) for " + nativeComponent + " [CALLED]");
@@ -257,7 +284,7 @@ class JFCppPlugin implements Plugin<Project> {
       nativeComponent.getBackingNode().getPrivateData().enableFlavorsAndBuildTypes = true;
 
       NativePlatforms nativePlatforms = serviceRegistry.get(NativePlatforms.class);
-      NativeDependencyResolver nativeDependencyResolver = serviceRegistry.get(NativeDependencyResolver.class);
+//    NativeDependencyResolver nativeDependencyResolver = serviceRegistry.get(NativeDependencyResolver.class);
       FileCollectionFactory fileCollectionFactory = serviceRegistry.get(FileCollectionFactory.class);
       List<NativePlatform> resolvedPlatforms = NativeComponentRules.resolvePlatforms(nativeComponent, nativePlatforms, platforms);
 
@@ -292,13 +319,14 @@ class JFCppPlugin implements Plugin<Project> {
         PlatformResolvers                    platforms,
         BuildTypeContainer                   buildTypes,
         FlavorContainer                      flavors,
+        JFNativeDependencyResolver           nativeDependencyResolver,
         ServiceRegistry                      serviceRegistry
     ) {
       logger.debug("createBinariesForJFNativeExecutableSpec(...) for " + nativeComponent + " [CALLED]");
       nativeComponent.getBackingNode().getPrivateData().enableFlavorsAndBuildTypes = true;
 
       NativePlatforms nativePlatforms = serviceRegistry.get(NativePlatforms.class);
-      NativeDependencyResolver nativeDependencyResolver = serviceRegistry.get(NativeDependencyResolver.class);
+//    NativeDependencyResolver nativeDependencyResolver = serviceRegistry.get(NativeDependencyResolver.class);
       FileCollectionFactory fileCollectionFactory = serviceRegistry.get(FileCollectionFactory.class);
       List<NativePlatform> resolvedPlatforms = NativeComponentRules.resolvePlatforms(nativeComponent, nativePlatforms, platforms);
 
