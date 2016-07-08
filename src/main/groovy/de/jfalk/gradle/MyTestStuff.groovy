@@ -1,6 +1,6 @@
 
 
-package de.jfalk.GradleJFPlugins;
+package de.jfalk.gradle
 
 
 class MyTestStuff {

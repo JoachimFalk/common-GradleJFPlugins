@@ -14,32 +14,32 @@
 // this program; If not, write to the Free Software Foundation, Inc., 59 Temple
 // Place - Suite 330, Boston, MA 02111-1307, USA.
 
-package de.jfalk.GradleJFPlugins;
+package de.jfalk.gradle
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 import org.gradle.api.file.FileCollection;
-import org.gradle.nativeplatform.StaticLibraryBinarySpec;
-import org.gradle.nativeplatform.internal.DefaultStaticLibraryBinarySpec;
+import org.gradle.nativeplatform.SharedLibraryBinarySpec;
+import org.gradle.nativeplatform.internal.DefaultSharedLibraryBinarySpec;
 import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;
 
-interface JFStaticLibraryBinarySpec extends StaticLibraryBinarySpec {
+interface JFSharedLibraryBinarySpec extends SharedLibraryBinarySpec {
 
-  String getFlammy();
+  String getFlummy();
 
-  void setFlammy(String flammy);
+  void setFlummy(String flummy);
 }
 
-class DefaultJFStaticLibraryBinarySpec extends DefaultStaticLibraryBinarySpec implements JFStaticLibraryBinarySpec {
+class DefaultJFSharedLibraryBinarySpec extends DefaultSharedLibraryBinarySpec implements JFSharedLibraryBinarySpec {
 
   private final Logger                    logger;
   private final JFCommonLibraryBinarySpec commonHelpers;
 
-  private   String                    flammy;
+  private   String                    flummy;
   protected NativeDependencyResolver  resolver;
 
-  DefaultJFStaticLibraryBinarySpec() {
+  DefaultJFSharedLibraryBinarySpec() {
     this.logger        = LoggerFactory.getLogger(this.class);
     this.commonHelpers = new JFCommonLibraryBinarySpec(this);
   }
@@ -58,11 +58,11 @@ class DefaultJFStaticLibraryBinarySpec extends DefaultStaticLibraryBinarySpec im
   }
 
   @Override
-  public String getFlammy()
-    { return this.flammy; }
+  public String getFlummy()
+    { return this.flummy; }
 
   @Override
-  public void setFlammy(String flammy)
-    { this.flammy = flammy; }
+  public void setFlummy(String flummy)
+    { this.flummy = flummy; }
 
 }

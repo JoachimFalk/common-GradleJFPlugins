@@ -14,7 +14,7 @@
 // this program; If not, write to the Free Software Foundation, Inc., 59 Temple
 // Place - Suite 330, Boston, MA 02111-1307, USA.
 
-package de.jfalk.GradleJFPlugins;
+package de.jfalk.gradle
 
 import java.util.Map;
 import java.util.HashMap;
