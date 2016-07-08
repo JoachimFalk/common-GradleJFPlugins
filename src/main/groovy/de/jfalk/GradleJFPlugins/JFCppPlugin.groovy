@@ -106,15 +106,6 @@ import org.gradle.platform.base.internal.DefaultBinaryNamingScheme;
 //
 //}
 
-interface Flummy {
-
-}
-
-class DefaultFlummy implements Flummy {
-
-}
-
-
 class JFCppPlugin implements Plugin<Project> {
   private final Logger                    logger;
   private final ModelRegistry             modelRegistry;
@@ -130,11 +121,11 @@ class JFCppPlugin implements Plugin<Project> {
   @Inject
   public JFCppPlugin(ModelRegistry modelRegistry, ServiceRegistry serviceRegistry, Instantiator instantiator) {
     this.logger           = LoggerFactory.getLogger(this.class);
-    logger.debug("JFCppPlugin::JFCppPlugin(...) [CALLED]")
+    logger.debug("JFCppPlugin(...) [CALLED]")
     this.modelRegistry    = modelRegistry;
 //  this.serviceRegistry  = serviceRegistry;
 //  this.instantiator     = instantiator;
-    logger.debug("JFCppPlugin::JFCppPlugin(...) [DONE]")
+    logger.debug("JFCppPlugin(...) [DONE]")
   }
 
 //Set<File> exportedHeadersOfLib(Object library) {
@@ -144,7 +135,7 @@ class JFCppPlugin implements Plugin<Project> {
 
   @Override
   void apply(final Project project) {
-    logger.debug("JFCppPlugin::apply(Project project) [CALLED]")
+    logger.debug("apply(...) [CALLED]")
     // This should create the extensions used below.
     project.getPluginManager().apply(NativeComponentPlugin.class);
     project.getPluginManager().apply(JFCppLangPlugin.class);
@@ -186,17 +177,12 @@ class JFCppPlugin implements Plugin<Project> {
     project.ext.JFalkPrebuiltLibrary = JFalkPrebuiltLibrary.class; 
 
 //  project.ext.exportedHeadersOfLib = this.&exportedHeadersOfLib;
+    logger.debug("apply(...) [DONE]")
   }
 
   static class Rules extends RuleSource {
 
     private static final Logger logger = LoggerFactory.getLogger(Rules.class);
-
-//  This moved to JFCppLangPlugin
-//  @ComponentType
-//  void cppSourceSet(TypeBuilder<JFCppSourceSet> builder) {
-//    builder.defaultImplementation(DefaultJFCppSourceSet.class);
-//  }
 
     @ComponentType
     void nativeLibrary(TypeBuilder<JFNativeLibrarySpec> builder) {

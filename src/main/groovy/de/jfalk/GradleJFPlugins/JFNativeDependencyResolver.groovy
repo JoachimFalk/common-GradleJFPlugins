@@ -39,19 +39,19 @@ public class JFNativeDependencyResolver implements NativeDependencyResolver {
 //@Inject
   public JFNativeDependencyResolver(LibraryBinaryLocator locator, FileCollectionFactory fileCollectionFactory) {
     this.logger = LoggerFactory.getLogger(this.class);
-    logger.debug("JFNativeDependencyResolver::JFNativeDependencyResolver(...) [CALLED]")
+    logger.debug("JFNativeDependencyResolver(...) [CALLED]")
     resolver = new LibraryNativeDependencyResolver(locator);
     resolver = new ApiRequirementNativeDependencyResolver(resolver, fileCollectionFactory);
     resolver = new RequirementParsingNativeDependencyResolver(resolver);
     resolver = new SourceSetNativeDependencyResolver(resolver, fileCollectionFactory);
     resolver = new InputHandlingNativeDependencyResolver(resolver);
-    logger.debug("JFNativeDependencyResolver::JFNativeDependencyResolver(...) [DONE]")
+    logger.debug("JFNativeDependencyResolver(...) [DONE]")
   }
 
   @Override
   public void resolve(NativeBinaryResolveResult resolution) {
-    logger.debug("JFNativeDependencyResolver::resolve(...) [CALLED]")
+    logger.debug("resolve(...) [CALLED]")
     resolver.resolve(resolution);
-    logger.debug("JFNativeDependencyResolver::resolve(...) [DONE]")
+    logger.debug("resolve(...) [DONE]")
   }
 }

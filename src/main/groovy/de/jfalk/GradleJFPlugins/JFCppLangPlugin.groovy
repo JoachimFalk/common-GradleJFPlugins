@@ -58,16 +58,18 @@ class JFCppLangPlugin implements Plugin<Project> {
   @Inject
   public JFCppLangPlugin(ModelRegistry modelRegistry, ServiceRegistry serviceRegistry, Instantiator instantiator) {
     this.logger           = LoggerFactory.getLogger(this.class);
-    logger.debug("JFCppLangPlugin::JFCppLangPlugin(...) [CALLED]")
+    logger.debug("JFCppLangPlugin(...) [CALLED]")
 //  this.modelRegistry    = modelRegistry;
 //  this.serviceRegistry  = serviceRegistry;
 //  this.instantiator     = instantiator;
-    logger.debug("JFCppLangPlugin::JFCppLangPlugin(...) [DONE]")
+    logger.debug("JFCppLangPlugin(...) [DONE]")
   }
 
   @Override
   public void apply(final Project project) {
+    logger.debug("apply(...) [CALLED]")
     project.getPluginManager().apply(ComponentModelBasePlugin.class);
+    logger.debug("apply(...) [DONE]")
   }
 
   static class Rules extends RuleSource {
