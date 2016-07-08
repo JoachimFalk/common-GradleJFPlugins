@@ -28,6 +28,8 @@ import javax.inject.Inject;
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+import de.jfalk.gradle.nativeplatform.internal.resolve.DefaultJFNativeDependencyResolver;
+
 import org.gradle.language.base.internal.LanguageSourceSetInternal;
 
 import org.gradle.nativeplatform.internal.resolve.LibraryBinaryLocator;
@@ -115,8 +117,6 @@ class JFCppPlugin implements Plugin<Project> {
   private NativeToolChainRegistryInternal toolChains;
   private BuildTypeContainer              buildTypes;
   private ServiceRegistry                 serviceRegistry;
-
-  private NativeDependencyResolver        nativeDependencyResolver;
 
   @Inject
   public JFCppPlugin(ModelRegistry modelRegistry, ServiceRegistry serviceRegistry, Instantiator instantiator) {
@@ -215,8 +215,8 @@ class JFCppPlugin implements Plugin<Project> {
 //  }
 
     @Model
-    JFNativeDependencyResolver createNativeDependencyResolver(ServiceRegistry serviceRegistry) {
-      new JFNativeDependencyResolver(
+    NativeDependencyResolver createNativeDependencyResolver(ServiceRegistry serviceRegistry) {
+      new DefaultJFNativeDependencyResolver(
         serviceRegistry.get(LibraryBinaryLocator.class),
         serviceRegistry.get(FileCollectionFactory.class));
     }
@@ -229,7 +229,7 @@ class JFCppPlugin implements Plugin<Project> {
         PlatformResolvers                 platforms,
         BuildTypeContainer                buildTypes,
         FlavorContainer                   flavors,
-        JFNativeDependencyResolver        nativeDependencyResolver,
+        NativeDependencyResolver          nativeDependencyResolver,
         ServiceRegistry                   serviceRegistry
     ) {
       logger.debug("createBinariesForJFNativeLibrarySpec(...) for " + nativeComponent + " [CALLED]");
@@ -305,7 +305,7 @@ class JFCppPlugin implements Plugin<Project> {
         PlatformResolvers                    platforms,
         BuildTypeContainer                   buildTypes,
         FlavorContainer                      flavors,
-        JFNativeDependencyResolver           nativeDependencyResolver,
+        NativeDependencyResolver             nativeDependencyResolver,
         ServiceRegistry                      serviceRegistry
     ) {
       logger.debug("createBinariesForJFNativeExecutableSpec(...) for " + nativeComponent + " [CALLED]");
