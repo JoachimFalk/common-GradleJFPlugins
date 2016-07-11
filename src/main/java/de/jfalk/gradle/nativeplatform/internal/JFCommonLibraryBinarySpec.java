@@ -14,10 +14,14 @@
 // this program; If not, write to the Free Software Foundation, Inc., 59 Temple
 // Place - Suite 330, Boston, MA 02111-1307, USA.
 
-package de.jfalk.gradle
+package de.jfalk.gradle.nativeplatform.internal;
 
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import java.util.Collections;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.jfalk.gradle.language.cpp.JFCppSourceSet;
 
 import org.gradle.nativeplatform.NativeDependencySet;
 import org.gradle.nativeplatform.internal.AbstractNativeLibraryBinarySpec;
@@ -25,19 +29,19 @@ import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;
 import org.gradle.nativeplatform.internal.resolve.NativeBinaryResolveResult;
 import org.gradle.api.file.FileCollection;
 
-class JFCommonLibraryBinarySpec {
+class JFCommonLibraryBinarySpec<T extends AbstractNativeLibraryBinarySpec> {
 
   private final Logger                          logger;
   private final AbstractNativeLibraryBinarySpec nativeLibraryBinary;
 
   JFCommonLibraryBinarySpec(AbstractNativeLibraryBinarySpec nativeLibraryBinary) {
-    this.logger              = LoggerFactory.getLogger(this.class);
+    this.logger              = LoggerFactory.getLogger(this.getClass());
     this.nativeLibraryBinary = nativeLibraryBinary;
   }
 
-  public FileCollection extendHeaderDirs(FileCollection headerDirs) {
+  public FileCollection extendHeaderDirs(FileCollection headerDirs, NativeDependencyResolver nativeDependencyResolver) {
 //  logger.debug("extendHeaderDirs(...) for " + nativeLibraryBinary + " [CALLED]");
-    NativeDependencyResolver nativeDependencyResolver = nativeLibraryBinary.resolver;
+//  NativeDependencyResolver nativeDependencyResolver = nativeLibraryBinary.resolver;
     // Handle reexporting of headers from libs via exportHeaders flag.
     for (JFCppSourceSet jfCppSourceSet : nativeLibraryBinary.getInputs().withType(JFCppSourceSet.class)) {
 //    logger.debug("  input: " + jfCppSourceSet);
@@ -47,7 +51,7 @@ class JFCommonLibraryBinarySpec {
         nativeDependencyResolver.resolve(resolution);
         for (NativeDependencySet nativeDependencySet: resolution.getAllResults()) {
 //        logger.debug("    header reexporting from: " + flummy.getIncludeRoots());
-          headerDirs = headerDirs + nativeDependencySet.getIncludeRoots();
+          headerDirs = headerDirs.plus(nativeDependencySet.getIncludeRoots());
         }
       }
     }
@@ -55,5 +59,21 @@ class JFCommonLibraryBinarySpec {
     logger.debug("extendHeaderDirs(...) for " + nativeLibraryBinary + " => " + headerDirs.getFiles());
     return headerDirs;
   }
+
+  public FileCollection extendLinkFiles(FileCollection linkFiles, NativeDependencyResolver nativeDependencyResolver) {
+    // Handle transitive library requirements via exportHeaders flag.
+    for (JFCppSourceSet jfCppSourceSet : nativeLibraryBinary.getInputs().withType(JFCppSourceSet.class)) {
+      for (Object obj : jfCppSourceSet.getHeaderReexportLibs()) {
+        NativeBinaryResolveResult resolution = new NativeBinaryResolveResult(nativeLibraryBinary, Collections.singleton(obj));
+        nativeDependencyResolver.resolve(resolution);
+        for (NativeDependencySet nativeDependencySet: resolution.getAllResults()) {
+          linkFiles = linkFiles.plus(nativeDependencySet.getLinkFiles());
+        }
+      }
+    }
+    logger.debug("extendLinkFiles(...) for " + nativeLibraryBinary + " => " + linkFiles.getFiles());
+    return linkFiles;
+  }
+
 }
 

@@ -14,24 +14,18 @@
 // this program; If not, write to the Free Software Foundation, Inc., 59 Temple
 // Place - Suite 330, Boston, MA 02111-1307, USA.
 
-package de.jfalk.gradle
+package de.jfalk.gradle.nativeplatform.internal;
 
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.jfalk.gradle.nativeplatform.JFSharedLibraryBinarySpec;
 
 import org.gradle.api.file.FileCollection;
-import org.gradle.nativeplatform.SharedLibraryBinarySpec;
 import org.gradle.nativeplatform.internal.DefaultSharedLibraryBinarySpec;
 import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;
 
-interface JFSharedLibraryBinarySpec extends SharedLibraryBinarySpec {
-
-  String getFlummy();
-
-  void setFlummy(String flummy);
-}
-
-class DefaultJFSharedLibraryBinarySpec extends DefaultSharedLibraryBinarySpec implements JFSharedLibraryBinarySpec {
+public class DefaultJFSharedLibraryBinarySpec extends DefaultSharedLibraryBinarySpec implements JFSharedLibraryBinarySpec {
 
   private final Logger                    logger;
   private final JFCommonLibraryBinarySpec commonHelpers;
@@ -39,14 +33,26 @@ class DefaultJFSharedLibraryBinarySpec extends DefaultSharedLibraryBinarySpec im
   private   String                    flummy;
   protected NativeDependencyResolver  resolver;
 
-  DefaultJFSharedLibraryBinarySpec() {
-    this.logger        = LoggerFactory.getLogger(this.class);
+  public DefaultJFSharedLibraryBinarySpec() {
+    this.logger        = LoggerFactory.getLogger(this.getClass());
     this.commonHelpers = new JFCommonLibraryBinarySpec(this);
   }
 
   @Override
   public FileCollection getHeaderDirs() {
-    return commonHelpers.extendHeaderDirs(super.getHeaderDirs());
+    return commonHelpers.extendHeaderDirs(super.getHeaderDirs(), this.resolver);
+  }
+  
+  @Override
+  public FileCollection getLinkFiles() {
+    return commonHelpers.extendLinkFiles(super.getLinkFiles(), this.resolver);
+  }
+
+  @Override
+  public FileCollection getRuntimeFiles() {
+    FileCollection retval = super.getRuntimeFiles();
+
+    return retval;
   }
 
   /// Unfortunately, AbstractNativeBinarySpec.this.resolver is private and, thus, we

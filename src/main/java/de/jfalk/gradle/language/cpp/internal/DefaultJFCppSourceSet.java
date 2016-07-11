@@ -14,22 +14,17 @@
 // this program; If not, write to the Free Software Foundation, Inc., 59 Temple
 // Place - Suite 330, Boston, MA 02111-1307, USA.
 
-package de.jfalk.gradle
+package de.jfalk.gradle.language.cpp.internal;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import de.jfalk.gradle.language.cpp.JFCppSourceSet;
+
 import org.gradle.language.cpp.CppSourceSet;
 import org.gradle.language.nativeplatform.internal.AbstractHeaderExportingDependentSourceSet;
-
-interface JFCppSourceSet extends CppSourceSet {
-
-  /// The libs which have been marked by the exportHeaders flag.
-  public Collection<?> getHeaderReexportLibs();
-
-}
 
 public class DefaultJFCppSourceSet extends AbstractHeaderExportingDependentSourceSet implements JFCppSourceSet {
 
@@ -38,13 +33,15 @@ public class DefaultJFCppSourceSet extends AbstractHeaderExportingDependentSourc
   public Collection<?> getHeaderReexportLibs() {
     Collection<Object> libs = new ArrayList<Object>();
     for (Object lib : super.getLibs()) {
-      if (lib instanceof Map<?>) {
-        Object exportHeaders = lib.get("exportHeaders");
+      if (lib instanceof Map<?,?>) {
+        @SuppressWarnings("unchecked")
+        Map<String, Object> map = (Map<String, Object>) lib;
+        Object exportHeaders = map.get("exportHeaders");
         if ((exportHeaders instanceof Boolean && (Boolean) exportHeaders) ||
-            (exportHeaders instanceof Integer && (Integer) exportHeaders) ||
-            (exportHeaders instanceof String && (String) (exportHeaders).toLowerCase().equals("yes")) ||
-            (exportHeaders instanceof String && (String) (exportHeaders).toLowerCase().equals("1"))) {
-          Map<Object> entry = new HashMap<Object>(lib);
+            (exportHeaders instanceof Integer && (Integer) exportHeaders > 0) ||
+            (exportHeaders instanceof String && ((String) exportHeaders).toLowerCase().equals("yes")) ||
+            (exportHeaders instanceof String && ((String) exportHeaders).toLowerCase().equals("1"))) {
+          Map<String, Object> entry = new HashMap<String, Object>(map);
           entry.remove("exportHeaders");
           libs.add(entry);
         }
@@ -57,8 +54,9 @@ public class DefaultJFCppSourceSet extends AbstractHeaderExportingDependentSourc
   public Collection<?> getLibs() {
     Collection<Object> libs = new ArrayList<Object>();
     for (Object lib : super.getLibs()) {
-      if (lib instanceof Map<?>) {
-        Map<Object> entry = new HashMap<Object>(lib);
+      if (lib instanceof Map<?,?>) {
+        @SuppressWarnings("unchecked")
+        Map<String, Object> entry = new HashMap<String, Object>((Map<String, Object>) lib);
         entry.remove("exportHeaders");
         libs.add(entry);
       } else {

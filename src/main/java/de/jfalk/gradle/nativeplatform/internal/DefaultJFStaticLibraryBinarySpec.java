@@ -14,24 +14,18 @@
 // this program; If not, write to the Free Software Foundation, Inc., 59 Temple
 // Place - Suite 330, Boston, MA 02111-1307, USA.
 
-package de.jfalk.gradle
+package de.jfalk.gradle.nativeplatform.internal;
 
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.jfalk.gradle.nativeplatform.JFStaticLibraryBinarySpec;
 
 import org.gradle.api.file.FileCollection;
-import org.gradle.nativeplatform.StaticLibraryBinarySpec;
 import org.gradle.nativeplatform.internal.DefaultStaticLibraryBinarySpec;
 import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;
 
-interface JFStaticLibraryBinarySpec extends StaticLibraryBinarySpec {
-
-  String getFlammy();
-
-  void setFlammy(String flammy);
-}
-
-class DefaultJFStaticLibraryBinarySpec extends DefaultStaticLibraryBinarySpec implements JFStaticLibraryBinarySpec {
+public class DefaultJFStaticLibraryBinarySpec extends DefaultStaticLibraryBinarySpec implements JFStaticLibraryBinarySpec {
 
   private final Logger                    logger;
   private final JFCommonLibraryBinarySpec commonHelpers;
@@ -39,14 +33,14 @@ class DefaultJFStaticLibraryBinarySpec extends DefaultStaticLibraryBinarySpec im
   private   String                    flammy;
   protected NativeDependencyResolver  resolver;
 
-  DefaultJFStaticLibraryBinarySpec() {
-    this.logger        = LoggerFactory.getLogger(this.class);
+  public DefaultJFStaticLibraryBinarySpec() {
+    this.logger        = LoggerFactory.getLogger(this.getClass());
     this.commonHelpers = new JFCommonLibraryBinarySpec(this);
   }
 
   @Override
   public FileCollection getHeaderDirs() {
-    return commonHelpers.extendHeaderDirs(super.getHeaderDirs());
+    return commonHelpers.extendHeaderDirs(super.getHeaderDirs(), this.resolver);
   }
 
   /// Unfortunately, AbstractNativeBinarySpec.this.resolver is private and, thus, we

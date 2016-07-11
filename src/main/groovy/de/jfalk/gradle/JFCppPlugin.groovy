@@ -28,6 +28,11 @@ import javax.inject.Inject;
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+import de.jfalk.gradle.language.cpp.JFCppSourceSet;
+import de.jfalk.gradle.nativeplatform.JFSharedLibraryBinarySpec;
+import de.jfalk.gradle.nativeplatform.internal.DefaultJFSharedLibraryBinarySpec;
+import de.jfalk.gradle.nativeplatform.JFStaticLibraryBinarySpec;
+import de.jfalk.gradle.nativeplatform.internal.DefaultJFStaticLibraryBinarySpec;
 import de.jfalk.gradle.nativeplatform.internal.resolve.DefaultJFNativeDependencyResolver;
 
 import org.gradle.language.base.internal.LanguageSourceSetInternal;
