@@ -14,7 +14,7 @@
 // this program; If not, write to the Free Software Foundation, Inc., 59 Temple
 // Place - Suite 330, Boston, MA 02111-1307, USA.
 
-package de.jfalk.gradle;
+package de.jfalk.gradle.nativeplatform.internal;
 
 import java.io.File;
 import java.util.Collection;
@@ -33,13 +33,13 @@ import org.gradle.nativeplatform.BuildType;
 import org.gradle.nativeplatform.Flavor;
 import org.gradle.nativeplatform.PrebuiltLibrary;
 import org.gradle.nativeplatform.platform.NativePlatform;
-import org.gradle.nativeplatform.StaticLibraryBinary;
+import org.gradle.nativeplatform.SharedLibraryBinary;
 
-/// A {@link NativeLibrary} that has been compiled and archived into a static library.
-public class JFalkStaticLibraryBinary implements StaticLibraryBinary {
+/// A {@link NativeLibrary} that has been compiled and linked as a shared library.
+public class DefaultJFPrebuiltSharedLibraryBinary implements SharedLibraryBinary {
 
-  private final PrebuiltLibrary      parent;
   private final Logger               logger;
+  private final PrebuiltLibrary      parent;
   private final SourceDirectorySet   headers;
 
   // Properties required by gradle
@@ -48,9 +48,15 @@ public class JFalkStaticLibraryBinary implements StaticLibraryBinary {
   private final NativePlatform       platform;
   private final BuildType            buildType;
 
-  public JFalkStaticLibraryBinary(PrebuiltLibrary parent, Flavor flavor, NativePlatform platform, BuildType buildType, ServiceRegistry serviceRegistry) {
-    this.parent    = parent;
+  public DefaultJFPrebuiltSharedLibraryBinary(
+    final PrebuiltLibrary parent,
+    final Flavor          flavor,
+    final NativePlatform  platform,
+    final BuildType       buildType,
+    final ServiceRegistry serviceRegistry)
+  {
     this.logger    = LoggerFactory.getLogger(this.getClass());
+    this.parent    = parent;
     this.headers   = serviceRegistry.get(SourceDirectorySetFactory.class).create("headers");
     this.name      = parent.getName();
     this.flavor    = flavor;
@@ -61,7 +67,7 @@ public class JFalkStaticLibraryBinary implements StaticLibraryBinary {
   /// Returns a human-consumable display name for this binary.
   @Override
   public String getDisplayName() {
-    return "JFalkStaticLibraryBinary " + name;
+    return "DefaultJFPrebuiltSharedLibraryBinary " + name;
   }
 
   /// The {@link org.gradle.nativeplatform.Flavor} that this binary was built with.
@@ -78,11 +84,11 @@ public class JFalkStaticLibraryBinary implements StaticLibraryBinary {
 
   @Override
   public FileCollection getHeaderDirs() {
-    logger.debug("JFalkStaticLibraryBinary::getHeaderDirs() [CALLED]");
+    logger.debug("getHeaderDirs() [CALLED]");
     Collection<File> retval = new ArrayList<File>();
     retval.addAll(headers.getSrcDirs());
     retval.addAll(parent.getHeaders().getSrcDirs());
-    for (File entry : retval) {
+    for (File entry: retval) {
       logger.debug("  header dir: " + entry);
     }
     return new SimpleFileCollection(retval);
@@ -90,28 +96,39 @@ public class JFalkStaticLibraryBinary implements StaticLibraryBinary {
 
   @Override
   public FileCollection getLinkFiles() {
-    logger.debug("JFalkStaticLibraryBinary::getLinkFiles() [CALLED]");
-    if (getStaticLibraryFile() != null)
-      return new SimpleFileCollection(getStaticLibraryFile());
+    logger.debug("getLinkFiles() [CALLED]");
+    if (getSharedLibraryLinkFile() != null)
+      return new SimpleFileCollection(getSharedLibraryLinkFile());
     else
       return new SimpleFileCollection();
   }
 
   @Override
   public FileCollection getRuntimeFiles() {
-    logger.debug("JFalkStaticLibraryBinary::getRuntimeFiles() [CALLED]");
-    return new SimpleFileCollection();
+    logger.debug("getRuntimeFiles() [CALLED]");
+    if (getSharedLibraryFile() != null)
+      return new SimpleFileCollection(getSharedLibraryFile());
+    else
+      return new SimpleFileCollection();
   }
 
-  // Implement interface of StaticLibraryBinary.
+  // Implement interface of SharedLibraryBinary.
 
-  /// The static library file. 
+  /// The shared library file.
   @Override
-  public File getStaticLibraryFile() {
-    logger.debug("JFalkStaticLibraryBinary::getStaticLibraryFile() [CALLED]");
+  public File getSharedLibraryFile() {
+    logger.debug("getSharedLibraryFile() [CALLED]");
+    return dllFile;
+  }
+
+  /// The shared library link file.
+  @Override
+  public File getSharedLibraryLinkFile() {
+    logger.debug("getSharedLibraryLinkFile() [CALLED]");
     return libraryFile;
   }
 
   // Model configuration properties.
   private File libraryFile;
+  private File dllFile;
 }

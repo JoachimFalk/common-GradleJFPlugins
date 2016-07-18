@@ -22,8 +22,6 @@ import java.util.HashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.jfalk.gradle.JFalkStaticLibraryBinary;
-import de.jfalk.gradle.JFalkSharedLibraryBinary;
 import de.jfalk.gradle.nativeplatform.JFPrebuiltLibrary;
 
 import org.gradle.api.DomainObjectSet;
@@ -78,8 +76,8 @@ class DefaultJFPrebuiltLibrary implements JFPrebuiltLibrary {
       for (BuildType buildType : buildTypes) {
         for (Flavor flavor : flavors) {
           logger.debug("BINARY "+name+" on platform: " + platform + " " + buildType + " " + flavor);
-          binaries.add(new JFalkStaticLibraryBinary(this, flavor, platform, buildType, serviceRegistry));
-          binaries.add(new JFalkSharedLibraryBinary(this, flavor, platform, buildType, serviceRegistry));
+          binaries.add(new DefaultJFPrebuiltStaticLibraryBinary(this, flavor, platform, buildType, serviceRegistry));
+          binaries.add(new DefaultJFPrebuiltSharedLibraryBinary(this, flavor, platform, buildType, serviceRegistry));
         }
       }
     }
