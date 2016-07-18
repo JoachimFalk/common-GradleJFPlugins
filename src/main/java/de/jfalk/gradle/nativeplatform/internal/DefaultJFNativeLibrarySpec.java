@@ -14,29 +14,28 @@
 // this program; If not, write to the Free Software Foundation, Inc., 59 Temple
 // Place - Suite 330, Boston, MA 02111-1307, USA.
 
-package de.jfalk.gradle
+package de.jfalk.gradle.nativeplatform.internal;
 
-//import org.gradle.platform.base.PlatformAwareComponentSpec;
+import java.util.Set;
+import java.util.HashSet;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.jfalk.gradle.nativeplatform.JFNativeLibrarySpec;
+
 import org.gradle.nativeplatform.Flavor;
 import org.gradle.nativeplatform.BuildType;
 import org.gradle.nativeplatform.NativeLibraryRequirement;
-import org.gradle.nativeplatform.NativeLibrarySpec;
 import org.gradle.nativeplatform.internal.AbstractTargetedNativeComponentSpec;
 import org.gradle.nativeplatform.internal.ProjectNativeLibraryRequirement;
-
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-
-interface JFNativeLibrarySpec extends NativeLibrarySpec {
-
-}
 
 public class DefaultJFNativeLibrarySpec extends AbstractTargetedNativeComponentSpec implements JFNativeLibrarySpec {
   private final Logger logger;
   protected boolean enableFlavorsAndBuildTypes = false;
 
   public DefaultJFNativeLibrarySpec() {
-    this.logger = LoggerFactory.getLogger(this.class);
+    this.logger = LoggerFactory.getLogger(this.getClass());
     logger.debug("DefaultJFNativeLibrarySpec::DefaultJFNativeLibrarySpec() [CALLED]");
   }
 
@@ -45,7 +44,7 @@ public class DefaultJFNativeLibrarySpec extends AbstractTargetedNativeComponentS
     Set<Flavor> retval = new HashSet<Flavor>();
     if (enableFlavorsAndBuildTypes)
       retval = super.chooseFlavors(candidates);
-    logger.debug("DefaultJFNativeLibrarySpec::chooseFlavors(...) for " + name + " => " + retval);
+    logger.debug("DefaultJFNativeLibrarySpec::chooseFlavors(...) for " + this.getName()+ " => " + retval);
     return retval;
   }
 
@@ -54,7 +53,7 @@ public class DefaultJFNativeLibrarySpec extends AbstractTargetedNativeComponentS
     Set<BuildType> retval = new HashSet<BuildType>();
     if (enableFlavorsAndBuildTypes)
       retval = super.chooseBuildTypes(candidates);
-    logger.debug("DefaultJFNativeLibrarySpec::chooseBuildTypes(...) for " + name + " => " + retval);
+    logger.debug("DefaultJFNativeLibrarySpec::chooseBuildTypes(...) for " + this.getName() + " => " + retval);
     return retval;
   }
 
@@ -79,5 +78,4 @@ public class DefaultJFNativeLibrarySpec extends AbstractTargetedNativeComponentS
   public NativeLibraryRequirement getApi() {
     return new ProjectNativeLibraryRequirement(getProjectPath(), this.getName(), "api");
   }
-
 }

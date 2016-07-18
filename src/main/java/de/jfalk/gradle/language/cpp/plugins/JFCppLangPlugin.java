@@ -14,15 +14,15 @@
 // this program; If not, write to the Free Software Foundation, Inc., 59 Temple
 // Place - Suite 330, Boston, MA 02111-1307, USA.
 
-package de.jfalk.gradle
+package de.jfalk.gradle.language.cpp.plugins;
 
 import java.util.Map;
 import java.util.HashMap;
 
 import javax.inject.Inject;
 
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.jfalk.gradle.language.cpp.JFCppSourceSet;
 import de.jfalk.gradle.language.cpp.internal.DefaultJFCppSourceSet;
@@ -52,7 +52,7 @@ import org.gradle.nativeplatform.internal.pch.PchEnabledLanguageTransform;
 import org.gradle.platform.base.ComponentType;
 import org.gradle.platform.base.TypeBuilder;
 
-class JFCppLangPlugin implements Plugin<Project> {
+public class JFCppLangPlugin implements Plugin<Project> {
   private final Logger          logger;
 //private final ModelRegistry   modelRegistry;
 //private final ServiceRegistry serviceRegistry;
@@ -60,19 +60,19 @@ class JFCppLangPlugin implements Plugin<Project> {
 
   @Inject
   public JFCppLangPlugin(ModelRegistry modelRegistry, ServiceRegistry serviceRegistry, Instantiator instantiator) {
-    this.logger           = LoggerFactory.getLogger(this.class);
-    logger.debug("JFCppLangPlugin(...) [CALLED]")
+    this.logger           = LoggerFactory.getLogger(this.getClass());
+    logger.debug("JFCppLangPlugin(...) [CALLED]");
 //  this.modelRegistry    = modelRegistry;
 //  this.serviceRegistry  = serviceRegistry;
 //  this.instantiator     = instantiator;
-    logger.debug("JFCppLangPlugin(...) [DONE]")
+    logger.debug("JFCppLangPlugin(...) [DONE]");
   }
 
   @Override
   public void apply(final Project project) {
-    logger.debug("apply(...) [CALLED]")
+    logger.debug("apply(...) [CALLED]");
     project.getPluginManager().apply(ComponentModelBasePlugin.class);
-    logger.debug("apply(...) [DONE]")
+    logger.debug("apply(...) [DONE]");
   }
 
   static class Rules extends RuleSource {
@@ -96,7 +96,7 @@ class JFCppLangPlugin implements Plugin<Project> {
 
     @Override
     public Map<String, Class<?> > getBinaryTools() {
-      Map<String, Class<?> > retval = new HashMap();
+      Map<String, Class<?> > retval = new HashMap<String, Class<?> >();
       retval.put("cppCompiler", DefaultPreprocessingTool.class);
       return retval;
     }

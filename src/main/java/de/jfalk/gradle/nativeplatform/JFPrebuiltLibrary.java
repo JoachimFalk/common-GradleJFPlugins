@@ -14,28 +14,9 @@
 // this program; If not, write to the Free Software Foundation, Inc., 59 Temple
 // Place - Suite 330, Boston, MA 02111-1307, USA.
 
-package de.jfalk.gradle
+package de.jfalk.gradle.nativeplatform;
 
-import org.gradle.nativeplatform.NativeExecutableBinarySpec;
-import org.gradle.nativeplatform.internal.DefaultNativeExecutableBinarySpec;
+import org.gradle.nativeplatform.PrebuiltLibrary;
 
-interface JFNativeExecutableBinarySpec extends NativeExecutableBinarySpec {
-
-  String getFlammy();
-
-  void setFlammy(String flammy);
-}
-
-class DefaultJFNativeExecutableBinarySpec extends DefaultNativeExecutableBinarySpec implements JFNativeExecutableBinarySpec {
-
-  private String flammy;
-
-  @Override
-  String getFlammy()
-    { return this.flammy; }
-
-  @Override
-  void setFlammy(String flammy)
-    { this.flammy = flammy; }
-
+public interface JFPrebuiltLibrary extends PrebuiltLibrary {
 }

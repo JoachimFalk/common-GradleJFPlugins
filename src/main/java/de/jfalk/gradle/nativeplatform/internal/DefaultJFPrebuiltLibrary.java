@@ -14,33 +14,37 @@
 // this program; If not, write to the Free Software Foundation, Inc., 59 Temple
 // Place - Suite 330, Boston, MA 02111-1307, USA.
 
-package de.jfalk.gradle
+package de.jfalk.gradle.nativeplatform.internal;
 
-import org.gradle.api.Project;
+import java.util.Set;
+import java.util.HashSet;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.jfalk.gradle.JFalkStaticLibraryBinary;
+import de.jfalk.gradle.JFalkSharedLibraryBinary;
+import de.jfalk.gradle.nativeplatform.JFPrebuiltLibrary;
+
 import org.gradle.api.DomainObjectSet;
-import org.gradle.api.internal.DefaultDomainObjectSet;
 import org.gradle.api.file.SourceDirectorySet;
-import org.gradle.api.internal.file.SourceDirectorySetFactory;
+import org.gradle.api.internal.DefaultDomainObjectSet;
 //import org.gradle.api.internal.file.DefaultSourceDirectorySet;
-
-import org.gradle.nativeplatform.PrebuiltLibrary;
-import org.gradle.nativeplatform.NativeLibraryBinary;
-import org.gradle.nativeplatform.Flavor;
-import org.gradle.nativeplatform.FlavorContainer;
+import org.gradle.api.internal.file.SourceDirectorySetFactory;
+import org.gradle.api.Project;
+import org.gradle.internal.service.ServiceRegistry;
 import org.gradle.nativeplatform.BuildType;
 import org.gradle.nativeplatform.BuildTypeContainer;
-import org.gradle.nativeplatform.platform.NativePlatform;
+import org.gradle.nativeplatform.Flavor;
+import org.gradle.nativeplatform.FlavorContainer;
+import org.gradle.nativeplatform.NativeLibraryBinary;
 import org.gradle.nativeplatform.platform.internal.NativePlatforms;
-
-import org.gradle.internal.service.ServiceRegistry;
+import org.gradle.nativeplatform.platform.NativePlatform;
 import org.gradle.platform.base.PlatformContainer;
 
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+class DefaultJFPrebuiltLibrary implements JFPrebuiltLibrary {
 
-class JFalkPrebuiltLibrary implements PrebuiltLibrary {
-
-  private final Project                               parentProject;
+//private final Project                               parentProject;
   private final Logger                                logger;
 
   // Properties required by gradle
@@ -48,24 +52,22 @@ class JFalkPrebuiltLibrary implements PrebuiltLibrary {
   private final SourceDirectorySet                    headers;
   private final DomainObjectSet<NativeLibraryBinary>  binaries;
 
-  public JFalkPrebuiltLibrary(String name, Project project) {
-    ServiceRegistry serviceRegistry = project.getServices();
-
-    this.parentProject = project;
-    this.logger        = LoggerFactory.getLogger(this.class);
+  public DefaultJFPrebuiltLibrary(
+      final String              name,
+      final PlatformContainer   platforms,
+      final BuildTypeContainer  buildTypes,
+      final FlavorContainer     flavors,
+      final ServiceRegistry     serviceRegistry)
+  {
+    this.logger        = LoggerFactory.getLogger(this.getClass());
     this.name          = name;
     this.headers       = serviceRegistry.get(SourceDirectorySetFactory.class).create("headers");
     this.binaries      = new DefaultDomainObjectSet<NativeLibraryBinary>(NativeLibraryBinary.class);
 
-//  ModelRegistry   modelRegistry   = project.getModelRegistry();
-
     NativePlatforms   nativePlatforms = serviceRegistry.get(NativePlatforms.class);
-//  FileResolver      fileResolver    = serviceRegistry.get(FileResolver.class);
-    PlatformContainer platforms       = project.getExtensions().findByName("platforms");
 
-    Set<NativePlatform> allPlatforms = new LinkedHashSet<NativePlatform>();
+    Set<NativePlatform> allPlatforms = new HashSet<NativePlatform>();
 
-    // toolChains = project.getExtensions().getByType(NativeToolChainRegistryInternal.class);
 //  logger.debug("platforms:       " + platforms.withType(NativePlatform.class));
 //  logger.debug("nativePlatforms: " + nativePlatforms.defaultPlatformDefinitions());
     allPlatforms.addAll(platforms.withType(NativePlatform.class));
@@ -73,11 +75,11 @@ class JFalkPrebuiltLibrary implements PrebuiltLibrary {
 //  logger.debug("allPlatforms: " + allPlatforms);
 
     for (NativePlatform platform : allPlatforms) {
-      for (BuildType buildType : project.getExtensions().getByType(BuildTypeContainer.class)) {
-        for (Flavor flavor : project.getExtensions().getByType(FlavorContainer.class)) {
+      for (BuildType buildType : buildTypes) {
+        for (Flavor flavor : flavors) {
           logger.debug("BINARY "+name+" on platform: " + platform + " " + buildType + " " + flavor);
-          binaries.add(new JFalkStaticLibraryBinary(this, flavor, platform, buildType));
-          binaries.add(new JFalkSharedLibraryBinary(this, flavor, platform, buildType));
+          binaries.add(new JFalkStaticLibraryBinary(this, flavor, platform, buildType, serviceRegistry));
+          binaries.add(new JFalkSharedLibraryBinary(this, flavor, platform, buildType, serviceRegistry));
         }
       }
     }
@@ -95,23 +97,3 @@ class JFalkPrebuiltLibrary implements PrebuiltLibrary {
     return binaries;
   }
 }
-
-//@Managed
-//trait JFalkPrebuiltLibraryX implements PrebuiltLibrary {
-//
-//    private final String name;
-//    private final SourceDirectorySet headers;
-//    private final DomainObjectSet<NativeLibraryBinary> binaries;
-//
-//    public String getName() {
-//        return name;
-//    }
-//
-//    public SourceDirectorySet getHeaders() {
-//        return headers;
-//    }
-//
-//    public DomainObjectSet<NativeLibraryBinary> getBinaries() {
-//        return binaries;
-//    }
-//}

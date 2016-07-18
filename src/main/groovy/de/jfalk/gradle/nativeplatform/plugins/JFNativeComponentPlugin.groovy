@@ -14,7 +14,7 @@
 // this program; If not, write to the Free Software Foundation, Inc., 59 Temple
 // Place - Suite 330, Boston, MA 02111-1307, USA.
 
-package de.jfalk.gradle
+package de.jfalk.gradle.nativeplatform.plugins;
 
 import java.util.Set;
 import java.util.HashSet;
@@ -25,65 +25,79 @@ import java.util.Collections;
 
 import javax.inject.Inject;
 
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.jfalk.gradle.language.cpp.JFCppSourceSet;
-import de.jfalk.gradle.nativeplatform.JFSharedLibraryBinarySpec;
+import de.jfalk.gradle.nativeplatform.internal.DefaultJFNativeExecutableBinarySpec;
+import de.jfalk.gradle.nativeplatform.internal.DefaultJFNativeExecutableSpec;
+import de.jfalk.gradle.nativeplatform.internal.DefaultJFNativeLibrarySpec;
+import de.jfalk.gradle.nativeplatform.internal.DefaultJFPrebuiltLibraries;
 import de.jfalk.gradle.nativeplatform.internal.DefaultJFSharedLibraryBinarySpec;
-import de.jfalk.gradle.nativeplatform.JFStaticLibraryBinarySpec;
 import de.jfalk.gradle.nativeplatform.internal.DefaultJFStaticLibraryBinarySpec;
 import de.jfalk.gradle.nativeplatform.internal.resolve.DefaultJFNativeDependencyResolver;
+import de.jfalk.gradle.nativeplatform.internal.resolve.DefaultJFPrebuiltLibraryBinaryLocator;
+import de.jfalk.gradle.nativeplatform.JFNativeExecutableBinarySpec;
+import de.jfalk.gradle.nativeplatform.JFNativeExecutableSpec;
+import de.jfalk.gradle.nativeplatform.JFNativeLibrarySpec;
+import de.jfalk.gradle.nativeplatform.JFPrebuiltLibraries;
+import de.jfalk.gradle.nativeplatform.JFPrebuiltLibrary;
+import de.jfalk.gradle.nativeplatform.JFSharedLibraryBinarySpec;
+import de.jfalk.gradle.nativeplatform.JFStaticLibraryBinarySpec;
 
-import org.gradle.language.base.internal.LanguageSourceSetInternal;
-
-import org.gradle.nativeplatform.internal.resolve.LibraryBinaryLocator;
-import org.gradle.api.internal.file.FileCollectionFactory;
-
-import org.gradle.language.base.LanguageSourceSet;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.internal.file.FileCollectionFactory;
+import org.gradle.api.internal.file.SourceDirectorySetFactory;
+import org.gradle.api.internal.resolve.ProjectModelResolver;
 import org.gradle.api.InvalidUserDataException;
 import org.gradle.api.Named;
+import org.gradle.api.NamedDomainObjectFactory;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.internal.reflect.Instantiator;
 import org.gradle.internal.service.ServiceRegistry;
+import org.gradle.language.base.internal.LanguageSourceSetInternal;
+import org.gradle.language.base.LanguageSourceSet;
 import org.gradle.language.cpp.plugins.CppLangPlugin;
 import org.gradle.model.Defaults;
 import org.gradle.model.Each;
 import org.gradle.model.Finalize;
-import org.gradle.model.Managed;
 import org.gradle.model.internal.core.ModelNode;
 import org.gradle.model.internal.core.ModelNodes;
 import org.gradle.model.internal.core.MutableModelNode;
 import org.gradle.model.internal.core.NodeBackedModelMap;
-import org.gradle.model.internal.registry.ModelRegistry;
 //import org.gradle.model.internal.registry.ModelElementNode;
+import org.gradle.model.internal.registry.ModelRegistry;
+import org.gradle.model.Managed;
+import org.gradle.model.Model;
 import org.gradle.model.ModelMap;
 import org.gradle.model.Mutate;
 import org.gradle.model.RuleSource;
-import org.gradle.model.Model;
-import org.gradle.nativeplatform.NativeDependencySet;
-import org.gradle.nativeplatform.NativeBinarySpec;
-import org.gradle.nativeplatform.NativeExecutableBinarySpec;
 import org.gradle.nativeplatform.BuildType;
 import org.gradle.nativeplatform.BuildTypeContainer;
 import org.gradle.nativeplatform.Flavor;
 import org.gradle.nativeplatform.FlavorContainer;
-import org.gradle.nativeplatform.internal.configure.NativeComponentRules;
 import org.gradle.nativeplatform.internal.configure.NativeBinaries;
+import org.gradle.nativeplatform.internal.configure.NativeComponentRules;
+import org.gradle.nativeplatform.internal.prebuilt.PrebuiltLibraryBinaryLocator;
 import org.gradle.nativeplatform.internal.ProjectNativeLibraryRequirement;
-import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;
-import org.gradle.nativeplatform.internal.TargetedNativeComponentInternal;
+import org.gradle.nativeplatform.internal.resolve.ChainedLibraryBinaryLocator;
+import org.gradle.nativeplatform.internal.resolve.LibraryBinaryLocator;
 import org.gradle.nativeplatform.internal.resolve.NativeBinaryResolveResult;
+import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;
+import org.gradle.nativeplatform.internal.resolve.ProjectLibraryBinaryLocator;
+import org.gradle.nativeplatform.internal.TargetedNativeComponentInternal;
+import org.gradle.nativeplatform.NativeBinarySpec;
+import org.gradle.nativeplatform.NativeDependencySet;
+import org.gradle.nativeplatform.NativeExecutableBinarySpec;
 import org.gradle.nativeplatform.NativeLibraryBinarySpec;
 import org.gradle.nativeplatform.NativeLibraryRequirement;
 import org.gradle.nativeplatform.NativeLibrarySpec;
 import org.gradle.nativeplatform.platform.internal.NativePlatforms;
 import org.gradle.nativeplatform.platform.NativePlatform;
 import org.gradle.nativeplatform.plugins.NativeComponentPlugin;
+import org.gradle.nativeplatform.Repositories;
 import org.gradle.nativeplatform.SharedLibraryBinarySpec;
 import org.gradle.nativeplatform.StaticLibraryBinarySpec;
 import org.gradle.nativeplatform.toolchain.internal.NativeToolChainRegistryInternal;
@@ -93,12 +107,12 @@ import org.gradle.platform.base.ComponentBinaries;
 import org.gradle.platform.base.ComponentSpec;
 import org.gradle.platform.base.ComponentSpecContainer;
 import org.gradle.platform.base.ComponentType;
-import org.gradle.platform.base.PlatformContainer;
-import org.gradle.platform.base.TypeBuilder;
 import org.gradle.platform.base.internal.BinaryNamingScheme;
+import org.gradle.platform.base.internal.DefaultBinaryNamingScheme;
 import org.gradle.platform.base.internal.PlatformRequirement;
 import org.gradle.platform.base.internal.PlatformResolvers;
-import org.gradle.platform.base.internal.DefaultBinaryNamingScheme;
+import org.gradle.platform.base.PlatformContainer;
+import org.gradle.platform.base.TypeBuilder;
 
 //trait JFNativeBinarySpecView implements NativeBinarySpec {
 //  String internalData;
@@ -113,24 +127,22 @@ import org.gradle.platform.base.internal.DefaultBinaryNamingScheme;
 //
 //}
 
-class JFCppPlugin implements Plugin<Project> {
+public class JFNativeComponentPlugin implements Plugin<Project> {
   private final Logger                    logger;
-  private final ModelRegistry             modelRegistry;
-//private final Instantiator              instantiator;
+  private final Instantiator              instantiator;
+
 
   private FlavorContainer                 flavors;
   private NativeToolChainRegistryInternal toolChains;
   private BuildTypeContainer              buildTypes;
-  private ServiceRegistry                 serviceRegistry;
+  private Repositories                    repositories;
 
   @Inject
-  public JFCppPlugin(ModelRegistry modelRegistry, ServiceRegistry serviceRegistry, Instantiator instantiator) {
-    this.logger           = LoggerFactory.getLogger(this.class);
-    logger.debug("JFCppPlugin(...) [CALLED]")
-    this.modelRegistry    = modelRegistry;
-//  this.serviceRegistry  = serviceRegistry;
-//  this.instantiator     = instantiator;
-    logger.debug("JFCppPlugin(...) [DONE]")
+  public JFNativeComponentPlugin(Instantiator instantiator) {
+    this.logger       = LoggerFactory.getLogger(this.getClass());
+    logger.debug("JFNativeComponentPlugin(...) [CALLED]");
+    this.instantiator = instantiator;
+    logger.debug("JFNativeComponentPlugin(...) [DONE]");
   }
 
 //Set<File> exportedHeadersOfLib(Object library) {
@@ -139,19 +151,21 @@ class JFCppPlugin implements Plugin<Project> {
 //}
 
   @Override
-  void apply(final Project project) {
-    logger.debug("apply(...) [CALLED]")
+  public void apply(final Project project) {
+    logger.debug("apply(...) [CALLED]");
     // This should create the extensions used below.
     project.getPluginManager().apply(NativeComponentPlugin.class);
-    project.getPluginManager().apply(JFCppLangPlugin.class);
     // Get the extensions created by the previous plugins.
+//  ModelRegistry projectModel = project.getModelRegistry();
 //  JFHelperFunctions.analysis("modelRegistry.getRoot()", modelRegistry.getRoot())
     this.flavors         = project.getExtensions().getByType(FlavorContainer.class);
     this.toolChains      = project.getExtensions().getByType(NativeToolChainRegistryInternal.class);
     this.buildTypes      = project.getExtensions().getByType(BuildTypeContainer.class);
-    this.serviceRegistry = project.getServices();
+//  this.repositories    = projectModel.realize("repositories", Repositories.class)
+
+//  this.serviceRegistry = project.getServices();
 //  PlatformContainer platforms = project.getExtensions().getByType(PlatformContainer.class);
-    assert this.modelRegistry == project.getModelRegistry();
+//  assert this.modelRegistry == project.getModelRegistry();
 //  assert this.serviceRegistry == project.getServices(); this fails!
 
 //  Instantiator instantiator = project.getServices().get(Instantiator.class);
@@ -177,60 +191,98 @@ class JFCppPlugin implements Plugin<Project> {
     project.ext.JFStaticLibraryBinarySpec    = JFStaticLibraryBinarySpec.class;
     project.ext.JFNativeExecutableSpec       = JFNativeExecutableSpec.class;
     project.ext.JFNativeExecutableBinarySpec = JFNativeExecutableBinarySpec.class;
-
-    // new JFalkPrebuiltLibrary(...) does not work in a ```build.gradle'' file! Why?
-    project.ext.JFalkPrebuiltLibrary = JFalkPrebuiltLibrary.class; 
-
-//  project.ext.exportedHeadersOfLib = this.&exportedHeadersOfLib;
-    logger.debug("apply(...) [DONE]")
+    project.ext.JFPrebuiltLibraries          = JFPrebuiltLibraries.class; 
+//  project.ext.exportedHeadersOfLib         = this.&exportedHeadersOfLib;
+    logger.debug("apply(...) [DONE]");
   }
 
-  static class Rules extends RuleSource {
+  static
+  public class Rules extends RuleSource {
 
     private static final Logger logger = LoggerFactory.getLogger(Rules.class);
 
     @ComponentType
-    void nativeLibrary(TypeBuilder<JFNativeLibrarySpec> builder) {
+    public void nativeLibrary(TypeBuilder<JFNativeLibrarySpec> builder) {
       builder.defaultImplementation(DefaultJFNativeLibrarySpec.class);
     }
 
     @ComponentType
-    void sharedLibraryBinary(TypeBuilder<JFSharedLibraryBinarySpec> builder) {
+    public void sharedLibraryBinary(TypeBuilder<JFSharedLibraryBinarySpec> builder) {
       builder.defaultImplementation(DefaultJFSharedLibraryBinarySpec.class);
     }
 
     @ComponentType
-    void staticLibraryBinary(TypeBuilder<JFStaticLibraryBinarySpec> builder) {
+    public void staticLibraryBinary(TypeBuilder<JFStaticLibraryBinarySpec> builder) {
       builder.defaultImplementation(DefaultJFStaticLibraryBinarySpec.class);
     }
 
     @ComponentType
-    void nativeExecutable(TypeBuilder<JFNativeExecutableSpec> builder) {
+    public void nativeExecutable(TypeBuilder<JFNativeExecutableSpec> builder) {
       builder.defaultImplementation(DefaultJFNativeExecutableSpec.class);
     }
 
     @ComponentType
-    void executableBinary(TypeBuilder<JFNativeExecutableBinarySpec> builder) {
+    public void executableBinary(TypeBuilder<JFNativeExecutableBinarySpec> builder) {
       builder.defaultImplementation(DefaultJFNativeExecutableBinarySpec.class);
     }
 
 //  @ComponentType
-//  void nativeBinary(TypeBuilder<NativeBinarySpec> builder) {
+//  public void nativeBinary(TypeBuilder<NativeBinarySpec> builder) {
 //    builder.internalView(JFNativeBinarySpecView.class);
 //  }
 
     @Model
-    NativeDependencyResolver createNativeDependencyResolver(ServiceRegistry serviceRegistry) {
-      new DefaultJFNativeDependencyResolver(
-        serviceRegistry.get(LibraryBinaryLocator.class),
-        serviceRegistry.get(FileCollectionFactory.class));
+    public LibraryBinaryLocator createLibraryBinaryLocator(
+        final ServiceRegistry       serviceRegistry)
+    {
+      logger.debug("createLibraryBinaryLocator(...) [CALLED]");
+      ProjectModelResolver projectModelResolver = serviceRegistry.get(ProjectModelResolver.class);
+      List<LibraryBinaryLocator> locators = new ArrayList<LibraryBinaryLocator>();
+      locators.add(new ProjectLibraryBinaryLocator(projectModelResolver));
+      locators.add(new PrebuiltLibraryBinaryLocator(projectModelResolver));
+      locators.add(new DefaultJFPrebuiltLibraryBinaryLocator(projectModelResolver));
+      LibraryBinaryLocator retval = new ChainedLibraryBinaryLocator(locators);
+      logger.debug("createLibraryBinaryLocator(...) [DONE]");
+      return retval;
+    }   
+
+    @Model
+    public NativeDependencyResolver createNativeDependencyResolver(
+        final LibraryBinaryLocator  libraryBinaryLocator,
+        final ServiceRegistry       serviceRegistry)
+    {
+      logger.debug("createNativeDependencyResolver(...) [CALLED]");
+      NativeDependencyResolver retval = new DefaultJFNativeDependencyResolver(
+        libraryBinaryLocator, serviceRegistry.get(FileCollectionFactory.class));
+      logger.debug("createNativeDependencyResolver(...) [DONE]");
+      return retval;
+    }
+
+    @Defaults
+    public void repositories(
+        final Repositories        repositories, // Modify this
+        // via usage of the following factories and stuff.
+        final Instantiator        instantiator,
+        final PlatformContainer   platforms,
+        final BuildTypeContainer  buildTypes,
+        final FlavorContainer     flavors,
+        final ServiceRegistry     serviceRegistry)
+    {
+      logger.debug("repositoriesContainer(...) for " + repositories + " [CALLED]");
+      repositories.registerFactory(JFPrebuiltLibraries.class, new NamedDomainObjectFactory<JFPrebuiltLibraries>() {
+          public JFPrebuiltLibraries create(String name) {
+            return instantiator.newInstance(DefaultJFPrebuiltLibraries.class, name,
+              instantiator, platforms, buildTypes, flavors, serviceRegistry);
+          }
+        });
+      logger.debug("repositoriesContainer(...) for " + repositories + " [DONE]");
     }
 
     @ComponentBinaries
-    void createBinariesForJFNativeLibrarySpec(
+    public void createBinariesForJFNativeLibrarySpec(
         ModelMap<NativeLibraryBinarySpec> binaries, // Create this
         JFNativeLibrarySpec               nativeComponent, // From this input
-        // Via usage of the following factories and stuff.
+        // via usage of the following factories and stuff.
         PlatformResolvers                 platforms,
         BuildTypeContainer                buildTypes,
         FlavorContainer                   flavors,
@@ -303,7 +355,7 @@ class JFCppPlugin implements Plugin<Project> {
     }
 
     @ComponentBinaries
-    void createBinariesForJFNativeExecutableSpec(
+    public void createBinariesForJFNativeExecutableSpec(
         ModelMap<NativeExecutableBinarySpec> binaries, // Create this
         JFNativeExecutableSpec               nativeComponent, // From this input
         // Via usage of the following factories and stuff.
@@ -341,14 +393,14 @@ class JFCppPlugin implements Plugin<Project> {
     }
 
     @Finalize
-    void dumpNativeBinaryInputs(@Each final NativeBinarySpec nativeBinarySpec) {
+    public void dumpNativeBinaryInputs(@Each final NativeBinarySpec nativeBinarySpec) {
       for (Object input : nativeBinarySpec.getInputs()) {
         logger.debug("dumpNativeBinaryInputs: " + nativeBinarySpec + " has input " + input);
       }
     }
 
 //  @Defaults
-//  void defaultsForJFNativeLibrarySpec(@Each final JFNativeLibrarySpec nativeComponent) {
+//  public void defaultsForJFNativeLibrarySpec(@Each final JFNativeLibrarySpec nativeComponent) {
 //    logger.debug("defaultsForJFNativeLibrarySpec(...) for " + nativeComponent + " [CALLED]");
 //    for (NativeLibraryBinarySpec lib : nativeComponent.getBinaries()) {
 //      println "defaultsForJFNativeLibrarySpec:   " + lib;
@@ -357,11 +409,11 @@ class JFCppPlugin implements Plugin<Project> {
 //  }
 
     @Finalize
-    void finalizeForLanguageSourceSet(@Each final LanguageSourceSet langSourceSet) {
+    public void finalizeForLanguageSourceSet(@Each final LanguageSourceSet langSourceSet) {
       logger.debug("finalizeForLanguageSourceSet(...) for " + langSourceSet + " [CALLED]");
-      langSourceSet.source.exclude "**/*.sw*"
-      langSourceSet.source.exclude "**/*~"
-      langSourceSet.source.exclude "**/*.bak"
+      langSourceSet.getSource().exclude("**/*.sw*");
+      langSourceSet.getSource().exclude("**/*~");
+      langSourceSet.getSource().exclude("**/*.bak");
       logger.debug("finalizeForLanguageSourceSet(...) for " + langSourceSet + " [DONE]");
     }
 

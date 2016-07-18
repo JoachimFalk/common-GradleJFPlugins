@@ -14,35 +14,31 @@
 // this program; If not, write to the Free Software Foundation, Inc., 59 Temple
 // Place - Suite 330, Boston, MA 02111-1307, USA.
 
-package de.jfalk.gradle
-
-import org.gradle.internal.service.ServiceRegistry;
-
-import org.gradle.nativeplatform.StaticLibraryBinary;
-import org.gradle.nativeplatform.Flavor;
-import org.gradle.nativeplatform.BuildType;
-import org.gradle.nativeplatform.platform.NativePlatform;
-
-import org.gradle.api.file.FileCollection;
-import org.gradle.api.internal.file.collections.SimpleFileCollection;
-
-import org.gradle.api.file.SourceDirectorySet;
-import org.gradle.api.internal.file.SourceDirectorySetFactory;
-//import org.gradle.api.internal.file.DefaultSourceDirectorySet;
+package de.jfalk.gradle;
 
 import java.io.File;
 import java.util.Collection;
 import java.util.ArrayList;
 
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-//import JFalkPrebuiltLibrary;
+import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.SourceDirectorySet;
+import org.gradle.api.internal.file.collections.SimpleFileCollection;
+//import org.gradle.api.internal.file.DefaultSourceDirectorySet;
+import org.gradle.api.internal.file.SourceDirectorySetFactory;
+import org.gradle.internal.service.ServiceRegistry;
+import org.gradle.nativeplatform.BuildType;
+import org.gradle.nativeplatform.Flavor;
+import org.gradle.nativeplatform.PrebuiltLibrary;
+import org.gradle.nativeplatform.platform.NativePlatform;
+import org.gradle.nativeplatform.StaticLibraryBinary;
 
 /// A {@link NativeLibrary} that has been compiled and archived into a static library.
-class JFalkStaticLibraryBinary implements StaticLibraryBinary {
+public class JFalkStaticLibraryBinary implements StaticLibraryBinary {
 
-  private final JFalkPrebuiltLibrary parent;
+  private final PrebuiltLibrary      parent;
   private final Logger               logger;
   private final SourceDirectorySet   headers;
 
@@ -52,43 +48,48 @@ class JFalkStaticLibraryBinary implements StaticLibraryBinary {
   private final NativePlatform       platform;
   private final BuildType            buildType;
 
-  public JFalkStaticLibraryBinary(JFalkPrebuiltLibrary parent, Flavor flavor, NativePlatform platform, BuildType buildType) {
-    ServiceRegistry serviceRegistry = parent.parentProject.getServices();
-
+  public JFalkStaticLibraryBinary(PrebuiltLibrary parent, Flavor flavor, NativePlatform platform, BuildType buildType, ServiceRegistry serviceRegistry) {
     this.parent    = parent;
-    this.logger    = LoggerFactory.getLogger(this.class);
+    this.logger    = LoggerFactory.getLogger(this.getClass());
     this.headers   = serviceRegistry.get(SourceDirectorySetFactory.class).create("headers");
-    this.name      = parent.name;
+    this.name      = parent.getName();
     this.flavor    = flavor;
     this.platform  = platform;
     this.buildType = buildType;
   }
 
   /// Returns a human-consumable display name for this binary.
-  String getDisplayName() {
+  @Override
+  public String getDisplayName() {
     return "JFalkStaticLibraryBinary " + name;
   }
 
   /// The {@link org.gradle.nativeplatform.Flavor} that this binary was built with.
-  Flavor getFlavor() { return flavor; }
+  @Override
+  public Flavor getFlavor() { return flavor; }
 
   /// Returns the {@link org.gradle.nativeplatform.platform.NativePlatform} that this binary is targeted to run on.
-  NativePlatform getTargetPlatform() { return platform; }
+  @Override
+  public NativePlatform getTargetPlatform() { return platform; }
 
   /// Returns the {@link org.gradle.nativeplatform.BuildType} used to construct this binary.
-  BuildType getBuildType() { return buildType; }
+  @Override
+  public BuildType getBuildType() { return buildType; }
 
-  FileCollection getHeaderDirs() {
+  @Override
+  public FileCollection getHeaderDirs() {
     logger.debug("JFalkStaticLibraryBinary::getHeaderDirs() [CALLED]");
     Collection<File> retval = new ArrayList<File>();
     retval.addAll(headers.getSrcDirs());
-    retval.addAll(parent.headers.getSrcDirs());
-    retval.each { entry ->
-      logger.debug("  header dir: " + entry); }
+    retval.addAll(parent.getHeaders().getSrcDirs());
+    for (File entry : retval) {
+      logger.debug("  header dir: " + entry);
+    }
     return new SimpleFileCollection(retval);
   }
 
-  FileCollection getLinkFiles() {
+  @Override
+  public FileCollection getLinkFiles() {
     logger.debug("JFalkStaticLibraryBinary::getLinkFiles() [CALLED]");
     if (getStaticLibraryFile() != null)
       return new SimpleFileCollection(getStaticLibraryFile());
@@ -96,7 +97,8 @@ class JFalkStaticLibraryBinary implements StaticLibraryBinary {
       return new SimpleFileCollection();
   }
 
-  FileCollection getRuntimeFiles() {
+  @Override
+  public FileCollection getRuntimeFiles() {
     logger.debug("JFalkStaticLibraryBinary::getRuntimeFiles() [CALLED]");
     return new SimpleFileCollection();
   }
@@ -104,7 +106,8 @@ class JFalkStaticLibraryBinary implements StaticLibraryBinary {
   // Implement interface of StaticLibraryBinary.
 
   /// The static library file. 
-  File getStaticLibraryFile() {
+  @Override
+  public File getStaticLibraryFile() {
     logger.debug("JFalkStaticLibraryBinary::getStaticLibraryFile() [CALLED]");
     return libraryFile;
   }

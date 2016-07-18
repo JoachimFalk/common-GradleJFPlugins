@@ -14,26 +14,26 @@
 // this program; If not, write to the Free Software Foundation, Inc., 59 Temple
 // Place - Suite 330, Boston, MA 02111-1307, USA.
 
-package de.jfalk.gradle
+package de.jfalk.gradle.nativeplatform.internal;
 
-//import org.gradle.platform.base.PlatformAwareComponentSpec;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Set;
+import java.util.HashSet;
+
+import de.jfalk.gradle.nativeplatform.JFNativeExecutableSpec;
+
 import org.gradle.nativeplatform.Flavor;
 import org.gradle.nativeplatform.BuildType;
-import org.gradle.nativeplatform.NativeExecutableSpec;
 import org.gradle.nativeplatform.internal.AbstractTargetedNativeComponentSpec;
-
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-
-interface JFNativeExecutableSpec extends NativeExecutableSpec {
-}
 
 public class DefaultJFNativeExecutableSpec extends AbstractTargetedNativeComponentSpec implements JFNativeExecutableSpec {
   private final Logger logger;
   protected boolean enableFlavorsAndBuildTypes = false;
 
   public DefaultJFNativeExecutableSpec() {
-    this.logger = LoggerFactory.getLogger(this.class);
+    this.logger = LoggerFactory.getLogger(this.getClass());
     logger.debug("DefaultJFNativeExecutableSpec::DefaultJFNativeExecutableSpec() [CALLED]");
   }
 
@@ -42,7 +42,7 @@ public class DefaultJFNativeExecutableSpec extends AbstractTargetedNativeCompone
     Set<Flavor> retval = new HashSet<Flavor>();
     if (enableFlavorsAndBuildTypes)
       retval = super.chooseFlavors(candidates);
-    logger.debug("DefaultJFNativeExecutableSpec::chooseFlavors(...) for " + name + " => " + retval);
+    logger.debug("DefaultJFNativeExecutableSpec::chooseFlavors(...) for " + this.getName() + " => " + retval);
     return retval;
   }
 
@@ -51,7 +51,7 @@ public class DefaultJFNativeExecutableSpec extends AbstractTargetedNativeCompone
     Set<BuildType> retval = new HashSet<BuildType>();
     if (enableFlavorsAndBuildTypes)
       retval = super.chooseBuildTypes(candidates);
-    logger.debug("DefaultJFNativeExecutableSpec::chooseBuildTypes(...) for " + name + " => " + retval);
+    logger.debug("DefaultJFNativeExecutableSpec::chooseBuildTypes(...) for " + this.getName() + " => " + retval);
     return retval;
   }
 
