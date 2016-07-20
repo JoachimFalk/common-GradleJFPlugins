@@ -18,7 +18,7 @@ package de.jfalk.gradle.nativeplatform;
 
 import org.gradle.nativeplatform.SharedLibraryBinarySpec;
 
-public interface JFSharedLibraryBinarySpec extends SharedLibraryBinarySpec {
+public interface JFSharedLibraryBinarySpec extends SharedLibraryBinarySpec, JFSharedLibraryBinary {
   String getFlummy();
   void   setFlummy(String flummy);
 }

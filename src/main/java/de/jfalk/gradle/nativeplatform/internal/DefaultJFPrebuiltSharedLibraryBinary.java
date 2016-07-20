@@ -23,20 +23,20 @@ import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.jfalk.gradle.nativeplatform.JFSharedLibraryBinary;
+
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.internal.file.collections.SimpleFileCollection;
-//import org.gradle.api.internal.file.DefaultSourceDirectorySet;
 import org.gradle.api.internal.file.SourceDirectorySetFactory;
 import org.gradle.internal.service.ServiceRegistry;
 import org.gradle.nativeplatform.BuildType;
 import org.gradle.nativeplatform.Flavor;
 import org.gradle.nativeplatform.PrebuiltLibrary;
 import org.gradle.nativeplatform.platform.NativePlatform;
-import org.gradle.nativeplatform.SharedLibraryBinary;
 
 /// A {@link NativeLibrary} that has been compiled and linked as a shared library.
-public class DefaultJFPrebuiltSharedLibraryBinary implements SharedLibraryBinary {
+public class DefaultJFPrebuiltSharedLibraryBinary implements JFSharedLibraryBinary {
 
   private final Logger               logger;
   private final PrebuiltLibrary      parent;

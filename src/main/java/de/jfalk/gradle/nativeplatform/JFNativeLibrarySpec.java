@@ -18,5 +18,5 @@ package de.jfalk.gradle.nativeplatform;
 
 import org.gradle.nativeplatform.NativeLibrarySpec;
 
-public interface JFNativeLibrarySpec extends NativeLibrarySpec {
+public interface JFNativeLibrarySpec extends NativeLibrarySpec, JFNativeLibrary {
 }

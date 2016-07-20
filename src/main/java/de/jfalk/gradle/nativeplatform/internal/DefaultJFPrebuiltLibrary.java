@@ -27,10 +27,18 @@ import de.jfalk.gradle.nativeplatform.JFPrebuiltLibrary;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.internal.DefaultDomainObjectSet;
+import org.gradle.api.internal.DefaultPolymorphicDomainObjectContainer;
 //import org.gradle.api.internal.file.DefaultSourceDirectorySet;
 import org.gradle.api.internal.file.SourceDirectorySetFactory;
+import org.gradle.api.NamedDomainObjectFactory;
+import org.gradle.api.PolymorphicDomainObjectContainer;
 import org.gradle.api.Project;
 import org.gradle.internal.service.ServiceRegistry;
+import org.gradle.language.base.LanguageSourceSet;
+import org.gradle.model.ModelMap;
+import org.gradle.model.internal.core.ModelMaps;
+import org.gradle.model.internal.core.MutableModelNode;
+import org.gradle.model.internal.type.ModelType;
 import org.gradle.nativeplatform.BuildType;
 import org.gradle.nativeplatform.BuildTypeContainer;
 import org.gradle.nativeplatform.Flavor;
@@ -41,9 +49,12 @@ import org.gradle.nativeplatform.platform.NativePlatform;
 import org.gradle.platform.base.PlatformContainer;
 
 class DefaultJFPrebuiltLibrary implements JFPrebuiltLibrary {
+  // Constants
+  private static final ModelType<LanguageSourceSet>   LANGUAGE_SOURCE_SET_MODEL_TYPE = ModelType.of(LanguageSourceSet.class);
 
-//private final Project                               parentProject;
   private final Logger                                logger;
+
+  private final MutableModelNode                      interfaces;
 
   // Properties required by gradle
   private final String                                name;
@@ -58,6 +69,7 @@ class DefaultJFPrebuiltLibrary implements JFPrebuiltLibrary {
       final ServiceRegistry     serviceRegistry)
   {
     this.logger        = LoggerFactory.getLogger(this.getClass());
+    this.interfaces    = null;
     this.name          = name;
     this.headers       = serviceRegistry.get(SourceDirectorySetFactory.class).create("headers");
     this.binaries      = new DefaultDomainObjectSet<NativeLibraryBinary>(NativeLibraryBinary.class);
@@ -83,15 +95,24 @@ class DefaultJFPrebuiltLibrary implements JFPrebuiltLibrary {
     }
   }
 
+  @Override
   public String getName() {
     return name;
   }
 
+  @Override
   public SourceDirectorySet getHeaders() {
     return headers;
   }
 
+  @Override
   public DomainObjectSet<NativeLibraryBinary> getBinaries() {
     return binaries;
   }
+
+  @Override
+  public ModelMap<LanguageSourceSet> getInterfaces() {
+    return ModelMaps.toView(interfaces, LANGUAGE_SOURCE_SET_MODEL_TYPE);
+  }
+  
 }

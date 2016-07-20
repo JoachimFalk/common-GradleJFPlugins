@@ -33,6 +33,8 @@ import de.jfalk.gradle.nativeplatform.internal.DefaultJFNativeExecutableBinarySp
 import de.jfalk.gradle.nativeplatform.internal.DefaultJFNativeExecutableSpec;
 import de.jfalk.gradle.nativeplatform.internal.DefaultJFNativeLibrarySpec;
 import de.jfalk.gradle.nativeplatform.internal.DefaultJFPrebuiltLibraries;
+import de.jfalk.gradle.nativeplatform.internal.DefaultJFPrebuiltLibrariesSpec;
+import de.jfalk.gradle.nativeplatform.internal.DefaultJFPrebuiltLibrarySpec;
 import de.jfalk.gradle.nativeplatform.internal.DefaultJFSharedLibraryBinarySpec;
 import de.jfalk.gradle.nativeplatform.internal.DefaultJFStaticLibraryBinarySpec;
 import de.jfalk.gradle.nativeplatform.internal.resolve.DefaultJFNativeDependencyResolver;
@@ -41,7 +43,10 @@ import de.jfalk.gradle.nativeplatform.JFNativeExecutableBinarySpec;
 import de.jfalk.gradle.nativeplatform.JFNativeExecutableSpec;
 import de.jfalk.gradle.nativeplatform.JFNativeLibrarySpec;
 import de.jfalk.gradle.nativeplatform.JFPrebuiltLibraries;
+import de.jfalk.gradle.nativeplatform.JFPrebuiltLibrariesSpec;
 import de.jfalk.gradle.nativeplatform.JFPrebuiltLibrary;
+import de.jfalk.gradle.nativeplatform.JFPrebuiltLibrarySpec;
+import de.jfalk.gradle.nativeplatform.JFRepositoriesSpec;
 import de.jfalk.gradle.nativeplatform.JFSharedLibraryBinarySpec;
 import de.jfalk.gradle.nativeplatform.JFStaticLibraryBinarySpec;
 
@@ -105,6 +110,7 @@ import org.gradle.platform.base.BinaryContainer;
 import org.gradle.platform.base.BinaryType;
 import org.gradle.platform.base.ComponentBinaries;
 import org.gradle.platform.base.ComponentSpec;
+import org.gradle.platform.base.VariantComponentSpec;
 import org.gradle.platform.base.ComponentSpecContainer;
 import org.gradle.platform.base.ComponentType;
 import org.gradle.platform.base.internal.BinaryNamingScheme;
@@ -192,6 +198,7 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
     project.ext.JFNativeExecutableSpec       = JFNativeExecutableSpec.class;
     project.ext.JFNativeExecutableBinarySpec = JFNativeExecutableBinarySpec.class;
     project.ext.JFPrebuiltLibraries          = JFPrebuiltLibraries.class; 
+    project.ext.JFPrebuiltLibrariesSpec      = JFPrebuiltLibrariesSpec.class; 
 //  project.ext.exportedHeadersOfLib         = this.&exportedHeadersOfLib;
     logger.debug("apply(...) [DONE]");
   }
@@ -226,10 +233,16 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
       builder.defaultImplementation(DefaultJFNativeExecutableBinarySpec.class);
     }
 
-//  @ComponentType
-//  public void nativeBinary(TypeBuilder<NativeBinarySpec> builder) {
-//    builder.internalView(JFNativeBinarySpecView.class);
-//  }
+    @ComponentType
+    public void prebuiltLibraries(TypeBuilder<JFPrebuiltLibrariesSpec> builder) {
+      builder.defaultImplementation(DefaultJFPrebuiltLibrariesSpec.class);
+    }
+
+    @ComponentType
+    public void prebuiltLibrary(TypeBuilder<JFPrebuiltLibrarySpec> builder) {
+      builder.defaultImplementation(DefaultJFPrebuiltLibrarySpec.class);
+//    builder.internalView(DefaultJFPrebuiltLibrarySpecView.class);
+    }
 
     @Model
     public LibraryBinaryLocator createLibraryBinaryLocator(
@@ -256,6 +269,10 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
         libraryBinaryLocator, serviceRegistry.get(FileCollectionFactory.class));
       logger.debug("createNativeDependencyResolver(...) [DONE]");
       return retval;
+    }
+
+    @Model
+    public void flummy(JFRepositoriesSpec flummy) {
     }
 
     @Defaults

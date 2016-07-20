@@ -16,12 +16,15 @@
 
 package de.jfalk.gradle.nativeplatform;
 
-import org.gradle.language.base.LanguageSourceSet;
 import org.gradle.model.ModelMap;
-import org.gradle.nativeplatform.PrebuiltLibrary;
+import org.gradle.platform.base.ComponentSpec;
 
-public interface JFPrebuiltLibrary extends PrebuiltLibrary, JFNativeLibrary {
+public interface JFPrebuiltLibrariesSpec extends ComponentSpec {
 
-  ModelMap<LanguageSourceSet> getInterfaces();
+  /**
+   * The source sets for this component.
+   */
+  ModelMap<JFPrebuiltLibrarySpec> getPrebuiltLibs();
 
 }
+

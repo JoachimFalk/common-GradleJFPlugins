@@ -18,7 +18,7 @@ package de.jfalk.gradle.nativeplatform;
 
 import org.gradle.nativeplatform.StaticLibraryBinarySpec;
 
-public interface JFStaticLibraryBinarySpec extends StaticLibraryBinarySpec {
+public interface JFStaticLibraryBinarySpec extends StaticLibraryBinarySpec, JFStaticLibraryBinary {
   String getFlammy();
   void   setFlammy(String flammy);
 }

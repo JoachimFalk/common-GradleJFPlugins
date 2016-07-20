@@ -16,12 +16,7 @@
 
 package de.jfalk.gradle.nativeplatform;
 
-import org.gradle.language.base.LanguageSourceSet;
-import org.gradle.model.ModelMap;
-import org.gradle.nativeplatform.PrebuiltLibrary;
+import org.gradle.nativeplatform.SharedLibraryBinary;
 
-public interface JFPrebuiltLibrary extends PrebuiltLibrary, JFNativeLibrary {
-
-  ModelMap<LanguageSourceSet> getInterfaces();
-
+public interface JFSharedLibraryBinary extends SharedLibraryBinary, JFNativeLibraryBinary {
 }
