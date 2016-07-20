@@ -20,9 +20,5 @@ import java.util.Collection;
 
 import org.gradle.language.cpp.CppSourceSet;
 
-public interface JFCppSourceSet extends CppSourceSet {
-
-  /// The libs which have been marked by the exportHeaders flag.
-  public Collection<?> getHeaderReexportLibs();
-
+public interface JFCppSourceSet extends CppSourceSet, JFCppInterfaceSet {
 }

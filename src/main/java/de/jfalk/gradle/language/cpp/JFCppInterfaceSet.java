@@ -14,14 +14,17 @@
 // this program; If not, write to the Free Software Foundation, Inc., 59 Temple
 // Place - Suite 330, Boston, MA 02111-1307, USA.
 
-package de.jfalk.gradle.nativeplatform;
+package de.jfalk.gradle.language.cpp;
 
 import de.jfalk.gradle.language.nativeplatform.JFHeaderExportingDependentInterfaceSet;
 
-import org.gradle.language.base.LanguageSourceSet;
-import org.gradle.model.ModelMap;
-import org.gradle.nativeplatform.PrebuiltLibrary;
+import org.gradle.nativeplatform.Tool;
+import org.gradle.nativeplatform.PreprocessingTool;
 
-public interface JFPrebuiltLibrary extends PrebuiltLibrary, JFNativeLibrary {
-  ModelMap<JFHeaderExportingDependentInterfaceSet> getInterfaces();
+public interface JFCppInterfaceSet extends JFHeaderExportingDependentInterfaceSet {
+  /**
+   * Represents the inherited configuration for compilation and linking when a library or executable links in a {@link JFNativeLibraryBinary} library.
+   */
+  Tool              getExportedLinkerArgs();
+  PreprocessingTool getExportedCompilerArgs();
 }

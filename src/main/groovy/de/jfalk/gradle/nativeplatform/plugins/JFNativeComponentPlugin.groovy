@@ -28,7 +28,6 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.jfalk.gradle.language.cpp.JFCppSourceSet;
 import de.jfalk.gradle.nativeplatform.internal.DefaultJFNativeExecutableBinarySpec;
 import de.jfalk.gradle.nativeplatform.internal.DefaultJFNativeExecutableSpec;
 import de.jfalk.gradle.nativeplatform.internal.DefaultJFNativeLibrarySpec;
@@ -151,11 +150,6 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
     logger.debug("JFNativeComponentPlugin(...) [DONE]");
   }
 
-//Set<File> exportedHeadersOfLib(Object library) {
-//  logger.debug("JFCppPlugin::exportedHeadersOfLib: " + library.getClass());
-//  return new HashSet<File>();
-//}
-
   @Override
   public void apply(final Project project) {
     logger.debug("apply(...) [CALLED]");
@@ -191,7 +185,6 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
 //  }
 
     // Fake imports in the project applying this plugin.
-    project.ext.JFCppSourceSet               = JFCppSourceSet.class;
     project.ext.JFNativeLibrarySpec          = JFNativeLibrarySpec.class;
     project.ext.JFSharedLibraryBinarySpec    = JFSharedLibraryBinarySpec.class;
     project.ext.JFStaticLibraryBinarySpec    = JFStaticLibraryBinarySpec.class;
@@ -199,7 +192,6 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
     project.ext.JFNativeExecutableBinarySpec = JFNativeExecutableBinarySpec.class;
     project.ext.JFPrebuiltLibraries          = JFPrebuiltLibraries.class; 
     project.ext.JFPrebuiltLibrariesSpec      = JFPrebuiltLibrariesSpec.class; 
-//  project.ext.exportedHeadersOfLib         = this.&exportedHeadersOfLib;
     logger.debug("apply(...) [DONE]");
   }
 

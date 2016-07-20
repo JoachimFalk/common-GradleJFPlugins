@@ -24,16 +24,18 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.jfalk.gradle.language.cpp.JFCppSourceSet;
+import de.jfalk.gradle.language.cpp.internal.DefaultJFCppInterfaceSet;
 import de.jfalk.gradle.language.cpp.internal.DefaultJFCppSourceSet;
+import de.jfalk.gradle.language.cpp.JFCppInterfaceSet;
+import de.jfalk.gradle.language.cpp.JFCppSourceSet;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
 import org.gradle.internal.reflect.Instantiator;
 import org.gradle.internal.service.ServiceRegistry;
-import org.gradle.language.base.internal.SourceTransformTaskConfig;
 import org.gradle.language.base.internal.registry.LanguageTransformContainer;
+import org.gradle.language.base.internal.SourceTransformTaskConfig;
 import org.gradle.language.base.plugins.ComponentModelBasePlugin;
 import org.gradle.language.cpp.tasks.CppCompile;
 import org.gradle.language.cpp.tasks.CppPreCompiledHeaderCompile;
@@ -44,13 +46,20 @@ import org.gradle.language.nativeplatform.internal.SourceCompileTaskConfig;
 import org.gradle.model.Defaults;
 import org.gradle.model.Each;
 import org.gradle.model.Finalize;
+import org.gradle.model.internal.core.Hidden;
+import org.gradle.model.internal.registry.ModelRegistry;
+import org.gradle.model.Managed;
+import org.gradle.model.Model;
+import org.gradle.model.ModelMap;
 import org.gradle.model.Mutate;
 import org.gradle.model.RuleSource;
-import org.gradle.model.internal.registry.ModelRegistry;
 import org.gradle.nativeplatform.internal.DefaultPreprocessingTool;
 import org.gradle.nativeplatform.internal.pch.PchEnabledLanguageTransform;
+import org.gradle.platform.base.component.internal.ComponentSpecFactory;
 import org.gradle.platform.base.ComponentType;
 import org.gradle.platform.base.TypeBuilder;
+import org.gradle.api.plugins.ExtraPropertiesExtension;
+import org.gradle.model.internal.type.ModelType;
 
 public class JFCppLangPlugin implements Plugin<Project> {
   private final Logger          logger;
@@ -68,10 +77,19 @@ public class JFCppLangPlugin implements Plugin<Project> {
     logger.debug("JFCppLangPlugin(...) [DONE]");
   }
 
+//Set<File> exportedHeadersOfLib(Object library) {
+//  logger.debug("JFCppPlugin::exportedHeadersOfLib: " + library.getClass());
+//  return new HashSet<File>();
+//}
+
   @Override
   public void apply(final Project project) {
     logger.debug("apply(...) [CALLED]");
     project.getPluginManager().apply(ComponentModelBasePlugin.class);
+    // Fake imports in the project applying this plugin.
+    project.getExtensions().findByType(ExtraPropertiesExtension.class).set("JFCppSourceSet", JFCppSourceSet.class);
+    project.getExtensions().findByType(ExtraPropertiesExtension.class).set("JFCppInterfaceSet", JFCppInterfaceSet.class);
+//  project.ext.exportedHeadersOfLib         = this.&exportedHeadersOfLib;
     logger.debug("apply(...) [DONE]");
   }
 
@@ -82,6 +100,11 @@ public class JFCppLangPlugin implements Plugin<Project> {
       builder.internalView(DependentSourceSetInternal.class);
     }
 
+    @ComponentType
+    void registerLanguageInterface(TypeBuilder<JFCppInterfaceSet> builder) {
+      builder.defaultImplementation(DefaultJFCppInterfaceSet.class);
+    }
+    
     @Mutate
     void registerLanguageTransform(LanguageTransformContainer languages) {
       languages.add(new JFCpp());

@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.jfalk.gradle.nativeplatform.JFSharedLibraryBinary;
+import de.jfalk.gradle.nativeplatform.JFExportedCompileAndLinkConfiguration;
 
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.SourceDirectorySet;
@@ -110,6 +111,14 @@ public class DefaultJFPrebuiltSharedLibraryBinary implements JFSharedLibraryBina
       return new SimpleFileCollection(getSharedLibraryFile());
     else
       return new SimpleFileCollection();
+  }
+
+  // Implement interface of JFNativeLibraryBinary
+
+  // Compiler and linker configuration
+  @Override
+  public JFExportedCompileAndLinkConfiguration getExportedCompileAndLinkConfiguration() {
+    return null;
   }
 
   // Implement interface of SharedLibraryBinary.

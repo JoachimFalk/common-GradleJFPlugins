@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.jfalk.gradle.nativeplatform.JFStaticLibraryBinary;
+import de.jfalk.gradle.nativeplatform.JFExportedCompileAndLinkConfiguration;
 
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.SourceDirectorySet;
@@ -107,6 +108,14 @@ public class DefaultJFPrebuiltStaticLibraryBinary implements JFStaticLibraryBina
   public FileCollection getRuntimeFiles() {
     logger.debug("getRuntimeFiles() [CALLED]");
     return new SimpleFileCollection();
+  }
+
+  // Implement interface of JFNativeLibraryBinary
+
+  // Compiler and linker configuration
+  @Override
+  public JFExportedCompileAndLinkConfiguration getExportedCompileAndLinkConfiguration() {
+    return null;
   }
 
   // Implement interface of StaticLibraryBinary.

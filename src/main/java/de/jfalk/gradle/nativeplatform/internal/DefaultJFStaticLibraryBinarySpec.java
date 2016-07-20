@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.jfalk.gradle.nativeplatform.JFStaticLibraryBinarySpec;
+import de.jfalk.gradle.nativeplatform.JFExportedCompileAndLinkConfiguration;
 
 import org.gradle.api.file.FileCollection;
 import org.gradle.nativeplatform.internal.DefaultStaticLibraryBinarySpec;
@@ -38,6 +39,15 @@ public class DefaultJFStaticLibraryBinarySpec extends DefaultStaticLibraryBinary
     this.commonHelpers = new JFCommonLibraryBinarySpec(this);
   }
 
+  // Implement interface of JFNativeLibraryBinary
+
+  // Compiler and linker configuration
+  @Override
+  public JFExportedCompileAndLinkConfiguration getExportedCompileAndLinkConfiguration() {
+    return null;
+  }
+
+  // Implement interface of ...
   @Override
   public FileCollection getHeaderDirs() {
     return commonHelpers.extendHeaderDirs(super.getHeaderDirs(), this.resolver);

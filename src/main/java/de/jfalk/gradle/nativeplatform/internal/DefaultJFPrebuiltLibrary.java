@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.jfalk.gradle.nativeplatform.JFPrebuiltLibrary;
+import de.jfalk.gradle.language.nativeplatform.JFHeaderExportingDependentInterfaceSet;
 
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.file.SourceDirectorySet;
@@ -50,7 +51,7 @@ import org.gradle.platform.base.PlatformContainer;
 
 class DefaultJFPrebuiltLibrary implements JFPrebuiltLibrary {
   // Constants
-  private static final ModelType<LanguageSourceSet>   LANGUAGE_SOURCE_SET_MODEL_TYPE = ModelType.of(LanguageSourceSet.class);
+  private static final ModelType<JFHeaderExportingDependentInterfaceSet>   LANGUAGE_SOURCE_SET_MODEL_TYPE = ModelType.of(JFHeaderExportingDependentInterfaceSet.class);
 
   private final Logger                                logger;
 
@@ -111,7 +112,7 @@ class DefaultJFPrebuiltLibrary implements JFPrebuiltLibrary {
   }
 
   @Override
-  public ModelMap<LanguageSourceSet> getInterfaces() {
+  public ModelMap<JFHeaderExportingDependentInterfaceSet> getInterfaces() {
     return ModelMaps.toView(interfaces, LANGUAGE_SOURCE_SET_MODEL_TYPE);
   }
   

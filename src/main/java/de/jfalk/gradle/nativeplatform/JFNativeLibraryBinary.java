@@ -22,4 +22,5 @@ import org.gradle.nativeplatform.NativeLibraryBinary;
  * My extension to the {@link NativeLibraryBinary} interface.
  */
 public interface JFNativeLibraryBinary extends NativeLibraryBinary {
+  JFExportedCompileAndLinkConfiguration getExportedCompileAndLinkConfiguration();
 }

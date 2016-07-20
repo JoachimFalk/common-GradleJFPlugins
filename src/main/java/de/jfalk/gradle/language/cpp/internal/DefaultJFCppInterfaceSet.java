@@ -17,28 +17,56 @@
 package de.jfalk.gradle.language.cpp.internal;
 
 import java.util.Collection;
-import java.util.Map;
+import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.HashMap;
 
-import de.jfalk.gradle.language.cpp.JFCppSourceSet;
+import de.jfalk.gradle.language.cpp.JFCppInterfaceSet;
+import de.jfalk.gradle.language.nativeplatform.base.BaseJFHeaderExportingDependentInterfaceSet;
 
-import org.gradle.language.nativeplatform.internal.AbstractHeaderExportingDependentSourceSet;
-import org.gradle.nativeplatform.Tool;
-import org.gradle.nativeplatform.PreprocessingTool;
-import org.gradle.nativeplatform.internal.DefaultTool;
+import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.nativeplatform.internal.DefaultPreprocessingTool;
+import org.gradle.nativeplatform.internal.DefaultTool;
+import org.gradle.nativeplatform.PreprocessingTool;
+import org.gradle.nativeplatform.Tool;
+import org.gradle.platform.base.component.internal.AbstractComponentSpec;
+import org.gradle.util.CollectionUtils;
 
-public class DefaultJFCppSourceSet extends AbstractHeaderExportingDependentSourceSet implements JFCppSourceSet {
+import org.gradle.platform.base.component.internal.DefaultComponentSpec;
 
-  private final Tool              linker      = new DefaultTool();
-  private final PreprocessingTool cppCompiler = new DefaultPreprocessingTool();
+public class DefaultJFCppInterfaceSet extends DefaultComponentSpec implements JFCppInterfaceSet {
+
+  private final List<Object>       libs        = new ArrayList<Object>();
+  private final SourceDirectorySet exportedHeaders;
+  private final Tool               linker      = new DefaultTool();
+  private final PreprocessingTool  cppCompiler = new DefaultPreprocessingTool();
+
+  public DefaultJFCppInterfaceSet() {
+//  this.exportedHeaders = sourceDirectorySetFactory.create("exported headers");
+    this.exportedHeaders = null;
+  }
+
+  @Override
+  public String getLanguageName() {
+    return "C++";
+  }
+
+  @Override
+  public void lib(Object library) {
+    if (library instanceof Iterable<?>) {
+      Iterable<?> iterable = (Iterable) library;
+      CollectionUtils.addAll(libs, iterable);
+    } else {
+      libs.add(library);
+    }
+  }
 
   /// The libs which have been marked by the exportHeaders flag.
   @Override
   public Collection<?> getHeaderReexportLibs() {
     Collection<Object> libs = new ArrayList<Object>();
-    for (Object lib : super.getLibs()) {
+    for (Object lib : this.libs) {
       if (lib instanceof Map<?,?>) {
         @SuppressWarnings("unchecked")
         Map<String, Object> map = (Map<String, Object>) lib;
@@ -59,7 +87,7 @@ public class DefaultJFCppSourceSet extends AbstractHeaderExportingDependentSourc
   @Override
   public Collection<?> getLibs() {
     Collection<Object> libs = new ArrayList<Object>();
-    for (Object lib : super.getLibs()) {
+    for (Object lib : this.libs) {
       if (lib instanceof Map<?,?>) {
         @SuppressWarnings("unchecked")
         Map<String, Object> entry = new HashMap<String, Object>((Map<String, Object>) lib);
@@ -73,8 +101,8 @@ public class DefaultJFCppSourceSet extends AbstractHeaderExportingDependentSourc
   }
 
   @Override
-  public String getLanguageName() {
-    return "C++";
+  public SourceDirectorySet getExportedHeaders() {
+    return exportedHeaders;
   }
 
   @Override
@@ -87,3 +115,4 @@ public class DefaultJFCppSourceSet extends AbstractHeaderExportingDependentSourc
     return cppCompiler;
   }
 }
+
