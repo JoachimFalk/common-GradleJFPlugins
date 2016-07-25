@@ -35,7 +35,7 @@ import org.gradle.util.CollectionUtils;
 
 import org.gradle.platform.base.component.internal.DefaultComponentSpec;
 
-public class DefaultJFCppInterfaceSet extends DefaultComponentSpec implements JFCppInterfaceSet {
+public class DefaultJFCppInterfaceSet extends BaseJFHeaderExportingDependentInterfaceSet implements JFCppInterfaceSet {
 
   private final List<Object>       libs        = new ArrayList<Object>();
   private final SourceDirectorySet exportedHeaders;
@@ -43,8 +43,7 @@ public class DefaultJFCppInterfaceSet extends DefaultComponentSpec implements JF
   private final PreprocessingTool  cppCompiler = new DefaultPreprocessingTool();
 
   public DefaultJFCppInterfaceSet() {
-//  this.exportedHeaders = sourceDirectorySetFactory.create("exported headers");
-    this.exportedHeaders = null;
+    this.exportedHeaders = sourceDirectorySetFactory.create("exported headers");
   }
 
   @Override

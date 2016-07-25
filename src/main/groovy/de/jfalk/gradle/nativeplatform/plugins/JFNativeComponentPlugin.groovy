@@ -48,6 +48,10 @@ import de.jfalk.gradle.nativeplatform.JFPrebuiltLibrarySpec;
 import de.jfalk.gradle.nativeplatform.JFRepositoriesSpec;
 import de.jfalk.gradle.nativeplatform.JFSharedLibraryBinarySpec;
 import de.jfalk.gradle.nativeplatform.JFStaticLibraryBinarySpec;
+import de.jfalk.gradle.language.nativeplatform.JFHeaderExportingDependentInterfaceSet;
+import de.jfalk.gradle.language.nativeplatform.base.BaseJFHeaderExportingDependentInterfaceSet;
+
+import de.jfalk.gradle.JFHelperFunctions;
 
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.internal.file.FileCollectionFactory;
@@ -67,12 +71,17 @@ import org.gradle.language.cpp.plugins.CppLangPlugin;
 import org.gradle.model.Defaults;
 import org.gradle.model.Each;
 import org.gradle.model.Finalize;
+import org.gradle.model.internal.core.Hidden;
 import org.gradle.model.internal.core.ModelNode;
 import org.gradle.model.internal.core.ModelNodes;
+import org.gradle.model.internal.core.ModelRegistrations;
 import org.gradle.model.internal.core.MutableModelNode;
 import org.gradle.model.internal.core.NodeBackedModelMap;
+import org.gradle.model.internal.core.rule.describe.SimpleModelRuleDescriptor;
 //import org.gradle.model.internal.registry.ModelElementNode;
 import org.gradle.model.internal.registry.ModelRegistry;
+import org.gradle.model.internal.type.ModelType;
+import org.gradle.model.internal.typeregistration.BaseInstanceFactory;
 import org.gradle.model.Managed;
 import org.gradle.model.Model;
 import org.gradle.model.ModelMap;
@@ -108,16 +117,22 @@ import org.gradle.nativeplatform.toolchain.internal.NativeToolChainRegistryInter
 import org.gradle.platform.base.BinaryContainer;
 import org.gradle.platform.base.BinaryType;
 import org.gradle.platform.base.ComponentBinaries;
+import org.gradle.platform.base.component.internal.ComponentSpecFactory;
 import org.gradle.platform.base.ComponentSpec;
-import org.gradle.platform.base.VariantComponentSpec;
 import org.gradle.platform.base.ComponentSpecContainer;
 import org.gradle.platform.base.ComponentType;
 import org.gradle.platform.base.internal.BinaryNamingScheme;
+import org.gradle.platform.base.internal.ComponentSpecIdentifier;
+import org.gradle.platform.base.internal.ComponentSpecInternal;
 import org.gradle.platform.base.internal.DefaultBinaryNamingScheme;
 import org.gradle.platform.base.internal.PlatformRequirement;
 import org.gradle.platform.base.internal.PlatformResolvers;
 import org.gradle.platform.base.PlatformContainer;
 import org.gradle.platform.base.TypeBuilder;
+import org.gradle.platform.base.VariantComponentSpec;
+import org.gradle.internal.Cast;
+import org.gradle.api.internal.project.ProjectIdentifier;
+import org.gradle.platform.base.internal.DefaultComponentSpecIdentifier;
 
 //trait JFNativeBinarySpecView implements NativeBinarySpec {
 //  String internalData;
@@ -192,6 +207,8 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
     project.ext.JFNativeExecutableBinarySpec = JFNativeExecutableBinarySpec.class;
     project.ext.JFPrebuiltLibraries          = JFPrebuiltLibraries.class; 
     project.ext.JFPrebuiltLibrariesSpec      = JFPrebuiltLibrariesSpec.class; 
+    project.ext.JFPrebuiltLibrary            = JFPrebuiltLibrary.class; 
+    project.ext.JFPrebuiltLibrarySpec        = JFPrebuiltLibrarySpec.class; 
     logger.debug("apply(...) [DONE]");
   }
 
@@ -236,7 +253,7 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
 //    builder.internalView(DefaultJFPrebuiltLibrarySpecView.class);
     }
 
-    @Model
+    @Hidden @Model
     public LibraryBinaryLocator createLibraryBinaryLocator(
         final ServiceRegistry       serviceRegistry)
     {
@@ -251,7 +268,7 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
       return retval;
     }   
 
-    @Model
+    @Hidden @Model
     public NativeDependencyResolver createNativeDependencyResolver(
         final LibraryBinaryLocator  libraryBinaryLocator,
         final ServiceRegistry       serviceRegistry)
@@ -268,6 +285,25 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
     }
 
     @Defaults
+    public void registerJFHeaderExportingDependentInterfaceSet(
+        final ComponentSpecFactory      componentSpecFactory, // Modify this
+        // via usage of the following factories and stuff.
+        final SourceDirectorySetFactory sourceDirectorySetFactory,
+        final ProjectIdentifier         projectIdentifier)
+    {
+      componentSpecFactory.registerFactory(BaseJFHeaderExportingDependentInterfaceSet.class, new BaseInstanceFactory.ImplementationFactory<JFHeaderExportingDependentInterfaceSet, BaseJFHeaderExportingDependentInterfaceSet>() {
+        @Override
+        public <T extends BaseJFHeaderExportingDependentInterfaceSet> T create(ModelType<? extends JFHeaderExportingDependentInterfaceSet> publicType, ModelType<T> implementationType, String interfaceSetName, MutableModelNode node) {
+            MutableModelNode grandparentNode = node.getParent().getParent();
+            ComponentSpecIdentifier id = grandparentNode != null && grandparentNode.canBeViewedAs(ModelType.of(ComponentSpecInternal.class))
+              ? grandparentNode.asImmutable(ModelType.of(ComponentSpecInternal.class), null).getInstance().getIdentifier().child(interfaceSetName)
+              : new DefaultComponentSpecIdentifier(projectIdentifier.getPath(), interfaceSetName);
+            return Cast.uncheckedCast(BaseJFHeaderExportingDependentInterfaceSet.create(publicType.getConcreteClass(), implementationType.getConcreteClass(), id, sourceDirectorySetFactory));
+        }
+      });
+    }
+
+    @Defaults
     public void repositories(
         final Repositories        repositories, // Modify this
         // via usage of the following factories and stuff.
@@ -278,10 +314,16 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
         final ServiceRegistry     serviceRegistry)
     {
       logger.debug("repositoriesContainer(...) for " + repositories + " [CALLED]");
+      MutableModelNode repositoriesModelNode = serviceRegistry.get(ModelRegistry.class).getRoot().getLink("repositories");
+      System.out.println(repositoriesModelNode.getLinkNames());
       repositories.registerFactory(JFPrebuiltLibraries.class, new NamedDomainObjectFactory<JFPrebuiltLibraries>() {
           public JFPrebuiltLibraries create(String name) {
+            repositoriesModelNode.addLink(
+              ModelRegistrations.of(repositoriesModelNode.getPath().child(name))
+                .descriptor(new SimpleModelRuleDescriptor("JFPrebuiltLibraries " + name + " creation"))
+                .build());
             return instantiator.newInstance(DefaultJFPrebuiltLibraries.class, name,
-              instantiator, platforms, buildTypes, flavors, serviceRegistry);
+              repositoriesModelNode.getLink(name), instantiator, platforms, buildTypes, flavors, serviceRegistry);
           }
         });
       logger.debug("repositoriesContainer(...) for " + repositories + " [DONE]");

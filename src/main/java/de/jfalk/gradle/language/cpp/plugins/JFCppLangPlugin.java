@@ -34,6 +34,7 @@ import org.gradle.api.Project;
 
 import org.gradle.internal.reflect.Instantiator;
 import org.gradle.internal.service.ServiceRegistry;
+import org.gradle.api.internal.file.SourceDirectorySetFactory;
 import org.gradle.language.base.internal.registry.LanguageTransformContainer;
 import org.gradle.language.base.internal.SourceTransformTaskConfig;
 import org.gradle.language.base.plugins.ComponentModelBasePlugin;
@@ -104,6 +105,14 @@ public class JFCppLangPlugin implements Plugin<Project> {
     void registerLanguageInterface(TypeBuilder<JFCppInterfaceSet> builder) {
       builder.defaultImplementation(DefaultJFCppInterfaceSet.class);
     }
+
+//  @Defaults
+//  public void whatever(
+//      @Each final DefaultJFCppInterfaceSet interfaceSet,
+//      final SourceDirectorySetFactory      sourceDirectorySetFactory)
+//  {
+//    interfaceSet.exportedHeaders = sourceDirectorySetFactory.create("exported headers");
+//  }
     
     @Mutate
     void registerLanguageTransform(LanguageTransformContainer languages) {

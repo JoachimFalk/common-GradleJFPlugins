@@ -16,8 +16,11 @@
 
 package de.jfalk.gradle.nativeplatform;
 
-import org.gradle.platform.base.ComponentSpec;
+import de.jfalk.gradle.language.nativeplatform.JFHeaderExportingDependentInterfaceSet;
+
+import org.gradle.model.ModelMap;
 import org.gradle.platform.base.VariantComponentSpec;
 
 public interface JFPrebuiltLibrarySpec extends VariantComponentSpec, JFNativeLibrary {
+  ModelMap<JFHeaderExportingDependentInterfaceSet> getInterfaces();
 }

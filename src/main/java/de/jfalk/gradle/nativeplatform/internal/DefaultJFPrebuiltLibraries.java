@@ -25,9 +25,16 @@ import org.gradle.internal.service.ServiceRegistry;
 import org.gradle.platform.base.PlatformContainer;
 import org.gradle.nativeplatform.BuildTypeContainer;
 import org.gradle.nativeplatform.FlavorContainer;
+import org.gradle.model.ModelMap;
+import org.gradle.model.internal.core.ModelMaps;
+import org.gradle.model.internal.core.MutableModelNode;
+import org.gradle.model.internal.type.ModelType;
+import org.gradle.model.internal.core.ModelRegistrations;
+import org.gradle.model.internal.core.rule.describe.SimpleModelRuleDescriptor;
 
 public class DefaultJFPrebuiltLibraries extends AbstractNamedDomainObjectContainer<JFPrebuiltLibrary> implements JFPrebuiltLibraries {
   private String                    name;
+  private final MutableModelNode    modelNode;
   private final PlatformContainer   platforms;
   private final BuildTypeContainer  buildTypes;
   private final FlavorContainer     flavors;
@@ -35,6 +42,7 @@ public class DefaultJFPrebuiltLibraries extends AbstractNamedDomainObjectContain
 
   public DefaultJFPrebuiltLibraries(
       final String              name,
+      final MutableModelNode    modelNode,
       final Instantiator        instantiator,
       final PlatformContainer   platforms,
       final BuildTypeContainer  buildTypes,
@@ -43,6 +51,7 @@ public class DefaultJFPrebuiltLibraries extends AbstractNamedDomainObjectContain
   {
     super(JFPrebuiltLibrary.class, instantiator);
     this.name            = name;
+    this.modelNode       = modelNode;
     this.platforms       = platforms;
     this.buildTypes      = buildTypes;
     this.flavors         = flavors;
@@ -61,8 +70,12 @@ public class DefaultJFPrebuiltLibraries extends AbstractNamedDomainObjectContain
 
   @Override
   protected JFPrebuiltLibrary doCreate(String name) {
+    modelNode.addLink(
+      ModelRegistrations.of(modelNode.getPath().child(name))
+        .descriptor(new SimpleModelRuleDescriptor("JFPrebuiltLibrary " + name + " creation"))
+        .build());
     return getInstantiator().newInstance(DefaultJFPrebuiltLibrary.class, name,
-      platforms, buildTypes, flavors, serviceRegistry);
+      modelNode.getLink(name), platforms, buildTypes, flavors, serviceRegistry);
   }
 
   @Override

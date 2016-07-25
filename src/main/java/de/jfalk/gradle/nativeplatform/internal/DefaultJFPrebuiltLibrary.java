@@ -51,29 +51,32 @@ import org.gradle.platform.base.PlatformContainer;
 
 class DefaultJFPrebuiltLibrary implements JFPrebuiltLibrary {
   // Constants
-  private static final ModelType<JFHeaderExportingDependentInterfaceSet>   LANGUAGE_SOURCE_SET_MODEL_TYPE = ModelType.of(JFHeaderExportingDependentInterfaceSet.class);
+  private static final ModelType<JFHeaderExportingDependentInterfaceSet>   INTERFACE_SET_MODEL_TYPE = ModelType.of(JFHeaderExportingDependentInterfaceSet.class);
 
   private final Logger                                logger;
 
-  private final MutableModelNode                      interfaces;
-
   // Properties required by gradle
   private final String                                name;
+  private final MutableModelNode                      modelNode;
   private final SourceDirectorySet                    headers;
   private final DomainObjectSet<NativeLibraryBinary>  binaries;
+  private final MutableModelNode                      interfaces;
+
 
   public DefaultJFPrebuiltLibrary(
       final String              name,
+      final MutableModelNode    modelNode,
       final PlatformContainer   platforms,
       final BuildTypeContainer  buildTypes,
       final FlavorContainer     flavors,
       final ServiceRegistry     serviceRegistry)
   {
     this.logger        = LoggerFactory.getLogger(this.getClass());
-    this.interfaces    = null;
     this.name          = name;
+    this.modelNode     = modelNode;
     this.headers       = serviceRegistry.get(SourceDirectorySetFactory.class).create("headers");
     this.binaries      = new DefaultDomainObjectSet<NativeLibraryBinary>(NativeLibraryBinary.class);
+    this.interfaces    = ModelMaps.addModelMapNode(modelNode, INTERFACE_SET_MODEL_TYPE, "interfaces");
 
     NativePlatforms   nativePlatforms = serviceRegistry.get(NativePlatforms.class);
 
@@ -113,7 +116,7 @@ class DefaultJFPrebuiltLibrary implements JFPrebuiltLibrary {
 
   @Override
   public ModelMap<JFHeaderExportingDependentInterfaceSet> getInterfaces() {
-    return ModelMaps.toView(interfaces, LANGUAGE_SOURCE_SET_MODEL_TYPE);
+    return ModelMaps.toView(interfaces, INTERFACE_SET_MODEL_TYPE);
   }
   
 }

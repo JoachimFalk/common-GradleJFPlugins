@@ -16,6 +16,7 @@
 
 package de.jfalk.gradle.nativeplatform.internal;
 
+import de.jfalk.gradle.language.nativeplatform.JFHeaderExportingDependentInterfaceSet;
 import de.jfalk.gradle.nativeplatform.JFPrebuiltLibrarySpec;
 
 import org.gradle.model.internal.core.ModelMaps;
@@ -26,17 +27,26 @@ import org.gradle.platform.base.BinarySpec;
 import org.gradle.platform.base.component.internal.DefaultComponentSpec;
 
 public class DefaultJFPrebuiltLibrarySpec extends DefaultComponentSpec implements JFPrebuiltLibrarySpec {
+  // Constants
+  private static final ModelType<BinarySpec>                              BINARY_MODEL_TYPE    = ModelType.of(BinarySpec.class);
+  private static final ModelType<JFHeaderExportingDependentInterfaceSet>  INTERFACE_MODEL_TYPE = ModelType.of(JFHeaderExportingDependentInterfaceSet.class);
 
-  private static final ModelType<BinarySpec> JFNATIVE_LIBRARY_BINARY_MODEL_TYPE = ModelType.of(BinarySpec.class);
   private final MutableModelNode binaries;
+  private final MutableModelNode interfaces;
 
   public DefaultJFPrebuiltLibrarySpec() {
     MutableModelNode modelNode = getInfo().modelNode;
-    binaries = ModelMaps.addModelMapNode(modelNode, JFNATIVE_LIBRARY_BINARY_MODEL_TYPE, "binaries");
+    binaries   = ModelMaps.addModelMapNode(modelNode, BINARY_MODEL_TYPE, "binaries");
+    interfaces = ModelMaps.addModelMapNode(modelNode, INTERFACE_MODEL_TYPE, "interfaces");
   }
 
   @Override
   public ModelMap<BinarySpec> getBinaries() {
-    return ModelMaps.toView(binaries, JFNATIVE_LIBRARY_BINARY_MODEL_TYPE);
+    return ModelMaps.toView(binaries, BINARY_MODEL_TYPE);
+  }
+
+  @Override
+  public ModelMap<JFHeaderExportingDependentInterfaceSet> getInterfaces() {
+    return ModelMaps.toView(interfaces, INTERFACE_MODEL_TYPE);
   }
 }
