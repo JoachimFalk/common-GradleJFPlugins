@@ -16,12 +16,15 @@
 
 package de.jfalk.gradle.nativeplatform;
 
-import de.jfalk.gradle.language.nativeplatform.JFHeaderExportingDependentInterfaceSet;
+import java.io.File;
 
-import org.gradle.model.ModelMap;
-import org.gradle.platform.base.ComponentSpec;
+public interface JFPrebuiltSharedLibraryBinarySpec extends JFPrebuiltLibraryBinarySpec, JFSharedLibraryBinary {
 
-public interface JFPrebuiltLibrarySpec extends ComponentSpec, JFNativeLibrary {
-  ModelMap<JFHeaderExportingDependentInterfaceSet> getInterfaces();
-  ModelMap<JFPrebuiltLibraryBinarySpec>            getBinaries();
+  /// The shared library file.
+  void setSharedLibraryFile(final File dllFile);
+  /// The shared library link file.
+  void setSharedLibraryLinkFile(final File libraryFile);
+
+  String getFlummy();
+  void   setFlummy(String flummy);
 }

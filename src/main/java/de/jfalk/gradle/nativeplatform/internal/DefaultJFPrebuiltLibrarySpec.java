@@ -17,6 +17,7 @@
 package de.jfalk.gradle.nativeplatform.internal;
 
 import de.jfalk.gradle.language.nativeplatform.JFHeaderExportingDependentInterfaceSet;
+import de.jfalk.gradle.nativeplatform.JFPrebuiltLibraryBinarySpec;
 import de.jfalk.gradle.nativeplatform.JFPrebuiltLibrarySpec;
 
 import org.gradle.model.internal.core.ModelMaps;
@@ -28,7 +29,7 @@ import org.gradle.platform.base.component.internal.DefaultComponentSpec;
 
 public class DefaultJFPrebuiltLibrarySpec extends DefaultComponentSpec implements JFPrebuiltLibrarySpec {
   // Constants
-  private static final ModelType<BinarySpec>                              BINARY_MODEL_TYPE    = ModelType.of(BinarySpec.class);
+  private static final ModelType<JFPrebuiltLibraryBinarySpec>             BINARY_MODEL_TYPE    = ModelType.of(JFPrebuiltLibraryBinarySpec.class);
   private static final ModelType<JFHeaderExportingDependentInterfaceSet>  INTERFACE_MODEL_TYPE = ModelType.of(JFHeaderExportingDependentInterfaceSet.class);
 
   private final MutableModelNode binaries;
@@ -41,7 +42,7 @@ public class DefaultJFPrebuiltLibrarySpec extends DefaultComponentSpec implement
   }
 
   @Override
-  public ModelMap<BinarySpec> getBinaries() {
+  public ModelMap<JFPrebuiltLibraryBinarySpec> getBinaries() {
     return ModelMaps.toView(binaries, BINARY_MODEL_TYPE);
   }
 

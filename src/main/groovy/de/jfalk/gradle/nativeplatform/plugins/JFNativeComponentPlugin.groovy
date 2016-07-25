@@ -28,12 +28,17 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.jfalk.gradle.JFHelperFunctions;
+import de.jfalk.gradle.language.nativeplatform.base.BaseJFHeaderExportingDependentInterfaceSet;
+import de.jfalk.gradle.language.nativeplatform.JFHeaderExportingDependentInterfaceSet;
 import de.jfalk.gradle.nativeplatform.internal.DefaultJFNativeExecutableBinarySpec;
 import de.jfalk.gradle.nativeplatform.internal.DefaultJFNativeExecutableSpec;
 import de.jfalk.gradle.nativeplatform.internal.DefaultJFNativeLibrarySpec;
 import de.jfalk.gradle.nativeplatform.internal.DefaultJFPrebuiltLibraries;
 import de.jfalk.gradle.nativeplatform.internal.DefaultJFPrebuiltLibrariesSpec;
 import de.jfalk.gradle.nativeplatform.internal.DefaultJFPrebuiltLibrarySpec;
+import de.jfalk.gradle.nativeplatform.internal.DefaultJFPrebuiltSharedLibraryBinarySpec;
+import de.jfalk.gradle.nativeplatform.internal.DefaultJFPrebuiltStaticLibraryBinarySpec;
 import de.jfalk.gradle.nativeplatform.internal.DefaultJFSharedLibraryBinarySpec;
 import de.jfalk.gradle.nativeplatform.internal.DefaultJFStaticLibraryBinarySpec;
 import de.jfalk.gradle.nativeplatform.internal.resolve.DefaultJFNativeDependencyResolver;
@@ -44,17 +49,17 @@ import de.jfalk.gradle.nativeplatform.JFNativeLibrarySpec;
 import de.jfalk.gradle.nativeplatform.JFPrebuiltLibraries;
 import de.jfalk.gradle.nativeplatform.JFPrebuiltLibrariesSpec;
 import de.jfalk.gradle.nativeplatform.JFPrebuiltLibrary;
+import de.jfalk.gradle.nativeplatform.JFPrebuiltLibraryBinarySpec;
 import de.jfalk.gradle.nativeplatform.JFPrebuiltLibrarySpec;
+import de.jfalk.gradle.nativeplatform.JFPrebuiltSharedLibraryBinarySpec;
+import de.jfalk.gradle.nativeplatform.JFPrebuiltStaticLibraryBinarySpec;
 import de.jfalk.gradle.nativeplatform.JFSharedLibraryBinarySpec;
 import de.jfalk.gradle.nativeplatform.JFStaticLibraryBinarySpec;
-import de.jfalk.gradle.language.nativeplatform.JFHeaderExportingDependentInterfaceSet;
-import de.jfalk.gradle.language.nativeplatform.base.BaseJFHeaderExportingDependentInterfaceSet;
-
-import de.jfalk.gradle.JFHelperFunctions;
 
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.internal.file.FileCollectionFactory;
 import org.gradle.api.internal.file.SourceDirectorySetFactory;
+import org.gradle.api.internal.project.ProjectIdentifier;
 import org.gradle.api.internal.resolve.ProjectModelResolver;
 import org.gradle.api.InvalidUserDataException;
 import org.gradle.api.Named;
@@ -62,6 +67,7 @@ import org.gradle.api.NamedDomainObjectFactory;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.TaskContainer;
+import org.gradle.internal.Cast;
 import org.gradle.internal.reflect.Instantiator;
 import org.gradle.internal.service.ServiceRegistry;
 import org.gradle.language.base.internal.LanguageSourceSetInternal;
@@ -124,14 +130,12 @@ import org.gradle.platform.base.internal.BinaryNamingScheme;
 import org.gradle.platform.base.internal.ComponentSpecIdentifier;
 import org.gradle.platform.base.internal.ComponentSpecInternal;
 import org.gradle.platform.base.internal.DefaultBinaryNamingScheme;
+import org.gradle.platform.base.internal.DefaultComponentSpecIdentifier;
 import org.gradle.platform.base.internal.PlatformRequirement;
 import org.gradle.platform.base.internal.PlatformResolvers;
 import org.gradle.platform.base.PlatformContainer;
 import org.gradle.platform.base.TypeBuilder;
 import org.gradle.platform.base.VariantComponentSpec;
-import org.gradle.internal.Cast;
-import org.gradle.api.internal.project.ProjectIdentifier;
-import org.gradle.platform.base.internal.DefaultComponentSpecIdentifier;
 
 //trait JFNativeBinarySpecView implements NativeBinarySpec {
 //  String internalData;
@@ -154,7 +158,6 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
   private FlavorContainer                 flavors;
   private NativeToolChainRegistryInternal toolChains;
   private BuildTypeContainer              buildTypes;
-  private Repositories                    repositories;
 
   @Inject
   public JFNativeComponentPlugin(Instantiator instantiator) {
@@ -175,7 +178,6 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
     this.flavors         = project.getExtensions().getByType(FlavorContainer.class);
     this.toolChains      = project.getExtensions().getByType(NativeToolChainRegistryInternal.class);
     this.buildTypes      = project.getExtensions().getByType(BuildTypeContainer.class);
-//  this.repositories    = projectModel.realize("repositories", Repositories.class)
 
 //  this.serviceRegistry = project.getServices();
 //  PlatformContainer platforms = project.getExtensions().getByType(PlatformContainer.class);
@@ -199,15 +201,18 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
 //  }
 
     // Fake imports in the project applying this plugin.
-    project.ext.JFNativeLibrarySpec          = JFNativeLibrarySpec.class;
-    project.ext.JFSharedLibraryBinarySpec    = JFSharedLibraryBinarySpec.class;
-    project.ext.JFStaticLibraryBinarySpec    = JFStaticLibraryBinarySpec.class;
-    project.ext.JFNativeExecutableSpec       = JFNativeExecutableSpec.class;
-    project.ext.JFNativeExecutableBinarySpec = JFNativeExecutableBinarySpec.class;
-    project.ext.JFPrebuiltLibraries          = JFPrebuiltLibraries.class; 
-    project.ext.JFPrebuiltLibrariesSpec      = JFPrebuiltLibrariesSpec.class; 
-    project.ext.JFPrebuiltLibrary            = JFPrebuiltLibrary.class; 
-    project.ext.JFPrebuiltLibrarySpec        = JFPrebuiltLibrarySpec.class; 
+    project.ext.JFNativeLibrarySpec               = JFNativeLibrarySpec.class;
+    project.ext.JFSharedLibraryBinarySpec         = JFSharedLibraryBinarySpec.class;
+    project.ext.JFStaticLibraryBinarySpec         = JFStaticLibraryBinarySpec.class;
+    project.ext.JFNativeExecutableSpec            = JFNativeExecutableSpec.class;
+    project.ext.JFNativeExecutableBinarySpec      = JFNativeExecutableBinarySpec.class;
+    project.ext.JFPrebuiltLibraries               = JFPrebuiltLibraries.class; 
+    project.ext.JFPrebuiltLibrariesSpec           = JFPrebuiltLibrariesSpec.class; 
+    project.ext.JFPrebuiltLibrary                 = JFPrebuiltLibrary.class; 
+    project.ext.JFPrebuiltLibrarySpec             = JFPrebuiltLibrarySpec.class; 
+    project.ext.JFPrebuiltSharedLibraryBinarySpec = JFPrebuiltSharedLibraryBinarySpec.class; 
+    project.ext.JFPrebuiltStaticLibraryBinarySpec = JFPrebuiltStaticLibraryBinarySpec.class; 
+
     logger.debug("apply(...) [DONE]");
   }
 
@@ -250,6 +255,16 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
     public void prebuiltLibrary(TypeBuilder<JFPrebuiltLibrarySpec> builder) {
       builder.defaultImplementation(DefaultJFPrebuiltLibrarySpec.class);
 //    builder.internalView(DefaultJFPrebuiltLibrarySpecView.class);
+    }
+
+    @ComponentType
+    public void prebuiltSharedLibraryBinary(TypeBuilder<JFPrebuiltSharedLibraryBinarySpec> builder) {
+      builder.defaultImplementation(DefaultJFPrebuiltSharedLibraryBinarySpec.class);
+    }
+
+    @ComponentType
+    public void prebuiltStaticLibraryBinary(TypeBuilder<JFPrebuiltStaticLibraryBinarySpec> builder) {
+      builder.defaultImplementation(DefaultJFPrebuiltStaticLibraryBinarySpec.class);
     }
 
     @Hidden @Model
@@ -322,6 +337,15 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
           }
         });
       logger.debug("repositoriesContainer(...) for " + repositories + " [DONE]");
+    }
+
+    @Defaults
+    void setResolver(@Each
+        final JFPrebuiltLibraryBinarySpec prebuiltLibraryBinarySpec, // Modify this
+        // via usage of the following factories and stuff.
+        final NativeDependencyResolver    nativeDependencyResolver)
+    {
+      prebuiltLibraryBinarySpec.setResolver(nativeDependencyResolver);
     }
 
     @ComponentBinaries

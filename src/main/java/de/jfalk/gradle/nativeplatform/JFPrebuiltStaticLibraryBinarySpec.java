@@ -16,12 +16,9 @@
 
 package de.jfalk.gradle.nativeplatform;
 
-import de.jfalk.gradle.language.nativeplatform.JFHeaderExportingDependentInterfaceSet;
+import org.gradle.nativeplatform.StaticLibraryBinarySpec;
 
-import org.gradle.model.ModelMap;
-import org.gradle.platform.base.ComponentSpec;
-
-public interface JFPrebuiltLibrarySpec extends ComponentSpec, JFNativeLibrary {
-  ModelMap<JFHeaderExportingDependentInterfaceSet> getInterfaces();
-  ModelMap<JFPrebuiltLibraryBinarySpec>            getBinaries();
+public interface JFPrebuiltStaticLibraryBinarySpec extends JFPrebuiltLibraryBinarySpec, JFStaticLibraryBinary {
+  String getFlammy();
+  void   setFlammy(String flammy);
 }
