@@ -35,7 +35,6 @@ import de.jfalk.gradle.nativeplatform.internal.DefaultJFNativeExecutableBinarySp
 import de.jfalk.gradle.nativeplatform.internal.DefaultJFNativeExecutableSpec;
 import de.jfalk.gradle.nativeplatform.internal.DefaultJFNativeLibrarySpec;
 import de.jfalk.gradle.nativeplatform.internal.DefaultJFPrebuiltLibraries;
-import de.jfalk.gradle.nativeplatform.internal.DefaultJFPrebuiltLibrariesSpec;
 import de.jfalk.gradle.nativeplatform.internal.DefaultJFPrebuiltLibrarySpec;
 import de.jfalk.gradle.nativeplatform.internal.DefaultJFPrebuiltSharedLibraryBinarySpec;
 import de.jfalk.gradle.nativeplatform.internal.DefaultJFPrebuiltStaticLibraryBinarySpec;
@@ -47,7 +46,6 @@ import de.jfalk.gradle.nativeplatform.JFNativeExecutableBinarySpec;
 import de.jfalk.gradle.nativeplatform.JFNativeExecutableSpec;
 import de.jfalk.gradle.nativeplatform.JFNativeLibrarySpec;
 import de.jfalk.gradle.nativeplatform.JFPrebuiltLibraries;
-import de.jfalk.gradle.nativeplatform.JFPrebuiltLibrariesSpec;
 import de.jfalk.gradle.nativeplatform.JFPrebuiltLibrary;
 import de.jfalk.gradle.nativeplatform.JFPrebuiltLibraryBinarySpec;
 import de.jfalk.gradle.nativeplatform.JFPrebuiltLibrarySpec;
@@ -207,7 +205,6 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
     project.ext.JFNativeExecutableSpec            = JFNativeExecutableSpec.class;
     project.ext.JFNativeExecutableBinarySpec      = JFNativeExecutableBinarySpec.class;
     project.ext.JFPrebuiltLibraries               = JFPrebuiltLibraries.class; 
-    project.ext.JFPrebuiltLibrariesSpec           = JFPrebuiltLibrariesSpec.class; 
     project.ext.JFPrebuiltLibrary                 = JFPrebuiltLibrary.class; 
     project.ext.JFPrebuiltLibrarySpec             = JFPrebuiltLibrarySpec.class; 
     project.ext.JFPrebuiltSharedLibraryBinarySpec = JFPrebuiltSharedLibraryBinarySpec.class; 
@@ -244,11 +241,6 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
     @ComponentType
     public void executableBinary(TypeBuilder<JFNativeExecutableBinarySpec> builder) {
       builder.defaultImplementation(DefaultJFNativeExecutableBinarySpec.class);
-    }
-
-    @ComponentType
-    public void prebuiltLibraries(TypeBuilder<JFPrebuiltLibrariesSpec> builder) {
-      builder.defaultImplementation(DefaultJFPrebuiltLibrariesSpec.class);
     }
 
     @ComponentType
