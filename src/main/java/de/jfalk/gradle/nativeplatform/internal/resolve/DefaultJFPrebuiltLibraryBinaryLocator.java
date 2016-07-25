@@ -19,7 +19,6 @@ package de.jfalk.gradle.nativeplatform.internal.resolve;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.jfalk.gradle.nativeplatform.JFRepositoriesSpec;
 import de.jfalk.gradle.nativeplatform.JFPrebuiltLibrary;
 import de.jfalk.gradle.nativeplatform.JFPrebuiltLibraries;
 
@@ -47,8 +46,6 @@ public class DefaultJFPrebuiltLibraryBinaryLocator implements LibraryBinaryLocat
   public DomainObjectSet<NativeLibraryBinary> getBinaries(NativeLibraryRequirement requirement) {
     logger.debug("getBinaries(...) for " + requirement +" [CALLED]");
     ModelRegistry projectModel = projectModelResolver.resolveProjectModel(requirement.getProjectPath());
-    JFRepositoriesSpec flummy =
-      projectModel.realize("flummy", JFRepositoriesSpec.class);
     NamedDomainObjectSet<JFPrebuiltLibraries> repositories =
       projectModel.realize("repositories", Repositories.class).withType(JFPrebuiltLibraries.class);
     DomainObjectSet<NativeLibraryBinary> retval = null;

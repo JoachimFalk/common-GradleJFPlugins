@@ -45,7 +45,6 @@ import de.jfalk.gradle.nativeplatform.JFPrebuiltLibraries;
 import de.jfalk.gradle.nativeplatform.JFPrebuiltLibrariesSpec;
 import de.jfalk.gradle.nativeplatform.JFPrebuiltLibrary;
 import de.jfalk.gradle.nativeplatform.JFPrebuiltLibrarySpec;
-import de.jfalk.gradle.nativeplatform.JFRepositoriesSpec;
 import de.jfalk.gradle.nativeplatform.JFSharedLibraryBinarySpec;
 import de.jfalk.gradle.nativeplatform.JFStaticLibraryBinarySpec;
 import de.jfalk.gradle.language.nativeplatform.JFHeaderExportingDependentInterfaceSet;
@@ -278,10 +277,6 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
         libraryBinaryLocator, serviceRegistry.get(FileCollectionFactory.class));
       logger.debug("createNativeDependencyResolver(...) [DONE]");
       return retval;
-    }
-
-    @Model
-    public void flummy(JFRepositoriesSpec flummy) {
     }
 
     @Defaults
