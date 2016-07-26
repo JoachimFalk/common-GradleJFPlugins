@@ -74,6 +74,12 @@ public class DefaultJFPrebuiltSharedLibraryBinarySpec extends DefaultComponentSp
     this.buildType = null;
   }
 
+  /// Returns a human-consumable display name for this binary.
+  @Override
+  public String getDisplayName() {
+    return "DefaultJFPrebuiltSharedLibraryBinarySpec '" + getName()+"':"+getTargetPlatform()+":"+getFlavor()+":"+getBuildType();
+  }
+
   /// Implement interface of {@link org.gradle.nativeplatform.SharedLibraryBinary}.
 
   /// The shared library file.

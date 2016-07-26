@@ -122,10 +122,12 @@ public class JFNativeDependencyResolver implements NativeDependencyResolver {
   }
 
   private static class LibraryNativeDependencyResolver implements NativeDependencyResolver {
+    private final Logger               logger;
     private final LibraryBinaryLocator libraryBinaryLocator;
 
     public LibraryNativeDependencyResolver(final LibraryBinaryLocator locator) {
-      libraryBinaryLocator = locator;
+      this.logger               = LoggerFactory.getLogger(this.getClass());
+      this.libraryBinaryLocator = locator;
     }
 
     private static SimpleEntry<String, Class<? extends NativeLibraryBinary> > getTypeForLinkage(String linkage) {
@@ -162,6 +164,7 @@ public class JFNativeDependencyResolver implements NativeDependencyResolver {
       }
 
       for (NativeLibraryBinary candidate : candidates) {
+        logger.debug("considering candidate " + candidate);
         if (flavor != null && !flavor.equals(candidate.getFlavor().getName())) {
           continue;
         }

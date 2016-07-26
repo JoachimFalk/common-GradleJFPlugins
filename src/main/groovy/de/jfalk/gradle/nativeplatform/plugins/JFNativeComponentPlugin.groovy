@@ -57,6 +57,7 @@ import de.jfalk.gradle.nativeplatform.JFPrebuiltStaticLibraryBinarySpec;
 import de.jfalk.gradle.nativeplatform.JFSharedLibraryBinarySpec;
 import de.jfalk.gradle.nativeplatform.JFStaticLibraryBinarySpec;
 
+import org.gradle.nativeplatform.internal.DefaultBuildType;
 import org.gradle.api.Action;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.internal.file.FileCollectionFactory;
@@ -481,13 +482,13 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
 
     @Finalize
     public void createBinariesForJFPrebuilitLibrarySpec(@Each 
-        JFPrebuiltLibraryInternal            nativeComponent, // Modify this
+        final JFPrebuiltLibraryInternal nativeComponent, // Modify this
         // via usage of the following factories and stuff.
-        PlatformResolvers                    platforms,
-        BuildTypeContainer                   buildTypes,
-        FlavorContainer                      flavors,
-        NativeDependencyResolver             nativeDependencyResolver,
-        ServiceRegistry                      serviceRegistry
+        final PlatformResolvers         platforms,
+        final BuildTypeContainer        buildTypes,
+        final FlavorContainer           flavors,
+        final NativeDependencyResolver  nativeDependencyResolver,
+        final ServiceRegistry           serviceRegistry
     ) {
       logger.debug("createBinariesForJFPrebuilitLibrarySpec(...) for " + nativeComponent + " [CALLED]");
       NativePlatforms nativePlatforms = serviceRegistry.get(NativePlatforms.class);
@@ -496,14 +497,17 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
           nativeComponent.getTargetPlatforms(), nativePlatforms, platforms);
       ModelMap<JFPrebuiltLibraryBinarySpec> binaries = nativeComponent.getBinaries()
       
-      for (NativePlatform platform : resolvedPlatforms) {
+      for (NativePlatform platform_ : resolvedPlatforms) {
+        final NativePlatform platform = platform_;
         BinaryNamingScheme namingScheme = DefaultBinaryNamingScheme.component(nativeComponent.getName());
         namingScheme = namingScheme.withVariantDimension(platform, resolvedPlatforms);
         Set<BuildType> targetBuildTypes = nativeComponent.chooseBuildTypes(buildTypes);
-        for (BuildType buildType : targetBuildTypes) {
+        for (BuildType buildType_ : targetBuildTypes) {
+          final BuildType buildType = buildType_;
           BinaryNamingScheme namingSchemeWithBuildType = namingScheme.withVariantDimension(buildType, targetBuildTypes);
           Set<Flavor> targetFlavors = nativeComponent.chooseFlavors(flavors);
-          for (Flavor flavor : targetFlavors) {
+          for (Flavor flavor_ : targetFlavors) {
+            final Flavor flavor = flavor_;
             BinaryNamingScheme namingSchemeWithFlavor = namingSchemeWithBuildType.withVariantDimension(flavor, targetFlavors);
             BinaryNamingScheme namingSchemeWithSharedRole = namingSchemeWithFlavor.withBinaryType("SharedLibrary").withRole("shared", false);
             BinaryNamingScheme namingSchemeWithStaticRole = namingSchemeWithFlavor.withBinaryType("StaticLibrary").withRole("static", false);

@@ -72,6 +72,12 @@ public class DefaultJFPrebuiltStaticLibraryBinarySpec extends DefaultComponentSp
     this.buildType = null;
   }
 
+  /// Returns a human-consumable display name for this binary.
+  @Override
+  public String getDisplayName() {
+    return "DefaultJFPrebuiltStaticLibraryBinarySpec'" + getName()+"':"+getTargetPlatform()+":"+getFlavor()+":"+getBuildType();
+  }
+
   /// Implement interface of {@link org.gradle.nativeplatform.StaticLibraryBinary}.
 
   /// The static library file. 

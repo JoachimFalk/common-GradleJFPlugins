@@ -41,12 +41,13 @@ public class JFPrebuiltLibraryBinaryLocator implements LibraryBinaryLocator {
   // Converts the binaries of a project library into regular binary instances
   @Override
   public DomainObjectSet<NativeLibraryBinary> getBinaries(NativeLibraryRequirement requirement) {
-    DomainObjectSet<NativeLibraryBinary> retval = new DefaultDomainObjectSet<NativeLibraryBinary>(NativeLibraryBinary.class);
+    DomainObjectSet<NativeLibraryBinary> retval       = null;
     ModelRegistry                        projectModel = projectModelResolver.resolveProjectModel(requirement.getProjectPath());
     ComponentSpecContainer               components   = projectModel.find("components", ComponentSpecContainer.class);
     if (components != null) {
       JFPrebuiltLibrarySpec library = components.withType(JFPrebuiltLibrarySpec.class).get(requirement.getLibraryName());
       if (library != null) {
+        retval = new DefaultDomainObjectSet<NativeLibraryBinary>(NativeLibraryBinary.class);
         retval.addAll(library.getBinaries().values());
       }
     }
