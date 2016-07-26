@@ -16,24 +16,39 @@
 
 package de.jfalk.gradle.nativeplatform.internal;
 
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Collections;
+
 import de.jfalk.gradle.language.nativeplatform.JFHeaderExportingDependentInterfaceSet;
 import de.jfalk.gradle.nativeplatform.JFPrebuiltLibraryBinarySpec;
-import de.jfalk.gradle.nativeplatform.JFPrebuiltLibrarySpec;
 
+import org.gradle.api.Named;
+import org.gradle.api.InvalidUserDataException;
 import org.gradle.model.internal.core.ModelMaps;
 import org.gradle.model.internal.core.MutableModelNode;
 import org.gradle.model.internal.type.ModelType;
 import org.gradle.model.ModelMap;
+import org.gradle.nativeplatform.BuildType;
+import org.gradle.nativeplatform.Flavor;
 import org.gradle.platform.base.BinarySpec;
 import org.gradle.platform.base.component.internal.DefaultComponentSpec;
+import org.gradle.platform.base.internal.DefaultPlatformRequirement;
+import org.gradle.platform.base.internal.PlatformRequirement;
 
-public class DefaultJFPrebuiltLibrarySpec extends DefaultComponentSpec implements JFPrebuiltLibrarySpec {
+public class DefaultJFPrebuiltLibrarySpec extends DefaultComponentSpec implements JFPrebuiltLibraryInternal {
   // Constants
   private static final ModelType<JFPrebuiltLibraryBinarySpec>             BINARY_MODEL_TYPE    = ModelType.of(JFPrebuiltLibraryBinarySpec.class);
   private static final ModelType<JFHeaderExportingDependentInterfaceSet>  INTERFACE_MODEL_TYPE = ModelType.of(JFHeaderExportingDependentInterfaceSet.class);
 
   private final MutableModelNode binaries;
   private final MutableModelNode interfaces;
+
+  private final List<PlatformRequirement> targetPlatforms = new ArrayList<PlatformRequirement>();
+  private final Set<String>               buildTypes      = new HashSet<String>();
+  private final Set<String>               flavors         = new HashSet<String>();
 
   public DefaultJFPrebuiltLibrarySpec() {
     MutableModelNode modelNode = getInfo().modelNode;
@@ -49,5 +64,51 @@ public class DefaultJFPrebuiltLibrarySpec extends DefaultComponentSpec implement
   @Override
   public ModelMap<JFHeaderExportingDependentInterfaceSet> getInterfaces() {
     return ModelMaps.toView(interfaces, INTERFACE_MODEL_TYPE);
+  }
+
+  public List<PlatformRequirement> getTargetPlatforms() {
+    return Collections.unmodifiableList(targetPlatforms);
+  }
+
+  @Override
+  public void targetPlatform(String targetPlatform) {
+    this.targetPlatforms.add(DefaultPlatformRequirement.create(targetPlatform));
+  }
+
+  @Override
+  public void targetFlavors(String... flavorSelectors) {
+    Collections.addAll(flavors, flavorSelectors);
+  }
+
+  @Override
+  public void targetBuildTypes(String... buildTypeSelectors) {
+    Collections.addAll(buildTypes, buildTypeSelectors);
+  }
+
+  @Override
+  public Set<Flavor> chooseFlavors(Set<? extends Flavor> candidates) {
+    return chooseElements(Flavor.class, candidates, flavors);
+  }
+
+  @Override
+  public Set<BuildType> chooseBuildTypes(Set<? extends BuildType> candidates) {
+    return chooseElements(BuildType.class, candidates, buildTypes);
+  }
+
+  protected <T extends Named> Set<T> chooseElements(Class<T> type, Set<? extends T> candidates, Set<String> names) {
+    if (names.isEmpty()) {
+      return new HashSet<T>(candidates);
+    }
+    Set<String> unusedNames = new HashSet<String>(names);
+    Set<T> chosen = new HashSet<T>();
+    for (T candidate : candidates) {
+      if (unusedNames.remove(candidate.getName())) {
+        chosen.add(candidate);
+      }
+    }
+    if (!unusedNames.isEmpty()) {
+      throw new InvalidUserDataException(String.format("Invalid %s: '%s'", type.getSimpleName(), unusedNames.iterator().next()));
+    }
+    return chosen;
   }
 }

@@ -42,7 +42,7 @@ import org.gradle.nativeplatform.BuildType;
 import org.gradle.nativeplatform.Flavor;
 import org.gradle.nativeplatform.platform.NativePlatform;
 
-public class DefaultJFPrebuiltSharedLibraryBinarySpec extends DefaultComponentSpec implements JFPrebuiltSharedLibraryBinarySpec {
+public class DefaultJFPrebuiltSharedLibraryBinarySpec extends DefaultComponentSpec implements JFPrebuiltSharedLibraryBinarySpec, JFPrebuiltLibraryBinaryInternal {
   // Constants
   private static final ModelType<JFHeaderExportingDependentInterfaceSet>  INTERFACE_MODEL_TYPE = ModelType.of(JFHeaderExportingDependentInterfaceSet.class);
 
@@ -51,9 +51,9 @@ public class DefaultJFPrebuiltSharedLibraryBinarySpec extends DefaultComponentSp
   private final MutableModelNode          interfaces;
   private final Set<? super Object>       libs = new LinkedHashSet<Object>();
 
-  private final Flavor                    flavor;
-  private final NativePlatform            platform;
-  private final BuildType                 buildType;
+  private Flavor                    flavor;
+  private NativePlatform            platform;
+  private BuildType                 buildType;
 
   // Model configuration properties.
   private File libraryFile;
@@ -74,7 +74,23 @@ public class DefaultJFPrebuiltSharedLibraryBinarySpec extends DefaultComponentSp
     this.buildType = null;
   }
 
-  // Implement interface of JFNativeLibraryBinary
+  /// Implement interface of {@link org.gradle.nativeplatform.SharedLibraryBinary}.
+
+  /// The shared library file.
+  @Override
+  public File getSharedLibraryFile() {
+    logger.debug("getSharedLibraryFile() [CALLED]");
+    return dllFile;
+  }
+
+  /// The shared library link file.
+  @Override
+  public File getSharedLibraryLinkFile() {
+    logger.debug("getSharedLibraryLinkFile() [CALLED]");
+    return libraryFile;
+  }
+
+  /// Implement interface of {@link de.jfalk.gradle.nativeplatform.JFNativeLibraryBinary}.
 
   // Compiler and linker configuration
   @Override
@@ -82,7 +98,8 @@ public class DefaultJFPrebuiltSharedLibraryBinarySpec extends DefaultComponentSp
     return null;
   }
 
-  /// Implement interface of NativeLibraryBinary
+  /// Implement interface of {@link org.gradle.nativeplatform.NativeLibraryBinary}.
+
   @Override
   public FileCollection getHeaderDirs() {
     return null;
@@ -102,7 +119,7 @@ public class DefaultJFPrebuiltSharedLibraryBinarySpec extends DefaultComponentSp
 //  return retval;
   }
 
-  /// Implement interface of {@link org.gradle.nativeplatform.NativeLibraryBinary}.
+  /// Implement interface of {@link org.gradle.nativeplatform.NativeBinary}.
 
   /// The {@link org.gradle.nativeplatform.Flavor} that this binary was built with.
   @Override
@@ -116,21 +133,51 @@ public class DefaultJFPrebuiltSharedLibraryBinarySpec extends DefaultComponentSp
   @Override
   public BuildType getBuildType() { return buildType; }
 
-  /// Implement interface of {@link org.gradle.nativeplatform.SharedLibraryBinary}.
+  /// Implement interface of {@link de.jfalk.gradle.nativeplatform.internal.JFPrebuiltLibraryBinaryInternal}.
 
-  /// The shared library file.
   @Override
-  public File getSharedLibraryFile() {
-    logger.debug("getSharedLibraryFile() [CALLED]");
-    return dllFile;
+  public void setFlavor(Flavor flavor) {
+    this.flavor = flavor;
   }
 
-  /// The shared library link file.
   @Override
-  public File getSharedLibraryLinkFile() {
-    logger.debug("getSharedLibraryLinkFile() [CALLED]");
-    return libraryFile;
+  public void setTargetPlatform(NativePlatform nativePlatform) {
+    this.platform = nativePlatform;
   }
+
+  @Override
+  public void setBuildType(BuildType buildType) {
+    this.buildType = buildType;
+  }
+
+  @Override
+  public void setResolver(NativeDependencyResolver resolver) {
+    this.resolver = resolver;
+  }
+
+  /// Implement interface of {@link de.jfalk.gradle.nativeplatform.JFPrebuiltLibraryBinarySpec}.
+
+  @Override
+  public NativeComponentSpec getComponent() {
+    return null;
+  }
+
+  @Override
+  public Collection<NativeDependencySet> getLibs() {
+    return null;
+  }
+
+  @Override
+  public void lib(Object notation) {
+    libs.add(notation);
+  }
+
+  @Override
+  public ModelMap<JFHeaderExportingDependentInterfaceSet> getInterfaces() {
+    return ModelMaps.toView(interfaces, INTERFACE_MODEL_TYPE);
+  }
+
+  /// Implement interface of {@link de.jfalk.gradle.nativeplatform.JFPrebuiltSharedLibraryBinarySpec}.
 
   /// The shared library file.
   @Override
@@ -146,33 +193,6 @@ public class DefaultJFPrebuiltSharedLibraryBinarySpec extends DefaultComponentSp
     this.libraryFile = libraryFile;
   }
 
-  /// Unfortunately, AbstractNativeBinarySpec.this.resolver is private and, thus, we
-  /// have to store our own reference to the resolver.
-  @Override
-  public void setResolver(NativeDependencyResolver resolver) {
-    this.resolver = resolver;
-  }
-
-  @Override
-  public void lib(Object notation) {
-    libs.add(notation);
-  }
-
-  @Override
-  public Collection<NativeDependencySet> getLibs() {
-    return null;
-  }
-
-  @Override
-  public ModelMap<JFHeaderExportingDependentInterfaceSet> getInterfaces() {
-    return ModelMaps.toView(interfaces, INTERFACE_MODEL_TYPE);
-  }
-
-  @Override
-  public NativeComponentSpec getComponent() {
-    return null;
-  }
-
   @Override
   public String getFlummy()
     { return this.flummy; }
@@ -180,5 +200,4 @@ public class DefaultJFPrebuiltSharedLibraryBinarySpec extends DefaultComponentSp
   @Override
   public void setFlummy(String flummy)
     { this.flummy = flummy; }
-
 }

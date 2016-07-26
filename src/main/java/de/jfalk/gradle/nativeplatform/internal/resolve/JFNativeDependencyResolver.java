@@ -54,14 +54,14 @@ import org.gradle.nativeplatform.platform.NativePlatform;
 import org.gradle.nativeplatform.SharedLibraryBinary;
 import org.gradle.nativeplatform.StaticLibraryBinary;
 
-public class DefaultJFNativeDependencyResolver implements NativeDependencyResolver {
+public class JFNativeDependencyResolver implements NativeDependencyResolver {
   private final Logger                   logger;
   private final NativeDependencyResolver resolver;
 
 //@Inject
-  public DefaultJFNativeDependencyResolver(LibraryBinaryLocator locator, FileCollectionFactory fileCollectionFactory) {
+  public JFNativeDependencyResolver(LibraryBinaryLocator locator, FileCollectionFactory fileCollectionFactory) {
     this.logger = LoggerFactory.getLogger(this.getClass());
-    logger.debug("DefaultJFNativeDependencyResolver(...) [CALLED]");
+    logger.debug("JFNativeDependencyResolver(...) [CALLED]");
     this.resolver =
       new InputHandlingNativeDependencyResolver(
         new SourceSetNativeDependencyResolver(
@@ -70,7 +70,7 @@ public class DefaultJFNativeDependencyResolver implements NativeDependencyResolv
               new LibraryNativeDependencyResolver(locator),
               fileCollectionFactory)),
           fileCollectionFactory));
-    logger.debug("DefaultJFNativeDependencyResolver(...) [DONE]");
+    logger.debug("JFNativeDependencyResolver(...) [DONE]");
   }
 
   private static class RequirementParsingNativeDependencyResolver implements NativeDependencyResolver {

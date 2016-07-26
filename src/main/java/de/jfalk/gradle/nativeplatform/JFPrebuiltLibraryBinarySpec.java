@@ -27,7 +27,6 @@ import org.gradle.nativeplatform.platform.NativePlatform;
 import org.gradle.nativeplatform.BuildType;
 import org.gradle.nativeplatform.NativeDependencySet;
 import org.gradle.model.ModelMap;
-import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;
 import org.gradle.nativeplatform.NativeLibraryBinarySpec;
 
 public interface JFPrebuiltLibraryBinarySpec extends ComponentSpec, JFNativeLibraryBinary {
@@ -63,7 +62,4 @@ public interface JFPrebuiltLibraryBinarySpec extends ComponentSpec, JFNativeLibr
   void lib(Object library);
 
   ModelMap<JFHeaderExportingDependentInterfaceSet> getInterfaces();
-
-  // FIXME: Move this to a private interface class!
-  void setResolver(NativeDependencyResolver resolver);
 }

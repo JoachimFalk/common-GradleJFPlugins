@@ -22,6 +22,22 @@ import org.gradle.model.ModelMap;
 import org.gradle.platform.base.ComponentSpec;
 
 public interface JFPrebuiltLibrarySpec extends ComponentSpec, JFNativeLibrary {
+
+  /**
+   * Specifies a {@link org.gradle.platform.base.Platform} that this component has prebuilt library binaries for.
+   */
+  void targetPlatform(String targetPlatform);
+
+  /**
+   * Specifies the names of one or more {@link Flavor}s that this component has prebuilt library binaries for.
+   */
+  void targetFlavors(String... flavorSelectors);
+
+  /**
+   * Specifies the names of one or more {@link BuildType}s that this component has prebuilt library binaries for.
+   */
+  void targetBuildTypes(String... buildTypeSelectors);
+
   ModelMap<JFHeaderExportingDependentInterfaceSet> getInterfaces();
   ModelMap<JFPrebuiltLibraryBinarySpec>            getBinaries();
 }

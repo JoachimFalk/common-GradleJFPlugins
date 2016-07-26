@@ -40,8 +40,11 @@ import de.jfalk.gradle.nativeplatform.internal.DefaultJFPrebuiltSharedLibraryBin
 import de.jfalk.gradle.nativeplatform.internal.DefaultJFPrebuiltStaticLibraryBinarySpec;
 import de.jfalk.gradle.nativeplatform.internal.DefaultJFSharedLibraryBinarySpec;
 import de.jfalk.gradle.nativeplatform.internal.DefaultJFStaticLibraryBinarySpec;
-import de.jfalk.gradle.nativeplatform.internal.resolve.DefaultJFNativeDependencyResolver;
+import de.jfalk.gradle.nativeplatform.internal.JFPrebuiltLibraryBinaryInternal;
+import de.jfalk.gradle.nativeplatform.internal.JFPrebuiltLibraryInternal;
 import de.jfalk.gradle.nativeplatform.internal.resolve.DefaultJFPrebuiltLibraryBinaryLocator;
+import de.jfalk.gradle.nativeplatform.internal.resolve.JFNativeDependencyResolver;
+import de.jfalk.gradle.nativeplatform.internal.resolve.JFPrebuiltLibraryBinaryLocator;
 import de.jfalk.gradle.nativeplatform.JFNativeExecutableBinarySpec;
 import de.jfalk.gradle.nativeplatform.JFNativeExecutableSpec;
 import de.jfalk.gradle.nativeplatform.JFNativeLibrarySpec;
@@ -54,6 +57,7 @@ import de.jfalk.gradle.nativeplatform.JFPrebuiltStaticLibraryBinarySpec;
 import de.jfalk.gradle.nativeplatform.JFSharedLibraryBinarySpec;
 import de.jfalk.gradle.nativeplatform.JFStaticLibraryBinarySpec;
 
+import org.gradle.api.Action;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.internal.file.FileCollectionFactory;
 import org.gradle.api.internal.file.SourceDirectorySetFactory;
@@ -65,6 +69,7 @@ import org.gradle.api.NamedDomainObjectFactory;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.TaskContainer;
+import org.gradle.api.Transformer;
 import org.gradle.internal.Cast;
 import org.gradle.internal.reflect.Instantiator;
 import org.gradle.internal.service.ServiceRegistry;
@@ -129,11 +134,13 @@ import org.gradle.platform.base.internal.ComponentSpecIdentifier;
 import org.gradle.platform.base.internal.ComponentSpecInternal;
 import org.gradle.platform.base.internal.DefaultBinaryNamingScheme;
 import org.gradle.platform.base.internal.DefaultComponentSpecIdentifier;
+import org.gradle.platform.base.internal.DefaultPlatformRequirement;
 import org.gradle.platform.base.internal.PlatformRequirement;
 import org.gradle.platform.base.internal.PlatformResolvers;
 import org.gradle.platform.base.PlatformContainer;
 import org.gradle.platform.base.TypeBuilder;
 import org.gradle.platform.base.VariantComponentSpec;
+import org.gradle.util.CollectionUtils;
 
 //trait JFNativeBinarySpecView implements NativeBinarySpec {
 //  String internalData;
@@ -213,6 +220,21 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
     logger.debug("apply(...) [DONE]");
   }
 
+
+  public static List<NativePlatform> resolvePlatforms(List<PlatformRequirement> targetPlatforms, final NativePlatforms nativePlatforms, final PlatformResolvers platforms) {
+    if (targetPlatforms.isEmpty()) {
+      PlatformRequirement requirement = DefaultPlatformRequirement.create(nativePlatforms.getDefaultPlatformName());
+      targetPlatforms = Collections.singletonList(requirement);
+    }
+    return CollectionUtils.collect(targetPlatforms, new Transformer<NativePlatform, PlatformRequirement>() {
+      @Override
+      public NativePlatform transform(PlatformRequirement platformRequirement) {
+          return platforms.resolve(NativePlatform.class, platformRequirement);
+      }
+    });
+  }
+
+
   static
   public class Rules extends RuleSource {
 
@@ -246,17 +268,19 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
     @ComponentType
     public void prebuiltLibrary(TypeBuilder<JFPrebuiltLibrarySpec> builder) {
       builder.defaultImplementation(DefaultJFPrebuiltLibrarySpec.class);
-//    builder.internalView(DefaultJFPrebuiltLibrarySpecView.class);
+      builder.internalView(JFPrebuiltLibraryInternal.class);
     }
 
     @ComponentType
     public void prebuiltSharedLibraryBinary(TypeBuilder<JFPrebuiltSharedLibraryBinarySpec> builder) {
       builder.defaultImplementation(DefaultJFPrebuiltSharedLibraryBinarySpec.class);
+      builder.internalView(JFPrebuiltLibraryBinaryInternal.class);
     }
 
     @ComponentType
     public void prebuiltStaticLibraryBinary(TypeBuilder<JFPrebuiltStaticLibraryBinarySpec> builder) {
       builder.defaultImplementation(DefaultJFPrebuiltStaticLibraryBinarySpec.class);
+      builder.internalView(JFPrebuiltLibraryBinaryInternal.class);
     }
 
     @Hidden @Model
@@ -269,6 +293,7 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
       locators.add(new ProjectLibraryBinaryLocator(projectModelResolver));
       locators.add(new PrebuiltLibraryBinaryLocator(projectModelResolver));
       locators.add(new DefaultJFPrebuiltLibraryBinaryLocator(projectModelResolver));
+      locators.add(new JFPrebuiltLibraryBinaryLocator(projectModelResolver));
       LibraryBinaryLocator retval = new ChainedLibraryBinaryLocator(locators);
       logger.debug("createLibraryBinaryLocator(...) [DONE]");
       return retval;
@@ -280,7 +305,7 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
         final ServiceRegistry       serviceRegistry)
     {
       logger.debug("createNativeDependencyResolver(...) [CALLED]");
-      NativeDependencyResolver retval = new DefaultJFNativeDependencyResolver(
+      NativeDependencyResolver retval = new JFNativeDependencyResolver(
         libraryBinaryLocator, serviceRegistry.get(FileCollectionFactory.class));
       logger.debug("createNativeDependencyResolver(...) [DONE]");
       return retval;
@@ -391,7 +416,7 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
       NativePlatforms nativePlatforms = serviceRegistry.get(NativePlatforms.class);
 //    NativeDependencyResolver nativeDependencyResolver = serviceRegistry.get(NativeDependencyResolver.class);
       FileCollectionFactory fileCollectionFactory = serviceRegistry.get(FileCollectionFactory.class);
-      List<NativePlatform> resolvedPlatforms = NativeComponentRules.resolvePlatforms(nativeComponent, nativePlatforms, platforms);
+      List<NativePlatform> resolvedPlatforms = JFNativeComponentPlugin.resolvePlatforms(nativeComponent.getTargetPlatforms(), nativePlatforms, platforms);
 
       for (NativePlatform platform : resolvedPlatforms) {
         BinaryNamingScheme namingScheme = DefaultBinaryNamingScheme.component(nativeComponent.getName());
@@ -433,7 +458,7 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
       NativePlatforms nativePlatforms = serviceRegistry.get(NativePlatforms.class);
 //    NativeDependencyResolver nativeDependencyResolver = serviceRegistry.get(NativeDependencyResolver.class);
       FileCollectionFactory fileCollectionFactory = serviceRegistry.get(FileCollectionFactory.class);
-      List<NativePlatform> resolvedPlatforms = NativeComponentRules.resolvePlatforms(nativeComponent, nativePlatforms, platforms);
+      List<NativePlatform> resolvedPlatforms = JFNativeComponentPlugin.resolvePlatforms(nativeComponent.getTargetPlatforms(), nativePlatforms, platforms);
 
       for (NativePlatform platform : resolvedPlatforms) {
         BinaryNamingScheme namingScheme = DefaultBinaryNamingScheme.component(nativeComponent.getName());
@@ -452,6 +477,62 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
         }
       }
       logger.debug("createBinariesForJFNativeExecutableSpec(...) for " + nativeComponent + " [DONE]");
+    }
+
+    @Finalize
+    public void createBinariesForJFPrebuilitLibrarySpec(@Each 
+        JFPrebuiltLibraryInternal            nativeComponent, // Modify this
+        // via usage of the following factories and stuff.
+        PlatformResolvers                    platforms,
+        BuildTypeContainer                   buildTypes,
+        FlavorContainer                      flavors,
+        NativeDependencyResolver             nativeDependencyResolver,
+        ServiceRegistry                      serviceRegistry
+    ) {
+      logger.debug("createBinariesForJFPrebuilitLibrarySpec(...) for " + nativeComponent + " [CALLED]");
+      NativePlatforms nativePlatforms = serviceRegistry.get(NativePlatforms.class);
+      FileCollectionFactory fileCollectionFactory = serviceRegistry.get(FileCollectionFactory.class);
+      List<NativePlatform> resolvedPlatforms = JFNativeComponentPlugin.resolvePlatforms(
+          nativeComponent.getTargetPlatforms(), nativePlatforms, platforms);
+      ModelMap<JFPrebuiltLibraryBinarySpec> binaries = nativeComponent.getBinaries()
+      
+      for (NativePlatform platform : resolvedPlatforms) {
+        BinaryNamingScheme namingScheme = DefaultBinaryNamingScheme.component(nativeComponent.getName());
+        namingScheme = namingScheme.withVariantDimension(platform, resolvedPlatforms);
+        Set<BuildType> targetBuildTypes = nativeComponent.chooseBuildTypes(buildTypes);
+        for (BuildType buildType : targetBuildTypes) {
+          BinaryNamingScheme namingSchemeWithBuildType = namingScheme.withVariantDimension(buildType, targetBuildTypes);
+          Set<Flavor> targetFlavors = nativeComponent.chooseFlavors(flavors);
+          for (Flavor flavor : targetFlavors) {
+            BinaryNamingScheme namingSchemeWithFlavor = namingSchemeWithBuildType.withVariantDimension(flavor, targetFlavors);
+            BinaryNamingScheme namingSchemeWithSharedRole = namingSchemeWithFlavor.withBinaryType("SharedLibrary").withRole("shared", false);
+            BinaryNamingScheme namingSchemeWithStaticRole = namingSchemeWithFlavor.withBinaryType("StaticLibrary").withRole("static", false);
+            String sharedLibraryBinaryName = namingSchemeWithSharedRole.getBinaryName();
+            String staticLibraryBinaryName = namingSchemeWithStaticRole.getBinaryName();
+            binaries.create(sharedLibraryBinaryName, JFPrebuiltSharedLibraryBinarySpec.class,
+              new Action<JFPrebuiltLibraryBinaryInternal>() {
+                @Override
+                void execute(JFPrebuiltLibraryBinaryInternal prebuiltLibryryBinary) {
+                  prebuiltLibryryBinary.setFlavor(flavor);
+                  prebuiltLibryryBinary.setTargetPlatform(platform);
+                  prebuiltLibryryBinary.setBuildType(buildType);
+                  prebuiltLibryryBinary.setResolver(nativeDependencyResolver);
+                }
+              });
+            binaries.create(staticLibraryBinaryName, JFPrebuiltStaticLibraryBinarySpec.class,
+              new Action<JFPrebuiltLibraryBinaryInternal>() {
+                @Override
+                void execute(JFPrebuiltLibraryBinaryInternal prebuiltLibryryBinary) {
+                  prebuiltLibryryBinary.setFlavor(flavor);
+                  prebuiltLibryryBinary.setTargetPlatform(platform);
+                  prebuiltLibryryBinary.setBuildType(buildType);
+                  prebuiltLibryryBinary.setResolver(nativeDependencyResolver);
+                }
+              });
+          }
+        }
+      }
+      logger.debug("createBinariesForJFPrebuilitLibrarySpec(...) for " + nativeComponent + " [DONE]");
     }
 
     @Finalize
