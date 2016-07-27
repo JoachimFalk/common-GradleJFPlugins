@@ -16,9 +16,12 @@
 
 package de.jfalk.gradle.nativeplatform;
 
-import org.gradle.nativeplatform.StaticLibraryBinarySpec;
+import java.io.File;
 
 public interface JFPrebuiltStaticLibraryBinarySpec extends JFPrebuiltLibraryBinarySpec, JFStaticLibraryBinary {
-  String getFlammy();
-  void   setFlammy(String flammy);
+
+  /// The static library link file.
+  /// The corresponding getter interface is defined in {@link org.gradle.nativeplatform.StaticLibraryBinary}.
+  void setStaticLibraryFile(final File staticLibraryFile);
+
 }

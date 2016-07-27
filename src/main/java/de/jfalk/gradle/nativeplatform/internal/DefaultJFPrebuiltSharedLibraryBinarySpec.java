@@ -59,21 +59,22 @@ public class DefaultJFPrebuiltSharedLibraryBinarySpec extends DefaultComponentSp
   private BuildType                 buildType;
 
   // Model configuration properties.
-  private File libraryFile;
-  private File dllFile;
+  private File sharedLibraryFile;
+  private File sharedLibraryLinkFile;
 
-  private   String                    flummy;
   protected NativeDependencyResolver  resolver;
 
   public DefaultJFPrebuiltSharedLibraryBinarySpec() {
-    this.logger        = LoggerFactory.getLogger(this.getClass());
-    this.modelNode     = getInfo().modelNode;
-//  this.commonHelpers = new JFCommonLibraryBinarySpec(this);
-//  this.commonHelpers = null;
-    this.interfaces    = ModelMaps.addModelMapNode(modelNode, INTERFACE_MODEL_TYPE, "interfaces");
-    this.flavor        = null;
-    this.platform      = null;
-    this.buildType     = null;
+    this.logger                = LoggerFactory.getLogger(this.getClass());
+    this.modelNode             = getInfo().modelNode;
+//  this.commonHelpers         = new JFCommonLibraryBinarySpec(this);
+//  this.commonHelpers         = null;
+    this.interfaces            = ModelMaps.addModelMapNode(modelNode, INTERFACE_MODEL_TYPE, "interfaces");
+    this.flavor                = null;
+    this.platform              = null;
+    this.buildType             = null;
+    this.sharedLibraryFile     = null;
+    this.sharedLibraryLinkFile = null;
   }
 
   /// Returns a human-consumable display name for this binary.
@@ -87,15 +88,31 @@ public class DefaultJFPrebuiltSharedLibraryBinarySpec extends DefaultComponentSp
   /// The shared library file.
   @Override
   public File getSharedLibraryFile() {
-    logger.debug("getSharedLibraryFile() [CALLED]");
-    return dllFile;
+    logger.debug("getSharedLibraryFile() [CALLED] => " + sharedLibraryFile);
+    return this.sharedLibraryFile;
   }
 
   /// The shared library link file.
   @Override
   public File getSharedLibraryLinkFile() {
-    logger.debug("getSharedLibraryLinkFile() [CALLED]");
-    return libraryFile;
+    logger.debug("getSharedLibraryLinkFile() [CALLED] => " + sharedLibraryLinkFile);
+    return this.sharedLibraryLinkFile;
+  }
+
+  /// Implement interface of {@link de.jfalk.gradle.nativeplatform.JFPrebuiltSharedLibraryBinarySpec}.
+  
+  /// The shared library link file.
+  @Override
+  public void setSharedLibraryFile(final File sharedLibraryFile) {
+    logger.debug("setSharedLibraryFile(" + sharedLibraryFile + ") [CALLED]");
+    this.sharedLibraryFile = sharedLibraryFile;
+  }
+
+  /// The shared library file.
+  @Override
+  public void setSharedLibraryLinkFile(final File sharedLibraryLinkFile) {
+    logger.debug("setSharedLibraryLinkFile(" + sharedLibraryLinkFile + ") [CALLED]");
+    this.sharedLibraryLinkFile = sharedLibraryLinkFile;
   }
 
   /// Implement interface of {@link de.jfalk.gradle.nativeplatform.JFNativeLibraryBinary}.
@@ -194,27 +211,4 @@ public class DefaultJFPrebuiltSharedLibraryBinarySpec extends DefaultComponentSp
     return ModelMaps.toView(interfaces, INTERFACE_MODEL_TYPE);
   }
 
-  /// Implement interface of {@link de.jfalk.gradle.nativeplatform.JFPrebuiltSharedLibraryBinarySpec}.
-
-  /// The shared library file.
-  @Override
-  public void setSharedLibraryFile(final File dllFile) {
-    logger.debug("setSharedLibraryFile() [CALLED]");
-    this.dllFile = dllFile;
-  }
-
-  /// The shared library link file.
-  @Override
-  public void setSharedLibraryLinkFile(final File libraryFile) {
-    logger.debug("getSharedLibraryLinkFile() [CALLED]");
-    this.libraryFile = libraryFile;
-  }
-
-  @Override
-  public String getFlummy()
-    { return this.flummy; }
-
-  @Override
-  public void setFlummy(String flummy)
-    { this.flummy = flummy; }
 }

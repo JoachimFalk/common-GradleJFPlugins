@@ -59,20 +59,20 @@ public class DefaultJFPrebuiltStaticLibraryBinarySpec extends DefaultComponentSp
   private BuildType                 buildType;
 
   // Model configuration properties.
-  private File libraryFile;
+  private File staticLibraryFile;
 
-  private   String                    flammy;
   protected NativeDependencyResolver  resolver;
 
   public DefaultJFPrebuiltStaticLibraryBinarySpec() {
-    this.logger        = LoggerFactory.getLogger(this.getClass());
-    this.modelNode     = getInfo().modelNode;
-//  this.commonHelpers = new JFCommonLibraryBinarySpec(this);
-//  this.commonHelpers = null;
-    this.interfaces    = ModelMaps.addModelMapNode(modelNode, INTERFACE_MODEL_TYPE, "interfaces");
-    this.flavor        = null;
-    this.platform      = null;
-    this.buildType     = null;
+    this.logger            = LoggerFactory.getLogger(this.getClass());
+    this.modelNode         = getInfo().modelNode;
+//  this.commonHelpers     = new JFCommonLibraryBinarySpec(this);
+//  this.commonHelpers     = null;
+    this.interfaces        = ModelMaps.addModelMapNode(modelNode, INTERFACE_MODEL_TYPE, "interfaces");
+    this.flavor            = null;
+    this.platform          = null;
+    this.buildType         = null;
+    this.staticLibraryFile = null;
   }
 
   /// Returns a human-consumable display name for this binary.
@@ -86,8 +86,16 @@ public class DefaultJFPrebuiltStaticLibraryBinarySpec extends DefaultComponentSp
   /// The static library file. 
   @Override
   public File getStaticLibraryFile() {
-    logger.debug("getStaticLibraryFile() [CALLED]");
-    return libraryFile;
+    logger.debug("getStaticLibraryFile() [CALLED] => " + staticLibraryFile);
+    return this.staticLibraryFile;
+  }
+
+  /// Implement interface of {@link de.jfalk.gradle.nativeplatform.JFPrebuiltStaticLibraryBinarySpec}.
+
+  @Override
+  public void setStaticLibraryFile(final File staticLibraryFile) {
+    logger.debug("setStaticLibraryFile(" + staticLibraryFile + ") [CALLED]");
+    this.staticLibraryFile = staticLibraryFile;
   }
 
   /// Implement interface of {@link de.jfalk.gradle.nativeplatform.JFNativeLibraryBinary}.
@@ -182,15 +190,5 @@ public class DefaultJFPrebuiltStaticLibraryBinarySpec extends DefaultComponentSp
   public ModelMap<JFHeaderExportingDependentInterfaceSet> getInterfaces() {
     return ModelMaps.toView(interfaces, INTERFACE_MODEL_TYPE);
   }
-
-  /// Implement interface of {@link de.jfalk.gradle.nativeplatform.JFPrebuiltStaticLibraryBinarySpec}.
-
-  @Override
-  public String getFlammy()
-    { return this.flammy; }
-
-  @Override
-  public void setFlammy(String flammy)
-    { this.flammy = flammy; }
 
 }

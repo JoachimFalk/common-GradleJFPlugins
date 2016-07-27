@@ -20,11 +20,12 @@ import java.io.File;
 
 public interface JFPrebuiltSharedLibraryBinarySpec extends JFPrebuiltLibraryBinarySpec, JFSharedLibraryBinary {
 
-  /// The shared library file.
-  void setSharedLibraryFile(final File dllFile);
-  /// The shared library link file.
-  void setSharedLibraryLinkFile(final File libraryFile);
+  /// The shared library file (DSO).
+  /// The corresponding getter interface is defined in {@link org.gradle.nativeplatform.SharedLibraryBinary}.
+  void setSharedLibraryFile(final File sharedLibraryFile);
 
-  String getFlummy();
-  void   setFlummy(String flummy);
+  /// The shared library link file.
+  /// The corresponding getter interface is defined in {@link org.gradle.nativeplatform.SharedLibraryBinary}.
+  void setSharedLibraryLinkFile(final File sharedLibraryLinkFile);
+
 }
