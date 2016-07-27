@@ -37,23 +37,25 @@ import org.gradle.platform.base.BinarySpec;
 import org.gradle.platform.base.component.internal.DefaultComponentSpec;
 import org.gradle.platform.base.internal.DefaultPlatformRequirement;
 import org.gradle.platform.base.internal.PlatformRequirement;
+import org.gradle.util.GUtil;
 
 public class DefaultJFPrebuiltLibrarySpec extends DefaultComponentSpec implements JFPrebuiltLibraryInternal {
   // Constants
   private static final ModelType<JFPrebuiltLibraryBinarySpec>             BINARY_MODEL_TYPE    = ModelType.of(JFPrebuiltLibraryBinarySpec.class);
   private static final ModelType<JFHeaderExportingDependentInterfaceSet>  INTERFACE_MODEL_TYPE = ModelType.of(JFHeaderExportingDependentInterfaceSet.class);
 
-  private final MutableModelNode binaries;
-  private final MutableModelNode interfaces;
-
   private final List<PlatformRequirement> targetPlatforms = new ArrayList<PlatformRequirement>();
   private final Set<String>               buildTypes      = new HashSet<String>();
   private final Set<String>               flavors         = new HashSet<String>();
 
+  private final MutableModelNode binaries;
+  private final MutableModelNode interfaces;
+
   public DefaultJFPrebuiltLibrarySpec() {
     MutableModelNode modelNode = getInfo().modelNode;
-    binaries   = ModelMaps.addModelMapNode(modelNode, BINARY_MODEL_TYPE, "binaries");
-    interfaces = ModelMaps.addModelMapNode(modelNode, INTERFACE_MODEL_TYPE, "interfaces");
+    this.binaries   = ModelMaps.addModelMapNode(modelNode, BINARY_MODEL_TYPE, "binaries");
+    this.interfaces = ModelMaps.addModelMapNode(modelNode, INTERFACE_MODEL_TYPE, "interfaces");
+    this.baseName   = null;
   }
 
   @Override

@@ -33,7 +33,7 @@ public interface JFPrebuiltLibraryBinarySpec extends ComponentSpec, JFNativeLibr
   /**
    * The component that this binary was built from.
    */
-  NativeComponentSpec getComponent();
+  JFPrebuiltLibrarySpec getComponent();
 
   /**
    * The libraries that should be linked into this binary.

@@ -32,6 +32,7 @@ import de.jfalk.gradle.nativeplatform.JFExportedCompileAndLinkConfiguration;
 import org.gradle.nativeplatform.NativeComponentSpec;
 import org.gradle.nativeplatform.NativeDependencySet;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.Nullable;
 import org.gradle.model.internal.core.ModelMaps;
 import org.gradle.model.internal.core.MutableModelNode;
 import org.gradle.model.internal.type.ModelType;
@@ -47,7 +48,8 @@ public class DefaultJFPrebuiltSharedLibraryBinarySpec extends DefaultComponentSp
   private static final ModelType<JFHeaderExportingDependentInterfaceSet>  INTERFACE_MODEL_TYPE = ModelType.of(JFHeaderExportingDependentInterfaceSet.class);
 
   private final Logger                    logger;
-  private final JFCommonLibraryBinarySpec commonHelpers;
+  private final MutableModelNode          modelNode;
+//private final JFCommonLibraryBinarySpec commonHelpers;
   private final MutableModelNode          interfaces;
   private final Set<? super Object>       libs = new LinkedHashSet<Object>();
 
@@ -62,16 +64,15 @@ public class DefaultJFPrebuiltSharedLibraryBinarySpec extends DefaultComponentSp
   private   String                    flummy;
   protected NativeDependencyResolver  resolver;
 
-
   public DefaultJFPrebuiltSharedLibraryBinarySpec() {
     this.logger        = LoggerFactory.getLogger(this.getClass());
+    this.modelNode     = getInfo().modelNode;
 //  this.commonHelpers = new JFCommonLibraryBinarySpec(this);
-    this.commonHelpers = null;
-    MutableModelNode modelNode = getInfo().modelNode;
-    interfaces = ModelMaps.addModelMapNode(modelNode, INTERFACE_MODEL_TYPE, "interfaces");
-    this.flavor    = null;
-    this.platform  = null;
-    this.buildType = null;
+//  this.commonHelpers = null;
+    this.interfaces    = ModelMaps.addModelMapNode(modelNode, INTERFACE_MODEL_TYPE, "interfaces");
+    this.flavor        = null;
+    this.platform      = null;
+    this.buildType     = null;
   }
 
   /// Returns a human-consumable display name for this binary.
@@ -163,9 +164,12 @@ public class DefaultJFPrebuiltSharedLibraryBinarySpec extends DefaultComponentSp
 
   /// Implement interface of {@link de.jfalk.gradle.nativeplatform.JFPrebuiltLibraryBinarySpec}.
 
-  @Override
-  public NativeComponentSpec getComponent() {
-    return null;
+  @Override @Nullable
+  public JFPrebuiltLibrarySpec getComponent() {
+    MutableModelNode componentNode = modelNode.getParent();
+    return componentNode != null && componentNode.canBeViewedAs(ModelType.of(JFPrebuiltLibrarySpec.class))
+      ? componentNode.asImmutable(ModelType.of(JFPrebuiltLibrarySpec.class), componentNode.getDescriptor()).getInstance()
+      : null;
   }
 
   @Override
