@@ -30,6 +30,7 @@ import de.jfalk.gradle.nativeplatform.JFPrebuiltStaticLibraryBinarySpec;
 import de.jfalk.gradle.nativeplatform.JFExportedCompileAndLinkConfiguration;
 
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.internal.file.collections.SimpleFileCollection;
 import org.gradle.api.Nullable;
 import org.gradle.model.internal.core.ModelMaps;
 import org.gradle.model.internal.core.MutableModelNode;
@@ -101,18 +102,24 @@ public class DefaultJFPrebuiltStaticLibraryBinarySpec extends DefaultComponentSp
 
   @Override
   public FileCollection getHeaderDirs() {
-    return null;
+    logger.debug("getHeaderDirs() [CALLED]");
+    return new SimpleFileCollection();
 //  return commonHelpers.extendHeaderDirs(super.getHeaderDirs(), this.resolver);
   }
 
   @Override
   public FileCollection getLinkFiles() {
-    return null;
+    logger.debug("getLinkFiles() [CALLED]");
+    if (getStaticLibraryFile() != null)
+      return new SimpleFileCollection(getStaticLibraryFile());
+    else
+      return new SimpleFileCollection();
   }
 
   @Override
   public FileCollection getRuntimeFiles() {
-    return null;
+    logger.debug("getRuntimeFiles() [CALLED]");
+    return new SimpleFileCollection();
   }
 
   /// Implement interface of {@link org.gradle.nativeplatform.NativeBinary}.

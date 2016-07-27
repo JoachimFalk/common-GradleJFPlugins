@@ -55,7 +55,6 @@ public class DefaultJFPrebuiltLibrarySpec extends DefaultComponentSpec implement
     MutableModelNode modelNode = getInfo().modelNode;
     this.binaries   = ModelMaps.addModelMapNode(modelNode, BINARY_MODEL_TYPE, "binaries");
     this.interfaces = ModelMaps.addModelMapNode(modelNode, INTERFACE_MODEL_TYPE, "interfaces");
-    this.baseName   = null;
   }
 
   @Override
