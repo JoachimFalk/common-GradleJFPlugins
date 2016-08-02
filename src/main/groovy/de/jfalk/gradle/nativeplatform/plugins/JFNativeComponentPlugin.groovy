@@ -57,8 +57,8 @@ import de.jfalk.gradle.nativeplatform.JFPrebuiltStaticLibraryBinarySpec;
 import de.jfalk.gradle.nativeplatform.JFSharedLibraryBinarySpec;
 import de.jfalk.gradle.nativeplatform.JFStaticLibraryBinarySpec;
 
-import org.gradle.nativeplatform.internal.DefaultBuildType;
 import org.gradle.api.Action;
+import org.gradle.api.DomainObjectSet;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.internal.file.FileCollectionFactory;
 import org.gradle.api.internal.file.SourceDirectorySetFactory;
@@ -102,6 +102,7 @@ import org.gradle.nativeplatform.Flavor;
 import org.gradle.nativeplatform.FlavorContainer;
 import org.gradle.nativeplatform.internal.configure.NativeBinaries;
 import org.gradle.nativeplatform.internal.configure.NativeComponentRules;
+import org.gradle.nativeplatform.internal.DefaultBuildType;
 import org.gradle.nativeplatform.internal.prebuilt.PrebuiltLibraryBinaryLocator;
 import org.gradle.nativeplatform.internal.ProjectNativeLibraryRequirement;
 import org.gradle.nativeplatform.internal.resolve.ChainedLibraryBinaryLocator;
@@ -537,6 +538,15 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
         }
       }
       logger.debug("createBinariesForJFPrebuilitLibrarySpec(...) for " + nativeComponent + " [DONE]");
+    }
+
+    @Defaults
+    public void attacheInterfacesToBinariesForJFPrebuilitLibrarySpec(@Each 
+        final JFPrebuiltLibraryBinaryInternal prebuiltLibryryBinary)
+    {
+      DomainObjectSet<JFHeaderExportingDependentInterfaceSet> inputs = prebuiltLibryryBinary.getInputs();
+      inputs.addAll(prebuiltLibryryBinary.getInterfaces().withType(JFHeaderExportingDependentInterfaceSet.class));
+      inputs.addAll(prebuiltLibryryBinary.getComponent().getInterfaces().withType(JFHeaderExportingDependentInterfaceSet.class));
     }
 
     @Finalize

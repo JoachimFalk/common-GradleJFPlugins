@@ -29,7 +29,10 @@ import de.jfalk.gradle.nativeplatform.JFPrebuiltLibrarySpec;
 import de.jfalk.gradle.nativeplatform.JFPrebuiltStaticLibraryBinarySpec;
 import de.jfalk.gradle.nativeplatform.JFExportedCompileAndLinkConfiguration;
 
+import org.gradle.api.DomainObjectSet;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.internal.DefaultDomainObjectSet;
+import org.gradle.api.internal.file.collections.FileCollectionAdapter;
 import org.gradle.api.internal.file.collections.SimpleFileCollection;
 import org.gradle.api.Nullable;
 import org.gradle.model.internal.core.ModelMaps;
@@ -43,6 +46,7 @@ import org.gradle.nativeplatform.NativeComponentSpec;
 import org.gradle.nativeplatform.NativeDependencySet;
 import org.gradle.nativeplatform.platform.NativePlatform;
 import org.gradle.platform.base.component.internal.DefaultComponentSpec;
+import org.gradle.platform.base.ComponentSpec;
 
 public class DefaultJFPrebuiltStaticLibraryBinarySpec extends DefaultComponentSpec implements JFPrebuiltStaticLibraryBinarySpec, JFPrebuiltLibraryBinaryInternal {
   // Constants
@@ -50,25 +54,29 @@ public class DefaultJFPrebuiltStaticLibraryBinarySpec extends DefaultComponentSp
 
   private final Logger                    logger;
   private final MutableModelNode          modelNode;
-//private final JFCommonLibraryBinarySpec commonHelpers;
   private final MutableModelNode          interfaces;
   private final Set<? super Object>       libs = new LinkedHashSet<Object>();
 
-  private Flavor                    flavor;
-  private NativePlatform            platform;
-  private BuildType                 buildType;
+  private final DomainObjectSet<JFHeaderExportingDependentInterfaceSet> inputInterfaceSets =
+    new DefaultDomainObjectSet<JFHeaderExportingDependentInterfaceSet>(JFHeaderExportingDependentInterfaceSet.class);
+
+  private final FileCollectionAdapter headerDirs;
+
+  // Injected internal stuff
+  private NativeDependencyResolver    resolver;
 
   // Model configuration properties.
-  private File staticLibraryFile;
-
-  protected NativeDependencyResolver  resolver;
-
+  private Flavor                      flavor;
+  private NativePlatform              platform;
+  private BuildType                   buildType;
+  private File                        staticLibraryFile;
+  
   public DefaultJFPrebuiltStaticLibraryBinarySpec() {
     this.logger            = LoggerFactory.getLogger(this.getClass());
     this.modelNode         = getInfo().modelNode;
-//  this.commonHelpers     = new JFCommonLibraryBinarySpec(this);
-//  this.commonHelpers     = null;
     this.interfaces        = ModelMaps.addModelMapNode(modelNode, INTERFACE_MODEL_TYPE, "interfaces");
+    this.headerDirs        = new FileCollectionAdapter(new APIHeadersFileSet(this, (DomainObjectSet<ComponentSpec>)((DomainObjectSet) inputInterfaceSets)));
+
     this.flavor            = null;
     this.platform          = null;
     this.buildType         = null;
@@ -111,8 +119,7 @@ public class DefaultJFPrebuiltStaticLibraryBinarySpec extends DefaultComponentSp
   @Override
   public FileCollection getHeaderDirs() {
     logger.debug("getHeaderDirs() [CALLED]");
-    return new SimpleFileCollection();
-//  return commonHelpers.extendHeaderDirs(super.getHeaderDirs(), this.resolver);
+    return headerDirs;
   }
 
   @Override
@@ -166,19 +173,25 @@ public class DefaultJFPrebuiltStaticLibraryBinarySpec extends DefaultComponentSp
     this.resolver = resolver;
   }
 
+  @Override
+  public DomainObjectSet<JFHeaderExportingDependentInterfaceSet> getInputs() {
+    return this.inputInterfaceSets;
+  }
+
   /// Implement interface of {@link de.jfalk.gradle.nativeplatform.JFPrebuiltLibraryBinarySpec}.
 
   @Override @Nullable
   public JFPrebuiltLibrarySpec getComponent() {
     MutableModelNode componentNode = modelNode.getParent();
+    // componentNode should now point to the model node of ModelMap<JFPrebuiltLibraryBinarySpec> 
+    componentNode = componentNode != null
+      ? componentNode.getParent()
+      : null;
+    // componentNode should now point to the model node of a JFPrebuiltLibrarySpec.
+    logger.debug("getComponent() [CALLED] => " + componentNode);
     return componentNode != null && componentNode.canBeViewedAs(ModelType.of(JFPrebuiltLibrarySpec.class))
       ? componentNode.asImmutable(ModelType.of(JFPrebuiltLibrarySpec.class), componentNode.getDescriptor()).getInstance()
       : null;
-  }
-
-  @Override
-  public Collection<NativeDependencySet> getLibs() {
-    return null;
   }
 
   @Override

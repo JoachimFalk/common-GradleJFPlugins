@@ -31,14 +31,9 @@ import org.gradle.nativeplatform.NativeLibraryBinarySpec;
 
 public interface JFPrebuiltLibraryBinarySpec extends ComponentSpec, JFNativeLibraryBinary {
   /**
-   * The component that this binary was built from.
+   * The component that this binary belongs to.
    */
   JFPrebuiltLibrarySpec getComponent();
-
-  /**
-   * The libraries that should be linked into this binary.
-   */
-  Collection<NativeDependencySet> getLibs();
 
   /**
    * Adds a library as input to this binary.
