@@ -19,6 +19,7 @@ package de.jfalk.gradle.nativeplatform.internal;
 import java.io.File;
 import java.util.Set;
 import java.util.LinkedHashSet;
+import java.util.Collections;
 
 import de.jfalk.gradle.language.nativeplatform.JFHeaderExportingDependentInterfaceSet;
 
@@ -29,6 +30,9 @@ import org.gradle.api.internal.tasks.DefaultTaskDependency;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.model.ModelElement;
 import org.gradle.platform.base.ComponentSpec;
+import org.gradle.nativeplatform.NativeDependencySet;
+import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;
+import org.gradle.nativeplatform.internal.resolve.NativeBinaryResolveResult;
 
 class APIHeadersFileSet implements MinimalFileSet, Buildable {
 
@@ -51,8 +55,17 @@ class APIHeadersFileSet implements MinimalFileSet, Buildable {
   @Override
   public Set<File> getFiles() {
     Set<File> headerDirs = new LinkedHashSet<File>();
-    for (JFHeaderExportingDependentInterfaceSet sourceSet : inputInterfaceSets.withType(JFHeaderExportingDependentInterfaceSet.class)) {
-      headerDirs.addAll(sourceSet.getExportedHeaders().getSrcDirs());
+    for (JFHeaderExportingDependentInterfaceSet interfaceSet : inputInterfaceSets.withType(JFHeaderExportingDependentInterfaceSet.class)) {
+      headerDirs.addAll(interfaceSet.getExportedHeaders().getSrcDirs());
+      for (Object obj : interfaceSet.getHeaderReexportLibs()) {
+//      logger.debug("    header reexporting lib: " + obj);
+//      NativeBinaryResolveResult resolution = new NativeBinaryResolveResult(nativeLibraryBinary, Collections.singleton(obj));
+//      nativeDependencyResolver.resolve(resolution);
+//      for (NativeDependencySet nativeDependencySet: resolution.getAllResults()) {
+//        logger.debug("    header reexporting from: " + flummy.getIncludeRoots());
+//        headerDirs.addAll(nativeDependencySet.getIncludeRoots().getFiles());
+//      }
+      }
     }
     return headerDirs;
   }
