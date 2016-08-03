@@ -1,0 +1,11 @@
+// vim: set syntax=groovy sts=2 ts=8 et:
+
+apply plugin: 'java'
+apply plugin: 'groovy'
+
+// Here, ``project'' is the current org.gradle.api.Project
+project.buildDir = 'obj'
+
+tasks.withType(JavaCompile) {
+  options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+}
