@@ -34,7 +34,6 @@ import de.jfalk.gradle.language.nativeplatform.JFHeaderExportingDependentInterfa
 import de.jfalk.gradle.nativeplatform.internal.DefaultJFNativeExecutableBinarySpec;
 import de.jfalk.gradle.nativeplatform.internal.DefaultJFNativeExecutableSpec;
 import de.jfalk.gradle.nativeplatform.internal.DefaultJFNativeLibrarySpec;
-import de.jfalk.gradle.nativeplatform.internal.DefaultJFPrebuiltLibraries;
 import de.jfalk.gradle.nativeplatform.internal.DefaultJFPrebuiltLibrarySpec;
 import de.jfalk.gradle.nativeplatform.internal.DefaultJFPrebuiltSharedLibraryBinarySpec;
 import de.jfalk.gradle.nativeplatform.internal.DefaultJFPrebuiltStaticLibraryBinarySpec;
@@ -42,14 +41,11 @@ import de.jfalk.gradle.nativeplatform.internal.DefaultJFSharedLibraryBinarySpec;
 import de.jfalk.gradle.nativeplatform.internal.DefaultJFStaticLibraryBinarySpec;
 import de.jfalk.gradle.nativeplatform.internal.JFPrebuiltLibraryBinaryInternal;
 import de.jfalk.gradle.nativeplatform.internal.JFPrebuiltLibraryInternal;
-import de.jfalk.gradle.nativeplatform.internal.resolve.DefaultJFPrebuiltLibraryBinaryLocator;
 import de.jfalk.gradle.nativeplatform.internal.resolve.JFNativeDependencyResolver;
 import de.jfalk.gradle.nativeplatform.internal.resolve.JFPrebuiltLibraryBinaryLocator;
 import de.jfalk.gradle.nativeplatform.JFNativeExecutableBinarySpec;
 import de.jfalk.gradle.nativeplatform.JFNativeExecutableSpec;
 import de.jfalk.gradle.nativeplatform.JFNativeLibrarySpec;
-import de.jfalk.gradle.nativeplatform.JFPrebuiltLibraries;
-import de.jfalk.gradle.nativeplatform.JFPrebuiltLibrary;
 import de.jfalk.gradle.nativeplatform.JFPrebuiltLibraryBinarySpec;
 import de.jfalk.gradle.nativeplatform.JFPrebuiltLibrarySpec;
 import de.jfalk.gradle.nativeplatform.JFPrebuiltSharedLibraryBinarySpec;
@@ -213,8 +209,6 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
     project.ext.JFStaticLibraryBinarySpec         = JFStaticLibraryBinarySpec.class;
     project.ext.JFNativeExecutableSpec            = JFNativeExecutableSpec.class;
     project.ext.JFNativeExecutableBinarySpec      = JFNativeExecutableBinarySpec.class;
-    project.ext.JFPrebuiltLibraries               = JFPrebuiltLibraries.class; 
-    project.ext.JFPrebuiltLibrary                 = JFPrebuiltLibrary.class; 
     project.ext.JFPrebuiltLibrarySpec             = JFPrebuiltLibrarySpec.class; 
     project.ext.JFPrebuiltSharedLibraryBinarySpec = JFPrebuiltSharedLibraryBinarySpec.class; 
     project.ext.JFPrebuiltStaticLibraryBinarySpec = JFPrebuiltStaticLibraryBinarySpec.class; 
@@ -294,7 +288,6 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
       List<LibraryBinaryLocator> locators = new ArrayList<LibraryBinaryLocator>();
       locators.add(new ProjectLibraryBinaryLocator(projectModelResolver));
       locators.add(new PrebuiltLibraryBinaryLocator(projectModelResolver));
-      locators.add(new DefaultJFPrebuiltLibraryBinaryLocator(projectModelResolver));
       locators.add(new JFPrebuiltLibraryBinaryLocator(projectModelResolver));
       LibraryBinaryLocator retval = new ChainedLibraryBinaryLocator(locators);
       logger.debug("createLibraryBinaryLocator(...) [DONE]");
@@ -332,31 +325,30 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
       });
     }
 
-    @Defaults
-    public void repositories(
-        final Repositories        repositories, // Modify this
-        // via usage of the following factories and stuff.
-        final Instantiator        instantiator,
-        final PlatformContainer   platforms,
-        final BuildTypeContainer  buildTypes,
-        final FlavorContainer     flavors,
-        final ServiceRegistry     serviceRegistry)
-    {
-      logger.debug("repositoriesContainer(...) for " + repositories + " [CALLED]");
-      MutableModelNode repositoriesModelNode = serviceRegistry.get(ModelRegistry.class).getRoot().getLink("repositories");
-//    System.out.println(repositoriesModelNode.getLinkNames());
-      repositories.registerFactory(JFPrebuiltLibraries.class, new NamedDomainObjectFactory<JFPrebuiltLibraries>() {
-          public JFPrebuiltLibraries create(String name) {
-            repositoriesModelNode.addLink(
-              ModelRegistrations.of(repositoriesModelNode.getPath().child(name))
-                .descriptor(new SimpleModelRuleDescriptor("JFPrebuiltLibraries " + name + " creation"))
-                .build());
-            return instantiator.newInstance(DefaultJFPrebuiltLibraries.class, name,
-              repositoriesModelNode.getLink(name), instantiator, platforms, buildTypes, flavors, serviceRegistry);
-          }
-        });
-      logger.debug("repositoriesContainer(...) for " + repositories + " [DONE]");
-    }
+//  @Defaults
+//  public void repositories(
+//      final Repositories        repositories, // Modify this
+//      // via usage of the following factories and stuff.
+//      final Instantiator        instantiator,
+//      final PlatformContainer   platforms,
+//      final BuildTypeContainer  buildTypes,
+//      final FlavorContainer     flavors,
+//      final ServiceRegistry     serviceRegistry)
+//  {
+//    logger.debug("repositoriesContainer(...) for " + repositories + " [CALLED]");
+//    MutableModelNode repositoriesModelNode = serviceRegistry.get(ModelRegistry.class).getRoot().getLink("repositories");
+//    repositories.registerFactory(JFPrebuiltLibraries.class, new NamedDomainObjectFactory<JFPrebuiltLibraries>() {
+//        public JFPrebuiltLibraries create(String name) {
+//          repositoriesModelNode.addLink(
+//            ModelRegistrations.of(repositoriesModelNode.getPath().child(name))
+//              .descriptor(new SimpleModelRuleDescriptor("JFPrebuiltLibraries " + name + " creation"))
+//              .build());
+//          return instantiator.newInstance(DefaultJFPrebuiltLibraries.class, name,
+//            repositoriesModelNode.getLink(name), instantiator, platforms, buildTypes, flavors, serviceRegistry);
+//        }
+//      });
+//    logger.debug("repositoriesContainer(...) for " + repositories + " [DONE]");
+//  }
 
     @ComponentBinaries
     public void createBinariesForJFNativeLibrarySpec(
