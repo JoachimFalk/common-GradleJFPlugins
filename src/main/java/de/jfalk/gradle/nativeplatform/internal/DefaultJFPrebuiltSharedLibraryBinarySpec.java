@@ -76,8 +76,9 @@ public class DefaultJFPrebuiltSharedLibraryBinarySpec extends DefaultComponentSp
     this.logger                = LoggerFactory.getLogger(this.getClass());
     this.modelNode             = getInfo().modelNode;
     this.interfaces            = ModelMaps.addModelMapNode(modelNode, INTERFACE_MODEL_TYPE, "interfaces");
-    this.headerDirs            = new FileCollectionAdapter(new APIHeadersFileSet(this, (DomainObjectSet<ComponentSpec>)((DomainObjectSet) inputInterfaceSets)));
-
+    @SuppressWarnings("unchecked")
+    DomainObjectSet<ComponentSpec> inputs = (DomainObjectSet) inputInterfaceSets;
+    this.headerDirs            = new FileCollectionAdapter(new APIHeadersFileSet(this, inputs));
     this.flavor                = null;
     this.platform              = null;
     this.buildType             = null;
