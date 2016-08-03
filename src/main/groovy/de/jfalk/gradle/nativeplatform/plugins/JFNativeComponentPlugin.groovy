@@ -344,7 +344,7 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
     {
       logger.debug("repositoriesContainer(...) for " + repositories + " [CALLED]");
       MutableModelNode repositoriesModelNode = serviceRegistry.get(ModelRegistry.class).getRoot().getLink("repositories");
-      System.out.println(repositoriesModelNode.getLinkNames());
+//    System.out.println(repositoriesModelNode.getLinkNames());
       repositories.registerFactory(JFPrebuiltLibraries.class, new NamedDomainObjectFactory<JFPrebuiltLibraries>() {
           public JFPrebuiltLibraries create(String name) {
             repositoriesModelNode.addLink(
@@ -356,15 +356,6 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
           }
         });
       logger.debug("repositoriesContainer(...) for " + repositories + " [DONE]");
-    }
-
-    @Defaults
-    void setResolver(@Each
-        final JFPrebuiltLibraryBinarySpec prebuiltLibraryBinarySpec, // Modify this
-        // via usage of the following factories and stuff.
-        final NativeDependencyResolver    nativeDependencyResolver)
-    {
-      prebuiltLibraryBinarySpec.setResolver(nativeDependencyResolver);
     }
 
     @ComponentBinaries
@@ -517,21 +508,21 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
             binaries.create(sharedLibraryBinaryName, JFPrebuiltSharedLibraryBinarySpec.class,
               new Action<JFPrebuiltLibraryBinaryInternal>() {
                 @Override
-                void execute(JFPrebuiltLibraryBinaryInternal prebuiltLibryryBinary) {
-                  prebuiltLibryryBinary.setFlavor(flavor);
-                  prebuiltLibryryBinary.setTargetPlatform(platform);
-                  prebuiltLibryryBinary.setBuildType(buildType);
-                  prebuiltLibryryBinary.setResolver(nativeDependencyResolver);
+                void execute(JFPrebuiltLibraryBinaryInternal prebuiltLibraryBinary) {
+                  prebuiltLibraryBinary.setFlavor(flavor);
+                  prebuiltLibraryBinary.setTargetPlatform(platform);
+                  prebuiltLibraryBinary.setBuildType(buildType);
+                  prebuiltLibraryBinary.setResolver(nativeDependencyResolver);
                 }
               });
             binaries.create(staticLibraryBinaryName, JFPrebuiltStaticLibraryBinarySpec.class,
               new Action<JFPrebuiltLibraryBinaryInternal>() {
                 @Override
-                void execute(JFPrebuiltLibraryBinaryInternal prebuiltLibryryBinary) {
-                  prebuiltLibryryBinary.setFlavor(flavor);
-                  prebuiltLibryryBinary.setTargetPlatform(platform);
-                  prebuiltLibryryBinary.setBuildType(buildType);
-                  prebuiltLibryryBinary.setResolver(nativeDependencyResolver);
+                void execute(JFPrebuiltLibraryBinaryInternal prebuiltLibraryBinary) {
+                  prebuiltLibraryBinary.setFlavor(flavor);
+                  prebuiltLibraryBinary.setTargetPlatform(platform);
+                  prebuiltLibraryBinary.setBuildType(buildType);
+                  prebuiltLibraryBinary.setResolver(nativeDependencyResolver);
                 }
               });
           }
@@ -541,12 +532,27 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
     }
 
     @Defaults
-    public void attacheInterfacesToBinariesForJFPrebuilitLibrarySpec(@Each 
-        final JFPrebuiltLibraryBinaryInternal prebuiltLibryryBinary)
+    void setResolver(@Each
+        final JFPrebuiltLibraryBinaryInternal prebuiltLibraryBinary, // Modify this
+        // via usage of the following factories and stuff.
+        final NativeDependencyResolver        nativeDependencyResolver)
     {
-      DomainObjectSet<JFHeaderExportingDependentInterfaceSet> inputs = prebuiltLibryryBinary.getInputs();
-      inputs.addAll(prebuiltLibryryBinary.getInterfaces().withType(JFHeaderExportingDependentInterfaceSet.class));
-      inputs.addAll(prebuiltLibryryBinary.getComponent().getInterfaces().withType(JFHeaderExportingDependentInterfaceSet.class));
+      logger.debug("setResolver("+prebuiltLibraryBinary+", ...) [CALLED]");
+      prebuiltLibraryBinary.setResolver(nativeDependencyResolver);
+      logger.debug("setResolver("+prebuiltLibraryBinary+", ...) [DONE]");
+    }
+
+    @Finalize
+    public void attachInterfacesToBinariesForJFPrebuilitLibrarySpec(@Each 
+        final JFPrebuiltLibraryBinaryInternal prebuiltLibraryBinary)
+    {
+      logger.debug("attachInterfacesToBinariesForJFPrebuilitLibrarySpec("+prebuiltLibraryBinary+") [CALLED]");
+      DomainObjectSet<JFHeaderExportingDependentInterfaceSet> inputs = prebuiltLibraryBinary.getInputs();
+      inputs.addAll(prebuiltLibraryBinary.getInterfaces().withType(JFHeaderExportingDependentInterfaceSet.class));
+      logger.debug("attachInterfacesToBinariesForJFPrebuilitLibrarySpec("+prebuiltLibraryBinary+") => " + inputs);
+      inputs.addAll(prebuiltLibraryBinary.getComponent().getInterfaces().withType(JFHeaderExportingDependentInterfaceSet.class));
+      logger.debug("attachInterfacesToBinariesForJFPrebuilitLibrarySpec("+prebuiltLibraryBinary+") => " + inputs);
+      logger.debug("attachInterfacesToBinariesForJFPrebuilitLibrarySpec("+prebuiltLibraryBinary+") [DONE]");
     }
 
     @Finalize
