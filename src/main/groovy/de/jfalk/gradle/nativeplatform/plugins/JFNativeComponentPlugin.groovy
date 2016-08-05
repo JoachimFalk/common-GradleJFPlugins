@@ -539,7 +539,7 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
         final JFPrebuiltLibraryBinaryInternal prebuiltLibraryBinary)
     {
       logger.debug("attachInterfacesToBinariesForJFPrebuilitLibrarySpec("+prebuiltLibraryBinary+") [CALLED]");
-      DomainObjectSet<JFHeaderExportingDependentInterfaceSet> inputs = prebuiltLibraryBinary.getInputs();
+      DomainObjectSet<JFHeaderExportingDependentInterfaceSet> inputs = prebuiltLibraryBinary.getInterfaceSets();
       inputs.addAll(prebuiltLibraryBinary.getInterfaces().withType(JFHeaderExportingDependentInterfaceSet.class));
       logger.debug("attachInterfacesToBinariesForJFPrebuilitLibrarySpec("+prebuiltLibraryBinary+") => " + inputs);
       inputs.addAll(prebuiltLibraryBinary.getComponent().getInterfaces().withType(JFHeaderExportingDependentInterfaceSet.class));

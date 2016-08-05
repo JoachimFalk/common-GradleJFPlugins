@@ -19,9 +19,10 @@ package de.jfalk.gradle.nativeplatform;
 import de.jfalk.gradle.language.nativeplatform.JFHeaderExportingDependentInterfaceSet;
 
 import org.gradle.model.ModelMap;
-import org.gradle.platform.base.ComponentSpec;
+//import org.gradle.platform.base.ComponentSpec;
+import org.gradle.nativeplatform.NativeComponentSpec;
 
-public interface JFPrebuiltLibrarySpec extends ComponentSpec, JFNativeLibrary {
+public interface JFPrebuiltLibrarySpec extends NativeComponentSpec, JFNativeLibrary {
 
   /**
    * Specifies a {@link org.gradle.platform.base.Platform} that this component has prebuilt library binaries for.

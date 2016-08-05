@@ -26,7 +26,7 @@ import org.gradle.api.file.FileCollection;
 import org.gradle.nativeplatform.internal.DefaultSharedLibraryBinarySpec;
 import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;
 
-public class DefaultJFSharedLibraryBinarySpec extends DefaultSharedLibraryBinarySpec implements JFSharedLibraryBinarySpec {
+public class DefaultJFSharedLibraryBinarySpec extends DefaultSharedLibraryBinarySpec implements JFSharedLibraryBinarySpec, JFNativeBinarySpecEx {
 
   private final Logger                    logger;
   private final JFCommonLibraryBinarySpec commonHelpers;
@@ -72,6 +72,15 @@ public class DefaultJFSharedLibraryBinarySpec extends DefaultSharedLibraryBinary
     super.setResolver(resolver);
     this.resolver = resolver;
   }
+
+  // Implement interface of {@link de.jfalk.gradle.nativeplatform.internal.JFNativeBinarySpecEx}.
+
+  @Override
+  public NativeDependencyResolver getResolver() {
+    return this.resolver;
+  }
+
+  // Implement interface of {@link de.jfalk.gradle.nativeplatform.JFSharedLibraryBinarySpec}.
 
   @Override
   public String getFlummy()

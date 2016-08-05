@@ -26,7 +26,7 @@ import org.gradle.api.file.FileCollection;
 import org.gradle.nativeplatform.internal.DefaultStaticLibraryBinarySpec;
 import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;
 
-public class DefaultJFStaticLibraryBinarySpec extends DefaultStaticLibraryBinarySpec implements JFStaticLibraryBinarySpec {
+public class DefaultJFStaticLibraryBinarySpec extends DefaultStaticLibraryBinarySpec implements JFStaticLibraryBinarySpec, JFNativeBinarySpecEx {
 
   private final Logger                    logger;
   private final JFCommonLibraryBinarySpec commonHelpers;
@@ -60,6 +60,15 @@ public class DefaultJFStaticLibraryBinarySpec extends DefaultStaticLibraryBinary
     super.setResolver(resolver);
     this.resolver = resolver;
   }
+
+  // Implement interface of {@link de.jfalk.gradle.nativeplatform.internal.JFNativeBinarySpecEx}.
+
+  @Override
+  public NativeDependencyResolver getResolver() {
+    return this.resolver;
+  }
+
+  // Implement interface of {@link de.jfalk.gradle.nativeplatform.JFStaticLibraryBinarySpec}.
 
   @Override
   public String getFlammy()

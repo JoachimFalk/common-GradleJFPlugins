@@ -21,6 +21,9 @@ import java.util.Set;
 import java.util.LinkedHashSet;
 import java.util.Collections;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.jfalk.gradle.language.nativeplatform.JFHeaderExportingDependentInterfaceSet;
 
 import org.gradle.api.Buildable;
@@ -28,7 +31,7 @@ import org.gradle.api.DomainObjectSet;
 import org.gradle.api.internal.file.collections.MinimalFileSet;
 import org.gradle.api.internal.tasks.DefaultTaskDependency;
 import org.gradle.api.tasks.TaskDependency;
-import org.gradle.model.ModelElement;
+//import org.gradle.model.ModelElement;
 import org.gradle.platform.base.ComponentSpec;
 import org.gradle.nativeplatform.NativeDependencySet;
 import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;
@@ -36,13 +39,16 @@ import org.gradle.nativeplatform.internal.resolve.NativeBinaryResolveResult;
 
 class APIHeadersFileSet implements MinimalFileSet, Buildable {
 
-  protected final ModelElement                   owner;
+  private final Logger logger;
+
+  protected final JFNativeBinarySpecEx           owner;
   protected final DomainObjectSet<ComponentSpec> inputInterfaceSets;
 
   public APIHeadersFileSet(
-      final ModelElement                   owner,
+      final JFNativeBinarySpecEx           owner,
       final DomainObjectSet<ComponentSpec> inputInterfaceSets)
   {
+    this.logger             = LoggerFactory.getLogger(this.getClass());
     this.owner              = owner;
     this.inputInterfaceSets = inputInterfaceSets;
   }
@@ -58,13 +64,13 @@ class APIHeadersFileSet implements MinimalFileSet, Buildable {
     for (JFHeaderExportingDependentInterfaceSet interfaceSet : inputInterfaceSets.withType(JFHeaderExportingDependentInterfaceSet.class)) {
       headerDirs.addAll(interfaceSet.getExportedHeaders().getSrcDirs());
       for (Object obj : interfaceSet.getHeaderReexportLibs()) {
-//      logger.debug("    header reexporting lib: " + obj);
-//      NativeBinaryResolveResult resolution = new NativeBinaryResolveResult(nativeLibraryBinary, Collections.singleton(obj));
-//      nativeDependencyResolver.resolve(resolution);
-//      for (NativeDependencySet nativeDependencySet: resolution.getAllResults()) {
-//        logger.debug("    header reexporting from: " + flummy.getIncludeRoots());
-//        headerDirs.addAll(nativeDependencySet.getIncludeRoots().getFiles());
-//      }
+        logger.debug("    header reexporting lib: " + obj);
+        NativeBinaryResolveResult resolution = new NativeBinaryResolveResult(owner, Collections.singleton(obj));
+        owner.getResolver().resolve(resolution);
+        for (NativeDependencySet nativeDependencySet: resolution.getAllResults()) {
+          logger.debug("    header reexporting from: " + nativeDependencySet.getIncludeRoots());
+          headerDirs.addAll(nativeDependencySet.getIncludeRoots().getFiles());
+        }
       }
     }
     return headerDirs;

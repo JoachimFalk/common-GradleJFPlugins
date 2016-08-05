@@ -16,30 +16,11 @@
 
 package de.jfalk.gradle.nativeplatform.internal;
 
-import java.util.List;
-import java.util.Set;
-
-import de.jfalk.gradle.language.nativeplatform.JFHeaderExportingDependentInterfaceSet;
-import de.jfalk.gradle.nativeplatform.JFPrebuiltLibraryBinarySpec;
-
-import org.gradle.api.DomainObjectSet;
-import org.gradle.nativeplatform.BuildType;
-import org.gradle.nativeplatform.Flavor;
 import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;
-import org.gradle.nativeplatform.platform.NativePlatform;
+import org.gradle.nativeplatform.NativeBinarySpec;
 
-public interface JFPrebuiltLibraryBinaryInternal extends JFPrebuiltLibraryBinarySpec {
+public interface JFNativeBinarySpecEx extends NativeBinarySpec {
 
-  void setFlavor(Flavor flavor);
-
-//void setToolChain(NativeToolChain nativeToolChain);
-
-  void setTargetPlatform(NativePlatform nativePlatform);
-
-  void setBuildType(BuildType buildType);
-
-  void setResolver(NativeDependencyResolver resolver);
-
-  DomainObjectSet<JFHeaderExportingDependentInterfaceSet> getInterfaceSets();
+  NativeDependencyResolver getResolver();
 
 }

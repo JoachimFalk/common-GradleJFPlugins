@@ -35,6 +35,9 @@ import org.gradle.api.internal.DefaultDomainObjectSet;
 import org.gradle.api.internal.file.collections.FileCollectionAdapter;
 import org.gradle.api.internal.file.collections.SimpleFileCollection;
 import org.gradle.api.Nullable;
+import org.gradle.api.Task;
+import org.gradle.api.tasks.TaskDependency;
+import org.gradle.language.base.LanguageSourceSet;
 import org.gradle.model.internal.core.ModelMaps;
 import org.gradle.model.internal.core.MutableModelNode;
 import org.gradle.model.internal.type.ModelType;
@@ -45,10 +48,14 @@ import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;
 import org.gradle.nativeplatform.NativeComponentSpec;
 import org.gradle.nativeplatform.NativeDependencySet;
 import org.gradle.nativeplatform.platform.NativePlatform;
+import org.gradle.nativeplatform.PreprocessingTool;
+import org.gradle.nativeplatform.Tool;
+import org.gradle.nativeplatform.toolchain.NativeToolChain;
+import org.gradle.platform.base.BinaryTasksCollection;
 import org.gradle.platform.base.component.internal.DefaultComponentSpec;
 import org.gradle.platform.base.ComponentSpec;
 
-public class DefaultJFPrebuiltStaticLibraryBinarySpec extends DefaultComponentSpec implements JFPrebuiltStaticLibraryBinarySpec, JFPrebuiltLibraryBinaryInternal {
+public class DefaultJFPrebuiltStaticLibraryBinarySpec extends DefaultComponentSpec implements JFPrebuiltStaticLibraryBinarySpec, JFPrebuiltLibraryBinaryInternal, JFNativeBinarySpecEx {
   // Constants
   private static final ModelType<JFHeaderExportingDependentInterfaceSet>  INTERFACE_MODEL_TYPE = ModelType.of(JFHeaderExportingDependentInterfaceSet.class);
 
@@ -91,7 +98,7 @@ public class DefaultJFPrebuiltStaticLibraryBinarySpec extends DefaultComponentSp
     return super.getDisplayName()+":"+getTargetPlatform()+":"+getFlavor()+":"+getBuildType();
   }
 
-  /// Implement interface of {@link org.gradle.nativeplatform.StaticLibraryBinary}.
+  // Implement interface of {@link org.gradle.nativeplatform.StaticLibraryBinary}.
 
   /// The static library file. 
   @Override
@@ -100,7 +107,7 @@ public class DefaultJFPrebuiltStaticLibraryBinarySpec extends DefaultComponentSp
     return this.staticLibraryFile;
   }
 
-  /// Implement interface of {@link de.jfalk.gradle.nativeplatform.JFPrebuiltStaticLibraryBinarySpec}.
+  // Implement interface of {@link de.jfalk.gradle.nativeplatform.JFPrebuiltStaticLibraryBinarySpec}.
 
   @Override
   public void setStaticLibraryFile(final File staticLibraryFile) {
@@ -116,7 +123,7 @@ public class DefaultJFPrebuiltStaticLibraryBinarySpec extends DefaultComponentSp
     return null;
   }
 
-  /// Implement interface of {@link org.gradle.nativeplatform.NativeLibraryBinary}.
+  // Implement interface of {@link org.gradle.nativeplatform.NativeLibraryBinary}.
 
   @Override
   public FileCollection getHeaderDirs() {
@@ -139,7 +146,7 @@ public class DefaultJFPrebuiltStaticLibraryBinarySpec extends DefaultComponentSp
     return new SimpleFileCollection();
   }
 
-  /// Implement interface of {@link org.gradle.nativeplatform.NativeBinary}.
+  // Implement interface of {@link org.gradle.nativeplatform.NativeBinary}.
 
   /// The {@link org.gradle.nativeplatform.Flavor} that this binary was built with.
   @Override
@@ -153,7 +160,7 @@ public class DefaultJFPrebuiltStaticLibraryBinarySpec extends DefaultComponentSp
   @Override
   public BuildType getBuildType() { return buildType; }
 
-  /// Implement interface of {@link de.jfalk.gradle.nativeplatform.internal.JFPrebuiltLibraryBinaryInternal}.
+  // Implement interface of {@link de.jfalk.gradle.nativeplatform.internal.JFPrebuiltLibraryBinaryInternal}.
 
   @Override
   public void setFlavor(Flavor flavor) {
@@ -176,11 +183,11 @@ public class DefaultJFPrebuiltStaticLibraryBinarySpec extends DefaultComponentSp
   }
 
   @Override
-  public DomainObjectSet<JFHeaderExportingDependentInterfaceSet> getInputs() {
+  public DomainObjectSet<JFHeaderExportingDependentInterfaceSet> getInterfaceSets() {
     return this.inputInterfaceSets;
   }
 
-  /// Implement interface of {@link de.jfalk.gradle.nativeplatform.JFPrebuiltLibraryBinarySpec}.
+  // Implement interface of {@link de.jfalk.gradle.nativeplatform.JFPrebuiltLibraryBinarySpec}.
 
   @Override @Nullable
   public JFPrebuiltLibrarySpec getComponent() {
@@ -205,5 +212,94 @@ public class DefaultJFPrebuiltStaticLibraryBinarySpec extends DefaultComponentSp
   public ModelMap<JFHeaderExportingDependentInterfaceSet> getInterfaces() {
     return ModelMaps.toView(interfaces, INTERFACE_MODEL_TYPE);
   }
+
+  // Implement interface of {@link de.jfalk.gradle.nativeplatform.internal.JFNativeBinarySpecEx}.
+
+  @Override
+  public NativeDependencyResolver getResolver() {
+    return this.resolver;
+  }
+
+//// Flummy
+
+  @Override
+  public Collection<NativeDependencySet> getLibs() {
+    return null;
+  }
+
+  @Override
+  public DomainObjectSet<LanguageSourceSet> getInputs() {
+    return null;
+  }
+
+  @Override
+  public NativeToolChain getToolChain()
+    { return null; }
+
+  @Override
+  public Tool getLinker()
+    { return null; }
+
+  @Override
+  public Tool getStaticLibArchiver()
+    { return null; }
+
+  @Override
+  public Tool getAssembler()
+    { return null; }
+
+  @Override
+  public PreprocessingTool getcCompiler()
+    { return null; }
+
+  @Override
+  public PreprocessingTool getCppCompiler()
+    { return null; }
+
+  @Override
+  public PreprocessingTool getObjcCompiler()
+    { return null; }
+
+  @Override
+  public PreprocessingTool getObjcppCompiler()
+    { return null; }
+
+  @Override
+  public PreprocessingTool getRcCompiler()
+    { return null; }
+
+  @Override
+  public boolean isBuildable()
+    { return true; }
+
+  @Override
+  public ModelMap<LanguageSourceSet> getSources()
+    { return null; }
+
+  @Override
+  public BinaryTasksCollection getTasks()
+    { return null; }
+
+  @Nullable @Override
+  public Task getBuildTask()
+    { return null; }
+
+  @Override
+  public void setBuildTask(Task buildTask)
+    {}
+
+  @Override
+  public void builtBy(Object... tasks)
+    {}
+
+  @Override
+  public boolean hasBuildDependencies()
+    { return false; }
+
+  @Override
+  public TaskDependency getBuildDependencies()
+    { return null; }
+
+
 
 }

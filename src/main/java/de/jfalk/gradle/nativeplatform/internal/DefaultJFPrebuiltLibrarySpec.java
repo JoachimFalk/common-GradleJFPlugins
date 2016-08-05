@@ -37,12 +37,16 @@ import org.gradle.platform.base.BinarySpec;
 import org.gradle.platform.base.component.internal.DefaultComponentSpec;
 import org.gradle.platform.base.internal.DefaultPlatformRequirement;
 import org.gradle.platform.base.internal.PlatformRequirement;
+import org.gradle.platform.base.internal.HasIntermediateOutputsComponentSpec;
 import org.gradle.util.GUtil;
+import org.gradle.platform.base.TransformationFileType;
+import org.gradle.language.base.LanguageSourceSet;
 
-public class DefaultJFPrebuiltLibrarySpec extends DefaultComponentSpec implements JFPrebuiltLibraryInternal {
+public class DefaultJFPrebuiltLibrarySpec extends DefaultComponentSpec implements JFPrebuiltLibraryInternal, HasIntermediateOutputsComponentSpec {
   // Constants
   private static final ModelType<JFPrebuiltLibraryBinarySpec>             BINARY_MODEL_TYPE    = ModelType.of(JFPrebuiltLibraryBinarySpec.class);
   private static final ModelType<JFHeaderExportingDependentInterfaceSet>  INTERFACE_MODEL_TYPE = ModelType.of(JFHeaderExportingDependentInterfaceSet.class);
+  private static final ModelType<LanguageSourceSet>                       SOURCE_MODEL_TYPE    = ModelType.of(LanguageSourceSet.class);
 
   private final List<PlatformRequirement> targetPlatforms = new ArrayList<PlatformRequirement>();
   private final Set<String>               buildTypes      = new HashSet<String>();
@@ -50,11 +54,15 @@ public class DefaultJFPrebuiltLibrarySpec extends DefaultComponentSpec implement
 
   private final MutableModelNode binaries;
   private final MutableModelNode interfaces;
+  private final MutableModelNode sources; // This should be a dummy node which represents an empty map!
+
+  private String baseName;
 
   public DefaultJFPrebuiltLibrarySpec() {
     MutableModelNode modelNode = getInfo().modelNode;
     this.binaries   = ModelMaps.addModelMapNode(modelNode, BINARY_MODEL_TYPE, "binaries");
     this.interfaces = ModelMaps.addModelMapNode(modelNode, INTERFACE_MODEL_TYPE, "interfaces");
+    this.sources    = ModelMaps.addModelMapNode(modelNode, SOURCE_MODEL_TYPE, "sources");
   }
 
   @Override
@@ -111,5 +119,29 @@ public class DefaultJFPrebuiltLibrarySpec extends DefaultComponentSpec implement
       throw new InvalidUserDataException(String.format("Invalid %s: '%s'", type.getSimpleName(), unusedNames.iterator().next()));
     }
     return chosen;
+  }
+
+  @Override
+  public String getBaseName() {
+    if (this.baseName != null) {
+      return this.baseName;
+    } else
+      return getName();
+  }
+
+  @Override
+  public void setBaseName(String baseName) {
+    this.baseName = baseName;
+  }
+
+  @Override
+  public Set<? extends Class<? extends TransformationFileType>> getIntermediateTypes() {
+    return Collections.emptySet();
+  }
+
+  @Override
+  public ModelMap<LanguageSourceSet> getSources() {
+    // This should be an empty map!
+    return ModelMaps.toView(sources, SOURCE_MODEL_TYPE);
   }
 }
