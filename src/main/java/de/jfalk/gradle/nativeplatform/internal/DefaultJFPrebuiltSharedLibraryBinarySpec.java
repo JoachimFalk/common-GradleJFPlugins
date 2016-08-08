@@ -68,7 +68,8 @@ public class DefaultJFPrebuiltSharedLibraryBinarySpec extends DefaultComponentSp
   private final DomainObjectSet<JFHeaderExportingDependentInterfaceSet> inputInterfaceSets =
     new DefaultDomainObjectSet<JFHeaderExportingDependentInterfaceSet>(JFHeaderExportingDependentInterfaceSet.class);
 
-  private final FileCollectionAdapter headerDirs;
+  private final FileCollection                        headerDirs;
+  private final JFExportedCompileAndLinkConfiguration exportedCompileAndLinkConfiguration;
 
   // Injected internal stuff
   private NativeDependencyResolver    resolver;
@@ -81,17 +82,18 @@ public class DefaultJFPrebuiltSharedLibraryBinarySpec extends DefaultComponentSp
   private File                        sharedLibraryLinkFile;
 
   public DefaultJFPrebuiltSharedLibraryBinarySpec() {
-    this.logger                = LoggerFactory.getLogger(this.getClass());
-    this.modelNode             = getInfo().modelNode;
-    this.interfaces            = ModelMaps.addModelMapNode(modelNode, INTERFACE_MODEL_TYPE, "interfaces");
     @SuppressWarnings("unchecked")
     DomainObjectSet<ComponentSpec> inputs = (DomainObjectSet) inputInterfaceSets;
-    this.headerDirs            = new FileCollectionAdapter(new APIHeadersFileSet(this, inputs));
-    this.flavor                = null;
-    this.platform              = null;
-    this.buildType             = null;
-    this.sharedLibraryFile     = null;
-    this.sharedLibraryLinkFile = null;
+    this.logger                              = LoggerFactory.getLogger(this.getClass());
+    this.modelNode                           = getInfo().modelNode;
+    this.interfaces                          = ModelMaps.addModelMapNode(modelNode, INTERFACE_MODEL_TYPE, "interfaces");
+    this.headerDirs                          = new FileCollectionAdapter(new APIHeadersFileSet(this, inputs));
+    this.exportedCompileAndLinkConfiguration = new JFExportedCompileAndLinkConfigurationImpl(this, inputs);
+    this.flavor                              = null;
+    this.platform                            = null;
+    this.buildType                           = null;
+    this.sharedLibraryFile                   = null;
+    this.sharedLibraryLinkFile               = null;
   }
 
   /// Returns a human-consumable display name for this binary.
@@ -137,7 +139,7 @@ public class DefaultJFPrebuiltSharedLibraryBinarySpec extends DefaultComponentSp
   // Compiler and linker configuration
   @Override
   public JFExportedCompileAndLinkConfiguration getExportedCompileAndLinkConfiguration() {
-    return null;
+    return this.exportedCompileAndLinkConfiguration;
   }
 
   /// Implement interface of {@link org.gradle.nativeplatform.NativeLibraryBinary}.

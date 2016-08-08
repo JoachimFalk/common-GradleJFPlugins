@@ -16,18 +16,11 @@
 
 package de.jfalk.gradle.nativeplatform;
 
-import java.util.Collection;
-
 import de.jfalk.gradle.language.nativeplatform.JFHeaderExportingDependentInterfaceSet;
 
 import org.gradle.platform.base.ComponentSpec;
-import org.gradle.nativeplatform.NativeComponentSpec;
-import org.gradle.nativeplatform.Flavor;
-import org.gradle.nativeplatform.platform.NativePlatform;
-import org.gradle.nativeplatform.BuildType;
 import org.gradle.nativeplatform.NativeDependencySet;
 import org.gradle.model.ModelMap;
-import org.gradle.nativeplatform.NativeLibraryBinarySpec;
 
 public interface JFPrebuiltLibraryBinarySpec extends ComponentSpec, JFNativeLibraryBinary {
   /**

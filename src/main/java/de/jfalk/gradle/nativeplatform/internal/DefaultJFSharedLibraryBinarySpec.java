@@ -22,21 +22,37 @@ import org.slf4j.LoggerFactory;
 import de.jfalk.gradle.nativeplatform.JFSharedLibraryBinarySpec;
 import de.jfalk.gradle.nativeplatform.JFExportedCompileAndLinkConfiguration;
 
+import org.gradle.api.DomainObjectSet;
 import org.gradle.api.file.FileCollection;
 import org.gradle.nativeplatform.internal.DefaultSharedLibraryBinarySpec;
 import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;
+import org.gradle.nativeplatform.PreprocessingTool;
+import org.gradle.nativeplatform.Tool;
+import org.gradle.platform.base.ComponentSpec;
 
 public class DefaultJFSharedLibraryBinarySpec extends DefaultSharedLibraryBinarySpec implements JFSharedLibraryBinarySpec, JFNativeBinarySpecEx {
 
   private final Logger                    logger;
   private final JFCommonLibraryBinarySpec commonHelpers;
 
+  private final JFExportedCompileAndLinkConfiguration exportedCompileAndLinkConfiguration;
+  private final Tool                                  linker;
+  private final PreprocessingTool                     cCompiler;
+  private final PreprocessingTool                     cppCompiler;
+
   private   String                    flummy;
   protected NativeDependencyResolver  resolver;
 
+
   public DefaultJFSharedLibraryBinarySpec() {
-    this.logger        = LoggerFactory.getLogger(this.getClass());
-    this.commonHelpers = new JFCommonLibraryBinarySpec(this);
+    @SuppressWarnings("unchecked")
+    DomainObjectSet<ComponentSpec> inputs = (DomainObjectSet) this.getInputs();
+    this.logger                              = LoggerFactory.getLogger(this.getClass());
+    this.commonHelpers                       = new JFCommonLibraryBinarySpec(this);
+    this.exportedCompileAndLinkConfiguration = new JFExportedCompileAndLinkConfigurationImpl(this, inputs);
+    this.linker      = new ToolImpl(this, inputs, new JFExportedCompileAndLinkConfigurationImpl.LinkterToolLocator());
+    this.cCompiler   = new PreprocessingToolImpl(this, inputs, new JFExportedCompileAndLinkConfigurationImpl.CCompilerToolLocator());
+    this.cppCompiler = new PreprocessingToolImpl(this, inputs, new JFExportedCompileAndLinkConfigurationImpl.CppCompilerToolLocator());
   }
 
   // Implement interface of JFNativeLibraryBinary
@@ -44,7 +60,7 @@ public class DefaultJFSharedLibraryBinarySpec extends DefaultSharedLibraryBinary
   // Compiler and linker configuration
   @Override
   public JFExportedCompileAndLinkConfiguration getExportedCompileAndLinkConfiguration() {
-    return null;
+    return this.exportedCompileAndLinkConfiguration;
   }
 
   // Implement interface of ...
@@ -89,5 +105,33 @@ public class DefaultJFSharedLibraryBinarySpec extends DefaultSharedLibraryBinary
   @Override
   public void setFlummy(String flummy)
     { this.flummy = flummy; }
+
+
+  // Override some stuff from AbstractNativeBinarySpec
+
+  @Override
+  public Tool getLinker() {
+    return linker;
+  }
+
+  @Override
+  public PreprocessingTool getcCompiler() {
+    return cCompiler;
+  }
+
+  @Override
+  public PreprocessingTool getCppCompiler() {
+    return cppCompiler;
+  }
+
+  @Override
+  public Tool getToolByName(String name) {
+    if (name.equals("cCompiler")) {
+      return getcCompiler();
+    } else if (name.equals("cppCompiler")) {
+      return getCppCompiler();
+    } else
+      return super.getToolByName(name);
+  }
 
 }
