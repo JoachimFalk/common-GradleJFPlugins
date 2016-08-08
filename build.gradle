@@ -2,6 +2,7 @@
 
 apply plugin: 'java'
 apply plugin: 'groovy'
+apply plugin: 'eclipse'
 
 // Here, ``project'' is the current org.gradle.api.Project
 project.buildDir = 'obj'

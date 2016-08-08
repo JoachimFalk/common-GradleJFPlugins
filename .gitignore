@@ -2,7 +2,11 @@ config.h.in
 configure
 Makefile.in
 .gradle
+.classpath
+.project
+.settings
 gradle-app.setting
 Examples-*
 RemoteSystemsTempFiles
-build
+obj
+bin
