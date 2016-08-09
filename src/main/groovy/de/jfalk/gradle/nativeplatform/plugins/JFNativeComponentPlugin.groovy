@@ -43,6 +43,7 @@ import de.jfalk.gradle.nativeplatform.internal.JFPrebuiltLibraryBinaryInternal;
 import de.jfalk.gradle.nativeplatform.internal.JFPrebuiltLibraryInternal;
 import de.jfalk.gradle.nativeplatform.internal.resolve.JFNativeDependencyResolver;
 import de.jfalk.gradle.nativeplatform.internal.resolve.JFPrebuiltLibraryBinaryLocator;
+import de.jfalk.gradle.nativeplatform.internal.resolve.JFProjectModelResolver;
 import de.jfalk.gradle.nativeplatform.JFNativeExecutableBinarySpec;
 import de.jfalk.gradle.nativeplatform.JFNativeExecutableSpec;
 import de.jfalk.gradle.nativeplatform.JFNativeLibrarySpec;
@@ -56,9 +57,13 @@ import de.jfalk.gradle.nativeplatform.JFStaticLibraryBinarySpec;
 import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.internal.artifacts.configurations.DependencyMetaDataProvider;
 import org.gradle.api.internal.file.FileCollectionFactory;
 import org.gradle.api.internal.file.SourceDirectorySetFactory;
 import org.gradle.api.internal.project.ProjectIdentifier;
+import org.gradle.api.internal.project.ProjectInternal;
+import org.gradle.api.internal.project.ProjectRegistry;
+import org.gradle.api.internal.resolve.DefaultProjectModelResolver;
 import org.gradle.api.internal.resolve.ProjectModelResolver;
 import org.gradle.api.InvalidUserDataException;
 import org.gradle.api.Named;
@@ -102,6 +107,7 @@ import org.gradle.nativeplatform.internal.DefaultBuildType;
 import org.gradle.nativeplatform.internal.prebuilt.PrebuiltLibraryBinaryLocator;
 import org.gradle.nativeplatform.internal.ProjectNativeLibraryRequirement;
 import org.gradle.nativeplatform.internal.resolve.ChainedLibraryBinaryLocator;
+import org.gradle.nativeplatform.internal.resolve.CurrentProjectModelResolver;
 import org.gradle.nativeplatform.internal.resolve.LibraryBinaryLocator;
 import org.gradle.nativeplatform.internal.resolve.NativeBinaryResolveResult;
 import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;
@@ -139,19 +145,6 @@ import org.gradle.platform.base.PlatformContainer;
 import org.gradle.platform.base.TypeBuilder;
 import org.gradle.platform.base.VariantComponentSpec;
 import org.gradle.util.CollectionUtils;
-
-//trait JFNativeBinarySpecView implements NativeBinarySpec {
-//  String internalData;
-//
-//  String getInternalData() {
-//    return this.internalData;
-//  }
-//  
-//  void setInternalData(String internal) {
-//     this.internalData = internal;
-//  }
-//
-//}
 
 public class JFNativeComponentPlugin implements Plugin<Project> {
   private final Logger                    logger;
@@ -280,11 +273,25 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
     }
 
     @Hidden @Model
-    public LibraryBinaryLocator createLibraryBinaryLocator(
+    public ProjectModelResolver createProjectModelResolver(
         final ServiceRegistry       serviceRegistry)
     {
+      logger.debug("createProjectModelResolver(...) [CALLED]");
+      final ProjectRegistry<ProjectInternal> projectRegistry = serviceRegistry.get(ProjectRegistry.class);
+      final DependencyMetaDataProvider       metaDataProvider = serviceRegistry.get(DependencyMetaDataProvider.class);
+      final String                           currentProjectPath = metaDataProvider.getModule().getProjectPath();
+      ProjectModelResolver retval = new JFProjectModelResolver(currentProjectPath, projectRegistry);
+      logger.debug("createProjectModelResolver(...) [DONE]");
+      return retval;
+    }
+
+    @Hidden @Model
+    public LibraryBinaryLocator createLibraryBinaryLocator(
+        final ProjectModelResolver  projectModelResolver)
+//      final ServiceRegistry       serviceRegistry)
+    {
       logger.debug("createLibraryBinaryLocator(...) [CALLED]");
-      ProjectModelResolver projectModelResolver = serviceRegistry.get(ProjectModelResolver.class);
+//    ProjectModelResolver projectModelResolver = serviceRegistry.get(ProjectModelResolver.class);
       List<LibraryBinaryLocator> locators = new ArrayList<LibraryBinaryLocator>();
       locators.add(new ProjectLibraryBinaryLocator(projectModelResolver));
       locators.add(new PrebuiltLibraryBinaryLocator(projectModelResolver));
