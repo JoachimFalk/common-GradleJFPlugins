@@ -27,7 +27,7 @@ import de.jfalk.gradle.nativeplatform.JFNativeLibraryBinary;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.nativeplatform.internal.resolve.NativeBinaryResolveResult;
 import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;
-import org.gradle.nativeplatform.NativeDependencySet;
+import org.gradle.nativeplatform.NativeLibraryBinary;
 import org.gradle.nativeplatform.PreprocessingTool;
 import org.gradle.platform.base.ComponentSpec;
 
@@ -45,9 +45,10 @@ public class PreprocessingToolImpl extends ToolImpl implements PreprocessingTool
   public PreprocessingToolImpl(
       final JFNativeBinarySpecEx           owner,
       final DomainObjectSet<ComponentSpec> inputInterfaceSets,
-      final ToolLocator                    toolLocator)
+      final ToolLocator                    toolLocator,
+      final boolean                        exportOrInternalUsage)
   {
-    super(owner, inputInterfaceSets, toolLocator);
+    super(owner, inputInterfaceSets, toolLocator, exportOrInternalUsage);
   }
 
   @Override
@@ -59,12 +60,18 @@ public class PreprocessingToolImpl extends ToolImpl implements PreprocessingTool
 
   @Override
   public Map<String, String> getMacros() {
+    logger.debug("getMacros() [CALLED]");
     Map<String, String> definitions = new LinkedHashMap<String, String>(this.definitions);
     for (JFHeaderExportingDependentInterfaceSet interfaceSet : inputInterfaceSets.withType(JFHeaderExportingDependentInterfaceSet.class)) {
-      definitions.putAll(getToolLocator().locateTool(interfaceSet).getMacros());
-      NativeBinaryResolveResult resolution = new NativeBinaryResolveResult(owner, interfaceSet.getHeaderReexportLibs());
+      if (this.exportOrInternalUsage) {
+        definitions.putAll(getToolLocator().locateTool(interfaceSet).getMacros());
+      }
+      NativeBinaryResolveResult resolution = new NativeBinaryResolveResult(owner,
+        this.exportOrInternalUsage
+        ? interfaceSet.getHeaderReexportLibs()
+        : interfaceSet.getLibs());
       owner.getResolver().resolve(resolution);
-      for (NativeDependencySet dependency : resolution.getAllResults()) {
+      for (NativeLibraryBinary dependency : resolution.getAllLibraryBinaries()) {
         if (dependency instanceof JFNativeLibraryBinary) {
           @SuppressWarnings("unchecked")
           JFNativeLibraryBinary jfNativeLibraryBinary = (JFNativeLibraryBinary) dependency;
@@ -72,6 +79,7 @@ public class PreprocessingToolImpl extends ToolImpl implements PreprocessingTool
         }
       }
     }
+    logger.debug("getMacros() [DONE] => "+definitions);
     return definitions;
   }
 

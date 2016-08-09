@@ -130,11 +130,20 @@ public class JFNativeDependencyResolver implements NativeDependencyResolver {
       this.libraryBinaryLocator = locator;
     }
 
-    private static SimpleEntry<String, Class<? extends NativeLibraryBinary> > getTypeForLinkage(String linkage) {
+    private static SimpleEntry<String, Class<? extends NativeLibraryBinary> > getTypeForLinkage(String linkage, NativeBinarySpec context) {
+      if (linkage == null) {
+        if (context instanceof SharedLibraryBinary) {
+          linkage = "shared";
+        } else if (context instanceof StaticLibraryBinary) {
+          linkage = "static";
+        } else {
+          linkage = "shared";
+        }
+      }
       if ("static".equals(linkage)) {
         return new SimpleEntry<String, Class<? extends NativeLibraryBinary> >("static", StaticLibraryBinary.class);
       }
-      if ("shared".equals(linkage) || linkage == null) {
+      if ("shared".equals(linkage)) {
         return new SimpleEntry<String, Class<? extends NativeLibraryBinary> >("shared", SharedLibraryBinary.class);
       }
       throw new InvalidUserDataException("Not a valid linkage: " + linkage);
@@ -148,7 +157,7 @@ public class JFNativeDependencyResolver implements NativeDependencyResolver {
           : String.format("Could not locate library '%s' for project '%s'.", requirement.getLibraryName(), requirement.getProjectPath()));
       }
       SimpleEntry<String, Class<? extends NativeLibraryBinary> > linkageInfo =
-        getTypeForLinkage(requirement.getLinkage());
+        getTypeForLinkage(requirement.getLinkage(), context);
       DomainObjectSet<? extends NativeLibraryBinary> candidates =
         allBinaries.withType(linkageInfo.getValue());
       

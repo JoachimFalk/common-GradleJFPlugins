@@ -71,9 +71,9 @@ public class JFExportedCompileAndLinkConfigurationImpl implements JFExportedComp
       final JFNativeBinarySpecEx           owner,
       final DomainObjectSet<ComponentSpec> inputInterfaceSets)
   {
-    this.linker      = new ToolImpl(owner, inputInterfaceSets, new LinkterToolLocator());
-    this.cCompiler   = new PreprocessingToolImpl(owner, inputInterfaceSets, new CCompilerToolLocator());
-    this.cppCompiler = new PreprocessingToolImpl(owner, inputInterfaceSets, new CppCompilerToolLocator());
+    this.linker      = new ToolImpl(owner, inputInterfaceSets, new LinkterToolLocator(), true);
+    this.cCompiler   = new PreprocessingToolImpl(owner, inputInterfaceSets, new CCompilerToolLocator(), true);
+    this.cppCompiler = new PreprocessingToolImpl(owner, inputInterfaceSets, new CppCompilerToolLocator(), true);
   }
 
   @Override

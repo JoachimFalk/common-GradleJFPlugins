@@ -30,7 +30,7 @@ import de.jfalk.gradle.nativeplatform.JFNativeLibraryBinary;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.nativeplatform.internal.resolve.NativeBinaryResolveResult;
 import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;
-import org.gradle.nativeplatform.NativeDependencySet;
+import org.gradle.nativeplatform.NativeLibraryBinary;
 import org.gradle.nativeplatform.Tool;
 import org.gradle.platform.base.ComponentSpec;
 
@@ -46,16 +46,27 @@ public class ToolImpl implements Tool {
   protected final JFNativeBinarySpecEx           owner;
   protected final DomainObjectSet<ComponentSpec> inputInterfaceSets;
   protected final ToolLocator                    toolLocator;
+  protected final boolean                        exportOrInternalUsage;
 
+  /// @param owner The NativeBinarySpec component that uses this tool definition or
+  ///   has a JFExportedCompileAndLinkConfiguration where this tool definition is used in.
+  /// @param inputInterfaceSets All {@link de.jfalk.gradle.language.nativeplatform.JFHeaderExportingDependentInterfaceSet}
+  ///   that serve as input to the owner NativeBinarySpec.
+  /// @param toolLocator Use to get the correct tool (linker, c compiler, c++ compiler, )..
+  /// @param exportOrInternalUsage If true, then this Tool is used as part of
+  ///  {@link de.jfalk.gradle.language.nativeplatform.JFHeaderExportingDependentInterfaceSet}.
+  ///  Otherwise, this is used as a Tool in a JFSharedLibraryBinarySpec or a JFStaticLibraryBinarySpec.
   public ToolImpl(
       final JFNativeBinarySpecEx           owner,
       final DomainObjectSet<ComponentSpec> inputInterfaceSets,
-      final ToolLocator                    toolLocator)
+      final ToolLocator                    toolLocator,
+      final boolean                        exportOrInternalUsage)
   {
-    this.logger             = LoggerFactory.getLogger(this.getClass());
-    this.owner              = owner;
-    this.inputInterfaceSets = inputInterfaceSets;
-    this.toolLocator        = toolLocator;
+    this.logger                = LoggerFactory.getLogger(this.getClass());
+    this.owner                 = owner;
+    this.inputInterfaceSets    = inputInterfaceSets;
+    this.toolLocator           = toolLocator;
+    this.exportOrInternalUsage = exportOrInternalUsage;
   }
 
   protected ToolLocator getToolLocator() {
@@ -71,10 +82,15 @@ public class ToolImpl implements Tool {
   public ArrayList<String> getArgs() {
     ArrayList<String> args = new ArrayList<String>(this.args);
     for (JFHeaderExportingDependentInterfaceSet interfaceSet : inputInterfaceSets.withType(JFHeaderExportingDependentInterfaceSet.class)) {
-      args.addAll(getToolLocator().locateTool(interfaceSet).getArgs());
-      NativeBinaryResolveResult resolution = new NativeBinaryResolveResult(owner, interfaceSet.getHeaderReexportLibs());
+      if (this.exportOrInternalUsage) {
+        args.addAll(getToolLocator().locateTool(interfaceSet).getArgs());
+      }
+      NativeBinaryResolveResult resolution = new NativeBinaryResolveResult(owner,
+        this.exportOrInternalUsage
+        ? interfaceSet.getHeaderReexportLibs()
+        : interfaceSet.getLibs());
       owner.getResolver().resolve(resolution);
-      for (NativeDependencySet dependency : resolution.getAllResults()) {
+      for (NativeLibraryBinary dependency : resolution.getAllLibraryBinaries()) {
         if (dependency instanceof JFNativeLibraryBinary) {
           @SuppressWarnings("unchecked")
           JFNativeLibraryBinary jfNativeLibraryBinary = (JFNativeLibraryBinary) dependency;

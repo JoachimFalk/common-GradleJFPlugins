@@ -50,9 +50,9 @@ public class DefaultJFStaticLibraryBinarySpec extends DefaultStaticLibraryBinary
     this.logger                              = LoggerFactory.getLogger(this.getClass());
     this.commonHelpers                       = new JFCommonLibraryBinarySpec(this);
     this.exportedCompileAndLinkConfiguration = new JFExportedCompileAndLinkConfigurationImpl(this, inputs);
-    this.linker      = new ToolImpl(this, inputs, new JFExportedCompileAndLinkConfigurationImpl.LinkterToolLocator());
-    this.cCompiler   = new PreprocessingToolImpl(this, inputs, new JFExportedCompileAndLinkConfigurationImpl.CCompilerToolLocator());
-    this.cppCompiler = new PreprocessingToolImpl(this, inputs, new JFExportedCompileAndLinkConfigurationImpl.CppCompilerToolLocator());
+    this.linker      = new ToolImpl(this, inputs, new JFExportedCompileAndLinkConfigurationImpl.LinkterToolLocator(), false);
+    this.cCompiler   = new PreprocessingToolImpl(this, inputs, new JFExportedCompileAndLinkConfigurationImpl.CCompilerToolLocator(), false);
+    this.cppCompiler = new PreprocessingToolImpl(this, inputs, new JFExportedCompileAndLinkConfigurationImpl.CppCompilerToolLocator(), false);
   }
 
   // Implement interface of JFNativeLibraryBinary
