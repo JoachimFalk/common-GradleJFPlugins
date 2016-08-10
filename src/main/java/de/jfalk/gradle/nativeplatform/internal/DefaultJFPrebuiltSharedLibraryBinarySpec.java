@@ -139,10 +139,11 @@ public class DefaultJFPrebuiltSharedLibraryBinarySpec extends DefaultComponentSp
   // Compiler and linker configuration
   @Override
   public JFExportedCompileAndLinkConfiguration getExportedCompileAndLinkConfiguration() {
+    logger.debug("getExportedCompileAndLinkConfiguration() [CALLED]");
     return this.exportedCompileAndLinkConfiguration;
   }
 
-  /// Implement interface of {@link org.gradle.nativeplatform.NativeLibraryBinary}.
+  // Implement interface of {@link org.gradle.nativeplatform.NativeLibraryBinary}.
 
   @Override
   public FileCollection getHeaderDirs() {

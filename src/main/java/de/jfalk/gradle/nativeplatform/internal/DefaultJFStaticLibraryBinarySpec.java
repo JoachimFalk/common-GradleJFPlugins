@@ -24,6 +24,7 @@ import de.jfalk.gradle.nativeplatform.JFExportedCompileAndLinkConfiguration;
 
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.internal.file.collections.FileCollectionAdapter;
 import org.gradle.nativeplatform.internal.DefaultStaticLibraryBinarySpec;
 import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;
 import org.gradle.nativeplatform.PreprocessingTool;
@@ -35,6 +36,7 @@ public class DefaultJFStaticLibraryBinarySpec extends DefaultStaticLibraryBinary
   private final Logger                    logger;
   private final JFCommonLibraryBinarySpec commonHelpers;
 
+  private final FileCollection                        headerDirs;
   private final JFExportedCompileAndLinkConfiguration exportedCompileAndLinkConfiguration;
   private final Tool                                  linker;
   private final PreprocessingTool                     cCompiler;
@@ -50,6 +52,7 @@ public class DefaultJFStaticLibraryBinarySpec extends DefaultStaticLibraryBinary
     @SuppressWarnings("unchecked")
     DomainObjectSet<ComponentSpec> inputs = (DomainObjectSet) this.getInputs();
     this.commonHelpers                       = new JFCommonLibraryBinarySpec(this);
+    this.headerDirs                          = new FileCollectionAdapter(new APIHeadersFileSet(this, inputs));
     this.exportedCompileAndLinkConfiguration = new JFExportedCompileAndLinkConfigurationImpl(this, inputs);
     this.linker      = new ToolImpl(this, inputs,
       new JFExportedCompileAndLinkConfigurationImpl.LinkterToolLocator(), false);
@@ -60,18 +63,21 @@ public class DefaultJFStaticLibraryBinarySpec extends DefaultStaticLibraryBinary
     logger.debug("DefaultJFStaticLibraryBinarySpec() [DONE]");
   }
 
-  // Implement interface of JFNativeLibraryBinary
+  // Implement interface of {@link de.jfalk.gradle.nativeplatform.JFNativeLibraryBinary}.
 
   // Compiler and linker configuration
   @Override
   public JFExportedCompileAndLinkConfiguration getExportedCompileAndLinkConfiguration() {
+    logger.debug("getExportedCompileAndLinkConfiguration() [CALLED]");
     return this.exportedCompileAndLinkConfiguration;
   }
 
-  // Implement interface of ...
+  // Implement interface of {@link org.gradle.nativeplatform.NativeLibraryBinary}.
+
   @Override
   public FileCollection getHeaderDirs() {
-    return commonHelpers.extendHeaderDirs(super.getHeaderDirs(), this.resolver);
+    logger.debug("getHeaderDirs() [CALLED]");
+    return headerDirs;
   }
 
   /// Unfortunately, AbstractNativeBinarySpec.this.resolver is private and, thus, we
