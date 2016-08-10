@@ -43,7 +43,7 @@ public class PreprocessingToolImpl extends ToolImpl implements PreprocessingTool
   }
 
   public PreprocessingToolImpl(
-      final JFNativeBinarySpecEx           owner,
+      final JFNativeBinarySpecInternal     owner,
       final DomainObjectSet<ComponentSpec> inputInterfaceSets,
       final ToolLocator                    toolLocator,
       final boolean                        exportOrInternalUsage)

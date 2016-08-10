@@ -16,11 +16,7 @@
 
 package de.jfalk.gradle.nativeplatform.internal;
 
-import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;
-import org.gradle.nativeplatform.NativeBinarySpec;
+import de.jfalk.gradle.nativeplatform.JFStaticLibraryBinary;
 
-public interface JFNativeBinarySpecEx extends NativeBinarySpec {
-
-  NativeDependencyResolver getResolver();
-
+public interface JFStaticLibraryBinarySpecInternal extends JFStaticLibraryBinary, JFNativeBinarySpecInternal {
 }

@@ -31,21 +31,21 @@ import org.gradle.api.DomainObjectSet;
 import org.gradle.api.internal.file.collections.MinimalFileSet;
 import org.gradle.api.internal.tasks.DefaultTaskDependency;
 import org.gradle.api.tasks.TaskDependency;
-//import org.gradle.model.ModelElement;
-import org.gradle.platform.base.ComponentSpec;
-import org.gradle.nativeplatform.NativeDependencySet;
-import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;
 import org.gradle.nativeplatform.internal.resolve.NativeBinaryResolveResult;
+import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;
+import org.gradle.nativeplatform.NativeLibraryBinary;
+import org.gradle.nativeplatform.SharedLibraryBinary;
+import org.gradle.platform.base.ComponentSpec;
 
-class APIHeadersFileSet implements MinimalFileSet, Buildable {
+class APIRuntimeFileSet implements MinimalFileSet, Buildable {
 
   private final Logger logger;
 
-  protected final JFNativeBinarySpecInternal     owner;
+  protected final JFNativeBinarySpecInternal           owner;
   protected final DomainObjectSet<ComponentSpec> inputInterfaceSets;
 
-  public APIHeadersFileSet(
-      final JFNativeBinarySpecInternal     owner,
+  public APIRuntimeFileSet(
+      final JFNativeBinarySpecInternal           owner,
       final DomainObjectSet<ComponentSpec> inputInterfaceSets)
   {
     this.logger             = LoggerFactory.getLogger(this.getClass());
@@ -55,25 +55,28 @@ class APIHeadersFileSet implements MinimalFileSet, Buildable {
 
   @Override
   public String getDisplayName() {
-    return "API headers for " + owner.getDisplayName();
+    return "Runtime files for " + owner.getDisplayName();
   }
 
   @Override
   public Set<File> getFiles() {
-    Set<File> headerDirs = new LinkedHashSet<File>();
+    Set<File> runtimeFiles = new LinkedHashSet<File>();
+    if (owner instanceof SharedLibraryBinary) {
+      SharedLibraryBinary ownerSharedLibraryBinary = (SharedLibraryBinary) owner;
+      if (ownerSharedLibraryBinary.getSharedLibraryFile() != null) {
+        runtimeFiles.add(ownerSharedLibraryBinary.getSharedLibraryFile());
+      }
+    }
     for (JFHeaderExportingDependentInterfaceSet interfaceSet : inputInterfaceSets.withType(JFHeaderExportingDependentInterfaceSet.class)) {
-      headerDirs.addAll(interfaceSet.getExportedHeaders().getSrcDirs());
-      for (Object obj : interfaceSet.getHeaderReexportLibs()) {
-        logger.debug("    header reexporting lib: " + obj);
+      for (Object obj : interfaceSet.getLibs()) {
         NativeBinaryResolveResult resolution = new NativeBinaryResolveResult(owner, Collections.singleton(obj));
         owner.getResolver().resolve(resolution);
-        for (NativeDependencySet nativeDependencySet: resolution.getAllResults()) {
-          logger.debug("    header reexporting from: " + nativeDependencySet.getIncludeRoots());
-          headerDirs.addAll(nativeDependencySet.getIncludeRoots().getFiles());
+        for (NativeLibraryBinary nativeLibraryBinary : resolution.getAllLibraryBinaries()) {
+          runtimeFiles.addAll(nativeLibraryBinary.getRuntimeFiles().getFiles());
         }
       }
     }
-    return headerDirs;
+    return runtimeFiles;
   }
 
   @Override

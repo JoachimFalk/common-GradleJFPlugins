@@ -55,7 +55,7 @@ import org.gradle.platform.base.BinaryTasksCollection;
 import org.gradle.platform.base.component.internal.DefaultComponentSpec;
 import org.gradle.platform.base.ComponentSpec;
 
-public class DefaultJFPrebuiltStaticLibraryBinarySpec extends DefaultComponentSpec implements JFPrebuiltStaticLibraryBinarySpec, JFPrebuiltLibraryBinaryInternal, JFNativeBinarySpecEx {
+public class DefaultJFPrebuiltStaticLibraryBinarySpec extends DefaultComponentSpec implements JFPrebuiltStaticLibraryBinarySpec, JFPrebuiltLibraryBinaryInternal, JFStaticLibraryBinarySpecInternal {
   // Constants
   private static final ModelType<JFHeaderExportingDependentInterfaceSet>  INTERFACE_MODEL_TYPE = ModelType.of(JFHeaderExportingDependentInterfaceSet.class);
 
@@ -68,6 +68,8 @@ public class DefaultJFPrebuiltStaticLibraryBinarySpec extends DefaultComponentSp
     new DefaultDomainObjectSet<JFHeaderExportingDependentInterfaceSet>(JFHeaderExportingDependentInterfaceSet.class);
 
   private final FileCollection                        headerDirs;
+  private final FileCollection                        linkFiles;
+  private final FileCollection                        runtimeFiles;
   private final JFExportedCompileAndLinkConfiguration exportedCompileAndLinkConfiguration;
 
   // Injected internal stuff
@@ -86,6 +88,8 @@ public class DefaultJFPrebuiltStaticLibraryBinarySpec extends DefaultComponentSp
     this.modelNode                           = getInfo().modelNode;
     this.interfaces                          = ModelMaps.addModelMapNode(modelNode, INTERFACE_MODEL_TYPE, "interfaces");
     this.headerDirs                          = new FileCollectionAdapter(new APIHeadersFileSet(this, inputs));
+    this.linkFiles                           = new FileCollectionAdapter(new APIStaticLinkFileSet(this, inputs));
+    this.runtimeFiles                        = new FileCollectionAdapter(new APIRuntimeFileSet(this, inputs));
     this.exportedCompileAndLinkConfiguration = new JFExportedCompileAndLinkConfigurationImpl(this, inputs);
     this.flavor                              = null;
     this.platform                            = null;
@@ -129,22 +133,24 @@ public class DefaultJFPrebuiltStaticLibraryBinarySpec extends DefaultComponentSp
   @Override
   public FileCollection getHeaderDirs() {
     logger.debug("getHeaderDirs() [CALLED]");
-    return headerDirs;
+    return this.headerDirs;
   }
 
   @Override
   public FileCollection getLinkFiles() {
     logger.debug("getLinkFiles() [CALLED]");
-    if (getStaticLibraryFile() != null)
-      return new SimpleFileCollection(getStaticLibraryFile());
-    else
-      return new SimpleFileCollection();
+    return this.linkFiles;
+//  if (getStaticLibraryFile() != null)
+//    return new SimpleFileCollection(getStaticLibraryFile());
+//  else
+//    return new SimpleFileCollection();
   }
 
   @Override
   public FileCollection getRuntimeFiles() {
     logger.debug("getRuntimeFiles() [CALLED]");
-    return new SimpleFileCollection();
+    return this.runtimeFiles;
+//  return new SimpleFileCollection();
   }
 
   // Implement interface of {@link org.gradle.nativeplatform.NativeBinary}.
@@ -214,7 +220,7 @@ public class DefaultJFPrebuiltStaticLibraryBinarySpec extends DefaultComponentSp
     return ModelMaps.toView(interfaces, INTERFACE_MODEL_TYPE);
   }
 
-  // Implement interface of {@link de.jfalk.gradle.nativeplatform.internal.JFNativeBinarySpecEx}.
+  // Implement interface of {@link de.jfalk.gradle.nativeplatform.internal.JFNativeBinarySpecInternal}.
 
   @Override
   public NativeDependencyResolver getResolver() {

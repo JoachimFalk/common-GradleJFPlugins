@@ -68,7 +68,7 @@ public class JFExportedCompileAndLinkConfigurationImpl implements JFExportedComp
   };
 
   public JFExportedCompileAndLinkConfigurationImpl(
-      final JFNativeBinarySpecEx           owner,
+      final JFNativeBinarySpecInternal     owner,
       final DomainObjectSet<ComponentSpec> inputInterfaceSets)
   {
     this.linker      = new ToolImpl(owner, inputInterfaceSets, new LinkterToolLocator(), true);

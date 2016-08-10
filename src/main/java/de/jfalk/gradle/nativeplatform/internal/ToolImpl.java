@@ -43,7 +43,7 @@ public class ToolImpl implements Tool {
   }
 
   protected final ArrayList<String>              args = new ArrayList<String>();
-  protected final JFNativeBinarySpecEx           owner;
+  protected final JFNativeBinarySpecInternal     owner;
   protected final DomainObjectSet<ComponentSpec> inputInterfaceSets;
   protected final ToolLocator                    toolLocator;
   protected final boolean                        exportOrInternalUsage;
@@ -57,7 +57,7 @@ public class ToolImpl implements Tool {
   ///  {@link de.jfalk.gradle.language.nativeplatform.JFHeaderExportingDependentInterfaceSet}.
   ///  Otherwise, this is used as a Tool in a JFSharedLibraryBinarySpec or a JFStaticLibraryBinarySpec.
   public ToolImpl(
-      final JFNativeBinarySpecEx           owner,
+      final JFNativeBinarySpecInternal     owner,
       final DomainObjectSet<ComponentSpec> inputInterfaceSets,
       final ToolLocator                    toolLocator,
       final boolean                        exportOrInternalUsage)

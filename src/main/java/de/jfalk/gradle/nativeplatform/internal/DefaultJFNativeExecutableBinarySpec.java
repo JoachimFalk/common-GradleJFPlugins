@@ -28,7 +28,7 @@ import org.gradle.nativeplatform.PreprocessingTool;
 import org.gradle.nativeplatform.Tool;
 import org.gradle.platform.base.ComponentSpec;
 
-public class DefaultJFNativeExecutableBinarySpec extends DefaultNativeExecutableBinarySpec implements JFNativeExecutableBinarySpec, JFNativeBinarySpecEx {
+public class DefaultJFNativeExecutableBinarySpec extends DefaultNativeExecutableBinarySpec implements JFNativeExecutableBinarySpec, JFNativeBinarySpecInternal {
 
   private final Logger              logger;
 
@@ -62,7 +62,7 @@ public class DefaultJFNativeExecutableBinarySpec extends DefaultNativeExecutable
     this.resolver = resolver;
   }
 
-  // Implement interface of {@link de.jfalk.gradle.nativeplatform.internal.JFNativeBinarySpecEx}.
+  // Implement interface of {@link de.jfalk.gradle.nativeplatform.internal.JFNativeBinarySpecInternal}.
 
   @Override
   public NativeDependencyResolver getResolver() {

@@ -31,7 +31,7 @@ import org.gradle.nativeplatform.PreprocessingTool;
 import org.gradle.nativeplatform.Tool;
 import org.gradle.platform.base.ComponentSpec;
 
-public class DefaultJFStaticLibraryBinarySpec extends DefaultStaticLibraryBinarySpec implements JFStaticLibraryBinarySpec, JFNativeBinarySpecEx {
+public class DefaultJFStaticLibraryBinarySpec extends DefaultStaticLibraryBinarySpec implements JFStaticLibraryBinarySpec, JFStaticLibraryBinarySpecInternal {
 
   private final Logger                    logger;
   private final JFCommonLibraryBinarySpec commonHelpers;
@@ -88,7 +88,7 @@ public class DefaultJFStaticLibraryBinarySpec extends DefaultStaticLibraryBinary
     this.resolver = resolver;
   }
 
-  // Implement interface of {@link de.jfalk.gradle.nativeplatform.internal.JFNativeBinarySpecEx}.
+  // Implement interface of {@link de.jfalk.gradle.nativeplatform.internal.JFNativeBinarySpecInternal}.
 
   @Override
   public NativeDependencyResolver getResolver() {
