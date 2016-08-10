@@ -16,12 +16,60 @@
 
 package de.jfalk.gradle.nativeplatform.internal;
 
-import de.jfalk.gradle.nativeplatform.JFNativeExecutableBinarySpec;
-import org.gradle.nativeplatform.internal.DefaultNativeExecutableBinarySpec;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class DefaultJFNativeExecutableBinarySpec extends DefaultNativeExecutableBinarySpec implements JFNativeExecutableBinarySpec {
+import de.jfalk.gradle.nativeplatform.JFNativeExecutableBinarySpec;
+
+import org.gradle.api.DomainObjectSet;
+import org.gradle.nativeplatform.internal.DefaultNativeExecutableBinarySpec;
+import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;
+import org.gradle.nativeplatform.PreprocessingTool;
+import org.gradle.nativeplatform.Tool;
+import org.gradle.platform.base.ComponentSpec;
+
+public class DefaultJFNativeExecutableBinarySpec extends DefaultNativeExecutableBinarySpec implements JFNativeExecutableBinarySpec, JFNativeBinarySpecEx {
+
+  private final Logger              logger;
+
+  private final Tool                linker;
+  private final PreprocessingTool   cCompiler;
+  private final PreprocessingTool   cppCompiler;
+
+  private NativeDependencyResolver  resolver;
 
   private String flammy;
+
+  public DefaultJFNativeExecutableBinarySpec() {
+    this.logger = LoggerFactory.getLogger(this.getClass());
+    logger.debug("DefaultJFNativeExecutableBinarySpec() [CALLED]");
+    @SuppressWarnings("unchecked")
+    DomainObjectSet<ComponentSpec> inputs = (DomainObjectSet) this.getInputs();
+    this.linker      = new ToolImpl(this, inputs,
+      new JFExportedCompileAndLinkConfigurationImpl.LinkterToolLocator(), false);
+    this.cCompiler   = new PreprocessingToolImpl(this, inputs,
+      new JFExportedCompileAndLinkConfigurationImpl.CCompilerToolLocator(), false);
+    this.cppCompiler = new PreprocessingToolImpl(this, inputs,
+      new JFExportedCompileAndLinkConfigurationImpl.CppCompilerToolLocator(), false);
+    logger.debug("DefaultJFNativeExecutableBinarySpec() [DONE]");
+  }
+
+  /// Unfortunately, AbstractNativeBinarySpec.this.resolver is private and, thus, we
+  /// have to store our own reference to the resolver.
+  @Override
+  public void setResolver(NativeDependencyResolver resolver) {
+    super.setResolver(resolver);
+    this.resolver = resolver;
+  }
+
+  // Implement interface of {@link de.jfalk.gradle.nativeplatform.internal.JFNativeBinarySpecEx}.
+
+  @Override
+  public NativeDependencyResolver getResolver() {
+    return this.resolver;
+  }
+
+  // Implement interface of {@link de.jfalk.gradle.nativeplatform.JFNativeExecutableBinarySpec}.
 
   @Override
   public String getFlammy()
@@ -30,5 +78,32 @@ public class DefaultJFNativeExecutableBinarySpec extends DefaultNativeExecutable
   @Override
   public void setFlammy(String flammy)
     { this.flammy = flammy; }
+
+  // Override some stuff from AbstractNativeBinarySpec
+
+  @Override
+  public Tool getLinker() {
+    return linker;
+  }
+
+  @Override
+  public PreprocessingTool getcCompiler() {
+    return cCompiler;
+  }
+
+  @Override
+  public PreprocessingTool getCppCompiler() {
+    return cppCompiler;
+  }
+
+  @Override
+  public Tool getToolByName(String name) {
+    if (name.equals("cCompiler")) {
+      return getcCompiler();
+    } else if (name.equals("cppCompiler")) {
+      return getCppCompiler();
+    } else
+      return super.getToolByName(name);
+  }
 
 }

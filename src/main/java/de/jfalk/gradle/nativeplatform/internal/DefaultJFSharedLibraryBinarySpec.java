@@ -43,16 +43,20 @@ public class DefaultJFSharedLibraryBinarySpec extends DefaultSharedLibraryBinary
   private   String                    flummy;
   protected NativeDependencyResolver  resolver;
 
-
   public DefaultJFSharedLibraryBinarySpec() {
+    this.logger = LoggerFactory.getLogger(this.getClass());
+    logger.debug("DefaultJFSharedLibraryBinarySpec() [CALLED]");
     @SuppressWarnings("unchecked")
     DomainObjectSet<ComponentSpec> inputs = (DomainObjectSet) this.getInputs();
-    this.logger                              = LoggerFactory.getLogger(this.getClass());
     this.commonHelpers                       = new JFCommonLibraryBinarySpec(this);
     this.exportedCompileAndLinkConfiguration = new JFExportedCompileAndLinkConfigurationImpl(this, inputs);
-    this.linker      = new ToolImpl(this, inputs, new JFExportedCompileAndLinkConfigurationImpl.LinkterToolLocator(), false);
-    this.cCompiler   = new PreprocessingToolImpl(this, inputs, new JFExportedCompileAndLinkConfigurationImpl.CCompilerToolLocator(), false);
-    this.cppCompiler = new PreprocessingToolImpl(this, inputs, new JFExportedCompileAndLinkConfigurationImpl.CppCompilerToolLocator(), false);
+    this.linker      = new ToolImpl(this, inputs,
+      new JFExportedCompileAndLinkConfigurationImpl.LinkterToolLocator(), false);
+    this.cCompiler   = new PreprocessingToolImpl(this, inputs,
+      new JFExportedCompileAndLinkConfigurationImpl.CCompilerToolLocator(), false);
+    this.cppCompiler = new PreprocessingToolImpl(this, inputs,
+      new JFExportedCompileAndLinkConfigurationImpl.CppCompilerToolLocator(), false);
+    logger.debug("DefaultJFSharedLibraryBinarySpec() [DONE]");
   }
 
   // Implement interface of JFNativeLibraryBinary
@@ -105,7 +109,6 @@ public class DefaultJFSharedLibraryBinarySpec extends DefaultSharedLibraryBinary
   @Override
   public void setFlummy(String flummy)
     { this.flummy = flummy; }
-
 
   // Override some stuff from AbstractNativeBinarySpec
 

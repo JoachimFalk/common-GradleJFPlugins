@@ -40,19 +40,24 @@ public class DefaultJFStaticLibraryBinarySpec extends DefaultStaticLibraryBinary
   private final PreprocessingTool                     cCompiler;
   private final PreprocessingTool                     cppCompiler;
 
-
-  private   String                    flammy;
   protected NativeDependencyResolver  resolver;
 
+  private   String                    flammy;
+
   public DefaultJFStaticLibraryBinarySpec() {
+    this.logger = LoggerFactory.getLogger(this.getClass());
+    logger.debug("DefaultJFStaticLibraryBinarySpec() [CALLED]");
     @SuppressWarnings("unchecked")
     DomainObjectSet<ComponentSpec> inputs = (DomainObjectSet) this.getInputs();
-    this.logger                              = LoggerFactory.getLogger(this.getClass());
     this.commonHelpers                       = new JFCommonLibraryBinarySpec(this);
     this.exportedCompileAndLinkConfiguration = new JFExportedCompileAndLinkConfigurationImpl(this, inputs);
-    this.linker      = new ToolImpl(this, inputs, new JFExportedCompileAndLinkConfigurationImpl.LinkterToolLocator(), false);
-    this.cCompiler   = new PreprocessingToolImpl(this, inputs, new JFExportedCompileAndLinkConfigurationImpl.CCompilerToolLocator(), false);
-    this.cppCompiler = new PreprocessingToolImpl(this, inputs, new JFExportedCompileAndLinkConfigurationImpl.CppCompilerToolLocator(), false);
+    this.linker      = new ToolImpl(this, inputs,
+      new JFExportedCompileAndLinkConfigurationImpl.LinkterToolLocator(), false);
+    this.cCompiler   = new PreprocessingToolImpl(this, inputs,
+      new JFExportedCompileAndLinkConfigurationImpl.CCompilerToolLocator(), false);
+    this.cppCompiler = new PreprocessingToolImpl(this, inputs,
+      new JFExportedCompileAndLinkConfigurationImpl.CppCompilerToolLocator(), false);
+    logger.debug("DefaultJFStaticLibraryBinarySpec() [DONE]");
   }
 
   // Implement interface of JFNativeLibraryBinary
