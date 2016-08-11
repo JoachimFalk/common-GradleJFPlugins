@@ -173,16 +173,19 @@ public class JFNativeDependencyResolver implements NativeDependencyResolver {
       }
 
       for (NativeLibraryBinary candidate : candidates) {
-        logger.debug("considering candidate " + candidate);
         if (flavor != null && !flavor.equals(candidate.getFlavor().getName())) {
+          logger.debug("considering candidate " + candidate + " => rejected due to wrong flavor");
           continue;
         }
         if (platform != null && !platform.equals(candidate.getTargetPlatform().getName())) {
+          logger.debug("considering candidate " + candidate + " => rejected due to wrong platform");
           continue;
         }
         if (buildType != null && !buildType.equals(candidate.getBuildType().getName())) {
+          logger.debug("considering candidate " + candidate + " => rejected due to wrong build type");
           continue;
         }
+        logger.debug("considering candidate " + candidate + " => success");
         return candidate;
       }
       throw new LibraryResolveException(String.format("No %s library binary available for library '%s' with [flavor: '%s', platform: '%s', buildType: '%s']",
