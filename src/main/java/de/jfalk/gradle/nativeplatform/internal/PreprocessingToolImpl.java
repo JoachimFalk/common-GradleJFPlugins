@@ -64,7 +64,10 @@ public class PreprocessingToolImpl extends ToolImpl implements PreprocessingTool
     Map<String, String> definitions = new LinkedHashMap<String, String>(this.definitions);
     for (JFHeaderExportingDependentInterfaceSet interfaceSet : inputInterfaceSets.withType(JFHeaderExportingDependentInterfaceSet.class)) {
       if (this.exportOrInternalUsage) {
-        definitions.putAll(getToolLocator().locateTool(interfaceSet).getMacros());
+        PreprocessingTool tool = getToolLocator().locateTool(interfaceSet);
+        if (tool != null) {
+          definitions.putAll(tool.getMacros());
+        }
       }
       NativeBinaryResolveResult resolution = new NativeBinaryResolveResult(owner,
         this.exportOrInternalUsage
