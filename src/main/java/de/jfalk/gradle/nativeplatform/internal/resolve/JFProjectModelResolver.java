@@ -16,6 +16,9 @@
 
 package de.jfalk.gradle.nativeplatform.internal.resolve;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.gradle.api.internal.project.ProjectInternal;
 import org.gradle.api.internal.project.ProjectRegistry;
 import org.gradle.api.internal.resolve.ProjectModelResolver;
@@ -23,23 +26,30 @@ import org.gradle.api.UnknownProjectException;
 import org.gradle.model.internal.registry.ModelRegistry;
 
 public class JFProjectModelResolver implements ProjectModelResolver {
-  private final String currentProjectPath;
+  private final Logger                           logger;
+
+  private final String                           currentProjectPath;
   private final ProjectRegistry<ProjectInternal> delegate;
 
   public JFProjectModelResolver(String currentProjectPath, ProjectRegistry<ProjectInternal> delegate) {
+    this.logger             = LoggerFactory.getLogger(this.getClass());
+    logger.debug("JFProjectModelResolver('"+currentProjectPath+"', ...) [CALLED]");
     this.currentProjectPath = currentProjectPath;
-    this.delegate = delegate;
+    this.delegate           = delegate;
+    logger.debug("JFProjectModelResolver('"+currentProjectPath+"', ...) [DONE]");
   }
 
   @Override
   public ModelRegistry resolveProjectModel(String path) {
+    String showPath = path == null ? "null" : "\"" + path + "\"";
     if (path == null || path.length() == 0) {
       path = currentProjectPath;
     }
     ProjectInternal projectInternal = delegate.getProject(path);
     if (projectInternal == null) {
-      throw new UnknownProjectException("Project with path '" + path + "' not found.");
+      throw new UnknownProjectException("Project with path \"" + path + "\" not found.");
     }
+    logger.debug("resolveProjectModel("+showPath+") => resolved to " + projectInternal);
 
     // TODO This is a brain-dead way to ensure that the reference project's model is ready to access
     projectInternal.evaluate();
