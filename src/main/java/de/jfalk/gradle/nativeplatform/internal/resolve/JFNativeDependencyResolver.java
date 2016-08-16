@@ -101,8 +101,8 @@ public class JFNativeDependencyResolver implements NativeDependencyResolver {
       @Override
       public void describe(DiagnosticsVisitor visitor) {
         visitor
-          .candidate("Map with mandatory 'library' and optional 'project' and 'linkage' keys")
-          .example("[project: ':someProj', library: 'mylib', linkage: 'static']");
+          .candidate("Map with mandatory 'library' and optional 'project', 'linkage', and 'flavor' keys")
+          .example("[project: ':someProj', library: 'mylib', linkage: 'static', flavor: 'default']");
       }
 
       @SuppressWarnings("unused")
