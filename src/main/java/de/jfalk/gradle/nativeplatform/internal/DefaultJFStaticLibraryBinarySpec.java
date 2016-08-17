@@ -34,16 +34,20 @@ import org.gradle.platform.base.ComponentSpec;
 public class DefaultJFStaticLibraryBinarySpec extends DefaultStaticLibraryBinarySpec implements JFStaticLibraryBinarySpec, JFStaticLibraryBinarySpecInternal {
 
   private final Logger                    logger;
-  private final JFCommonLibraryBinarySpec commonHelpers;
 
   private final FileCollection                        headerDirs;
+  private final FileCollection                        linkFiles;
+  private final FileCollection                        runtimeFiles;
   private final JFExportedCompileAndLinkConfiguration exportedCompileAndLinkConfiguration;
-  private final Tool                                  linker;
-  private final PreprocessingTool                     cCompiler;
-  private final PreprocessingTool                     cppCompiler;
 
-  protected NativeDependencyResolver  resolver;
+  private final Tool                  linker;
+  private final PreprocessingTool     cCompiler;
+  private final PreprocessingTool     cppCompiler;
 
+  // Injected internal stuff
+  private NativeDependencyResolver    resolver;
+
+  // Model configuration properties.
   private   String                    flammy;
 
   public DefaultJFStaticLibraryBinarySpec() {
@@ -51,8 +55,9 @@ public class DefaultJFStaticLibraryBinarySpec extends DefaultStaticLibraryBinary
     logger.debug("DefaultJFStaticLibraryBinarySpec() [CALLED]");
     @SuppressWarnings("unchecked")
     DomainObjectSet<ComponentSpec> inputs = (DomainObjectSet) this.getInputs();
-    this.commonHelpers                       = new JFCommonLibraryBinarySpec(this);
     this.headerDirs                          = new FileCollectionAdapter(new APIHeadersFileSet(this, inputs));
+    this.linkFiles                           = new FileCollectionAdapter(new APIStaticLinkFileSet(this, inputs));
+    this.runtimeFiles                        = new FileCollectionAdapter(new APIRuntimeFileSet(this, inputs));
     this.exportedCompileAndLinkConfiguration = new JFExportedCompileAndLinkConfigurationImpl(this, inputs);
     this.linker      = new ToolImpl(this, inputs,
       new JFExportedCompileAndLinkConfigurationImpl.LinkterToolLocator(), false);
@@ -78,6 +83,18 @@ public class DefaultJFStaticLibraryBinarySpec extends DefaultStaticLibraryBinary
   public FileCollection getHeaderDirs() {
     logger.debug("getHeaderDirs() [CALLED]");
     return headerDirs;
+  }
+
+  @Override
+  public FileCollection getLinkFiles() {
+    logger.debug("getLinkFiles() [CALLED]");
+    return this.linkFiles;
+  }
+
+  @Override
+  public FileCollection getRuntimeFiles() {
+    logger.debug("getRuntimeFiles() [CALLED]");
+    return this.runtimeFiles;
   }
 
   /// Unfortunately, AbstractNativeBinarySpec.this.resolver is private and, thus, we
