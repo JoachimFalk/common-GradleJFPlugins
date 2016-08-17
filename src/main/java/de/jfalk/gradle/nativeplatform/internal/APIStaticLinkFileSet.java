@@ -78,9 +78,16 @@ class APIStaticLinkFileSet implements MinimalFileSet, Buildable {
   @Override
   public TaskDependency getBuildDependencies() {
     DefaultTaskDependency dependency = new DefaultTaskDependency();
-//  for (JFHeaderExportingDependentInterfaceSet sourceSet : inputInterfaceSets.withType(JFHeaderExportingDependentInterfaceSet.class)) {
-//    dependency.add(sourceSet.getBuildDependencies());
-//  }
+    dependency.add(owner.getBuildDependencies());
+    for (JFHeaderExportingDependentInterfaceSet interfaceSet : inputInterfaceSets.withType(JFHeaderExportingDependentInterfaceSet.class)) {
+      for (Object obj : interfaceSet.getLibs()) {
+        NativeBinaryResolveResult resolution = new NativeBinaryResolveResult(owner, Collections.singleton(obj));
+        owner.getResolver().resolve(resolution);
+        for (NativeLibraryBinary nativeLibraryBinary : resolution.getAllLibraryBinaries()) {
+          dependency.add(nativeLibraryBinary.getLinkFiles().getBuildDependencies());
+        }
+      }
+    }
     return dependency;
   }
 }

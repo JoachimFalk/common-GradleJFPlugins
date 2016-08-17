@@ -140,17 +140,12 @@ public class DefaultJFPrebuiltStaticLibraryBinarySpec extends DefaultComponentSp
   public FileCollection getLinkFiles() {
     logger.debug("getLinkFiles() [CALLED]");
     return this.linkFiles;
-//  if (getStaticLibraryFile() != null)
-//    return new SimpleFileCollection(getStaticLibraryFile());
-//  else
-//    return new SimpleFileCollection();
   }
 
   @Override
   public FileCollection getRuntimeFiles() {
     logger.debug("getRuntimeFiles() [CALLED]");
     return this.runtimeFiles;
-//  return new SimpleFileCollection();
   }
 
   // Implement interface of {@link org.gradle.nativeplatform.NativeBinary}.
