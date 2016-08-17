@@ -222,6 +222,11 @@ public class DefaultJFPrebuiltStaticLibraryBinarySpec extends DefaultComponentSp
     return this.resolver;
   }
 
+  @Override
+  public boolean                  hasOutputs() {
+    return this.getStaticLibraryFile() != null;
+  }
+
 //// Flummy
 
   @Override

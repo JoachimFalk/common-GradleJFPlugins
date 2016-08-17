@@ -112,6 +112,11 @@ public class DefaultJFStaticLibraryBinarySpec extends DefaultStaticLibraryBinary
     return this.resolver;
   }
 
+  @Override
+  public boolean                  hasOutputs() {
+    return this.hasSources();
+  }
+
   // Implement interface of {@link de.jfalk.gradle.nativeplatform.JFStaticLibraryBinarySpec}.
 
   @Override

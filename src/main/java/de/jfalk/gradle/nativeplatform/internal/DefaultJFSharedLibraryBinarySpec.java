@@ -107,6 +107,11 @@ public class DefaultJFSharedLibraryBinarySpec extends DefaultSharedLibraryBinary
     return this.resolver;
   }
 
+  @Override
+  public boolean                  hasOutputs() {
+    return this.hasSources();
+  }
+
   // Implement interface of {@link de.jfalk.gradle.nativeplatform.JFSharedLibraryBinarySpec}.
 
   @Override

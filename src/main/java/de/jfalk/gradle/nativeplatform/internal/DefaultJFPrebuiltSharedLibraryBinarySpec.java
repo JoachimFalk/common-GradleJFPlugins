@@ -159,20 +159,12 @@ public class DefaultJFPrebuiltSharedLibraryBinarySpec extends DefaultComponentSp
   public FileCollection getLinkFiles() {
     logger.debug("getLinkFiles() [CALLED]");
     return this.linkFiles;
-//  if (getSharedLibraryLinkFile() != null)
-//    return new SimpleFileCollection(getSharedLibraryLinkFile());
-//  else
-//    return new SimpleFileCollection();
   }
 
   @Override
   public FileCollection getRuntimeFiles() {
     logger.debug("getRuntimeFiles() [CALLED]");
     return this.runtimeFiles;
-//  if (getSharedLibraryFile() != null)
-//    return new SimpleFileCollection(getSharedLibraryFile());
-//  else
-//    return new SimpleFileCollection();
   }
 
   // Implement interface of {@link org.gradle.nativeplatform.NativeBinary}.
@@ -247,6 +239,11 @@ public class DefaultJFPrebuiltSharedLibraryBinarySpec extends DefaultComponentSp
   @Override
   public NativeDependencyResolver getResolver() {
     return this.resolver;
+  }
+
+  @Override
+  public boolean                  hasOutputs() {
+    return this.getSharedLibraryLinkFile() != null;
   }
 
 //// Flummy

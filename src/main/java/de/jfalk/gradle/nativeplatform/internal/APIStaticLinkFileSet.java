@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.jfalk.gradle.language.nativeplatform.JFHeaderExportingDependentInterfaceSet;
+import de.jfalk.gradle.nativeplatform.JFPrebuiltLibraryBinarySpec;
 
 import org.gradle.api.Buildable;
 import org.gradle.api.DomainObjectSet;
@@ -60,8 +61,9 @@ class APIStaticLinkFileSet implements MinimalFileSet, Buildable {
 
   @Override
   public Set<File> getFiles() {
+    logger.debug("getFiles() for "+getDisplayName()+" [CALLED]");
     Set<File> linkFiles = new LinkedHashSet<File>();
-    if (owner.getStaticLibraryFile() != null)
+    if (owner.hasOutputs())
       linkFiles.add(owner.getStaticLibraryFile());
     for (JFHeaderExportingDependentInterfaceSet interfaceSet : inputInterfaceSets.withType(JFHeaderExportingDependentInterfaceSet.class)) {
       for (Object obj : interfaceSet.getLibs()) {
@@ -72,13 +74,20 @@ class APIStaticLinkFileSet implements MinimalFileSet, Buildable {
         }
       }
     }
+    logger.debug("getFiles() for "+getDisplayName()+" [DONE]");
     return linkFiles;
   }
 
   @Override
   public TaskDependency getBuildDependencies() {
+    logger.debug("getBuildDependencies() for "+getDisplayName()+" [CALLED]");
     DefaultTaskDependency dependency = new DefaultTaskDependency();
-    dependency.add(owner.getBuildDependencies());
+    if (owner.hasOutputs()) {
+      if (!(owner instanceof JFPrebuiltLibraryBinarySpec) ||
+          owner.getBuildDependencies() != null)
+        // Not prebuilt libraries should always have a build dependency!
+        dependency.add(owner.getBuildDependencies());
+    }
     for (JFHeaderExportingDependentInterfaceSet interfaceSet : inputInterfaceSets.withType(JFHeaderExportingDependentInterfaceSet.class)) {
       for (Object obj : interfaceSet.getLibs()) {
         NativeBinaryResolveResult resolution = new NativeBinaryResolveResult(owner, Collections.singleton(obj));
@@ -88,6 +97,7 @@ class APIStaticLinkFileSet implements MinimalFileSet, Buildable {
         }
       }
     }
+    logger.debug("getBuildDependencies() for "+getDisplayName()+" [DONE]");
     return dependency;
   }
 }

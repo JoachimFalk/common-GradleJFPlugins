@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import de.jfalk.gradle.nativeplatform.JFNativeExecutableBinarySpec;
 
 import org.gradle.api.DomainObjectSet;
+import org.gradle.language.base.LanguageSourceSet;
 import org.gradle.nativeplatform.internal.DefaultNativeExecutableBinarySpec;
 import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;
 import org.gradle.nativeplatform.PreprocessingTool;
@@ -54,6 +55,18 @@ public class DefaultJFNativeExecutableBinarySpec extends DefaultNativeExecutable
     logger.debug("DefaultJFNativeExecutableBinarySpec() [DONE]");
   }
 
+  protected boolean hasSources() {
+    for (LanguageSourceSet sourceSet : getInputs()) {
+      if (!sourceSet.getSource().isEmpty()) {
+        return true;
+      }
+      if (sourceSet.hasBuildDependencies()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   /// Unfortunately, AbstractNativeBinarySpec.this.resolver is private and, thus, we
   /// have to store our own reference to the resolver.
   @Override
@@ -67,6 +80,11 @@ public class DefaultJFNativeExecutableBinarySpec extends DefaultNativeExecutable
   @Override
   public NativeDependencyResolver getResolver() {
     return this.resolver;
+  }
+
+  @Override
+  public boolean                  hasOutputs() {
+    return this.hasSources();
   }
 
   // Implement interface of {@link de.jfalk.gradle.nativeplatform.JFNativeExecutableBinarySpec}.
