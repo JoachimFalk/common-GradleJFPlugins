@@ -39,27 +39,6 @@ class JFCommonLibraryBinarySpec<T extends AbstractNativeLibraryBinarySpec> {
     this.nativeLibraryBinary = nativeLibraryBinary;
   }
 
-  public FileCollection extendHeaderDirs(FileCollection headerDirs, NativeDependencyResolver nativeDependencyResolver) {
-//  logger.debug("extendHeaderDirs(...) for " + nativeLibraryBinary + " [CALLED]");
-//  NativeDependencyResolver nativeDependencyResolver = nativeLibraryBinary.resolver;
-    // Handle reexporting of headers from libs via exportHeaders flag.
-    for (JFCppSourceSet jfCppSourceSet : nativeLibraryBinary.getInputs().withType(JFCppSourceSet.class)) {
-//    logger.debug("  input: " + jfCppSourceSet);
-      for (Object obj : jfCppSourceSet.getHeaderReexportLibs()) {
-//      logger.debug("    header reexporting lib: " + obj);
-        NativeBinaryResolveResult resolution = new NativeBinaryResolveResult(nativeLibraryBinary, Collections.singleton(obj));
-        nativeDependencyResolver.resolve(resolution);
-        for (NativeDependencySet nativeDependencySet: resolution.getAllResults()) {
-//        logger.debug("    header reexporting from: " + flummy.getIncludeRoots());
-          headerDirs = headerDirs.plus(nativeDependencySet.getIncludeRoots());
-        }
-      }
-    }
-//  logger.debug("extendHeaderDirs(...) for " + nativeLibraryBinary + " [DONE]");
-    logger.debug("extendHeaderDirs(...) for " + nativeLibraryBinary + " => " + headerDirs.getFiles());
-    return headerDirs;
-  }
-
   public FileCollection extendLinkFiles(FileCollection linkFiles, NativeDependencyResolver nativeDependencyResolver) {
     // Handle transitive library requirements via exportHeaders flag.
     for (JFCppSourceSet jfCppSourceSet : nativeLibraryBinary.getInputs().withType(JFCppSourceSet.class)) {
