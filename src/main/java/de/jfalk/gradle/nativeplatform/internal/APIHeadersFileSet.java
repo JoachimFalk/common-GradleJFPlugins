@@ -79,9 +79,9 @@ class APIHeadersFileSet implements MinimalFileSet, Buildable {
   @Override
   public TaskDependency getBuildDependencies() {
     DefaultTaskDependency dependency = new DefaultTaskDependency();
-//  for (JFHeaderExportingDependentInterfaceSet sourceSet : inputInterfaceSets.withType(JFHeaderExportingDependentInterfaceSet.class)) {
-//    dependency.add(sourceSet.getBuildDependencies());
-//  }
+    for (JFHeaderExportingDependentInterfaceSet interfaceSet : inputInterfaceSets.withType(JFHeaderExportingDependentInterfaceSet.class)) {
+      dependency.add(interfaceSet.getBuildDependencies());
+    }
     return dependency;
   }
 }

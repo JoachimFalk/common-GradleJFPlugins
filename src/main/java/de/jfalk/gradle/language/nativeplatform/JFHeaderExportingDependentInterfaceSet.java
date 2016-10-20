@@ -19,9 +19,10 @@ package de.jfalk.gradle.language.nativeplatform;
 import java.util.Collection;
 
 import org.gradle.api.file.SourceDirectorySet;
-import org.gradle.platform.base.ComponentSpec;
+import org.gradle.api.BuildableComponentSpec;
+//import org.gradle.platform.base.ComponentSpec;
 
-public interface JFHeaderExportingDependentInterfaceSet extends ComponentSpec {
+public interface JFHeaderExportingDependentInterfaceSet extends BuildableComponentSpec {
   /**
    * The libraries that this interface set requires.
    */

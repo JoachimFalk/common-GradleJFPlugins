@@ -18,19 +18,20 @@ package de.jfalk.gradle.language.nativeplatform.base;
 
 import de.jfalk.gradle.language.nativeplatform.JFHeaderExportingDependentInterfaceSet;
 
-import org.gradle.platform.base.component.internal.AbstractComponentSpec;
+import org.gradle.api.internal.AbstractBuildableComponentSpec;
 import org.gradle.api.internal.file.SourceDirectorySetFactory;
 import org.gradle.internal.reflect.DirectInstantiator;
 import org.gradle.internal.reflect.ObjectInstantiationException;
-import org.gradle.platform.base.ModelInstantiationException;
+import org.gradle.platform.base.component.internal.AbstractComponentSpec;
 import org.gradle.platform.base.internal.ComponentSpecIdentifier;
+import org.gradle.platform.base.ModelInstantiationException;
 
 /**
  * Base class that may be used for custom {@link JFHeaderExportingDependentInterfaceSet} implementations.
  * However, it is generally better to use an interface annotated with {@link org.gradle.model.Managed}
  * and not use an implementation class at all.
  */
-public class BaseJFHeaderExportingDependentInterfaceSet extends AbstractComponentSpec {
+public class BaseJFHeaderExportingDependentInterfaceSet extends AbstractBuildableComponentSpec {
   // This is here as a convenience for subclasses to create additional SourceDirectorySets
   protected final SourceDirectorySetFactory sourceDirectorySetFactory;
 
