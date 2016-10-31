@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.jfalk.gradle.language.nativeplatform.JFHeaderExportingDependentInterfaceSet;
+import de.jfalk.gradle.nativeplatform.JFPrebuiltLibraryBinarySpec;
 
 import org.gradle.api.Buildable;
 import org.gradle.api.DomainObjectSet;
@@ -37,15 +38,15 @@ import org.gradle.nativeplatform.NativeLibraryBinary;
 import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;
 import org.gradle.nativeplatform.internal.resolve.NativeBinaryResolveResult;
 
-class APISharedLinkFileSet implements MinimalFileSet, Buildable {
+class APILinkFileSet implements MinimalFileSet, Buildable {
 
   private final Logger logger;
 
-  protected final JFSharedLibraryBinarySpecInternal owner;
+  protected final JFNativeLibraryBinarySpecInternal owner;
   protected final DomainObjectSet<ComponentSpec>    inputInterfaceSets;
 
-  public APISharedLinkFileSet(
-      final JFSharedLibraryBinarySpecInternal owner,
+  public APILinkFileSet(
+      final JFNativeLibraryBinarySpecInternal owner,
       final DomainObjectSet<ComponentSpec>    inputInterfaceSets)
   {
     this.logger             = LoggerFactory.getLogger(this.getClass());
@@ -60,11 +61,12 @@ class APISharedLinkFileSet implements MinimalFileSet, Buildable {
 
   @Override
   public Set<File> getFiles() {
+    logger.debug("getFiles() for "+getDisplayName()+" [CALLED]");
     Set<File> linkFiles = new LinkedHashSet<File>();
-    if (owner.getSharedLibraryLinkFile() != null)
-      linkFiles.add(owner.getSharedLibraryLinkFile());
+    if (owner.hasOutputs())
+      linkFiles.add(owner.getLinkFile());
     for (JFHeaderExportingDependentInterfaceSet interfaceSet : inputInterfaceSets.withType(JFHeaderExportingDependentInterfaceSet.class)) {
-      for (Object obj : interfaceSet.getHeaderReexportLibs()) {
+      for (Object obj : interfaceSet.getLibs()) {
         NativeBinaryResolveResult resolution = new NativeBinaryResolveResult(owner, Collections.singleton(obj));
         owner.getResolver().resolve(resolution);
         for (NativeLibraryBinary nativeLibraryBinary : resolution.getAllLibraryBinaries()) {
@@ -72,15 +74,30 @@ class APISharedLinkFileSet implements MinimalFileSet, Buildable {
         }
       }
     }
+    logger.debug("getFiles() for "+getDisplayName()+" [DONE]");
     return linkFiles;
   }
 
   @Override
   public TaskDependency getBuildDependencies() {
+    logger.debug("getBuildDependencies() for "+getDisplayName()+" [CALLED]");
     DefaultTaskDependency dependency = new DefaultTaskDependency();
-//  for (JFHeaderExportingDependentInterfaceSet sourceSet : inputInterfaceSets.withType(JFHeaderExportingDependentInterfaceSet.class)) {
-//    dependency.add(sourceSet.getBuildDependencies());
-//  }
+    if (owner.hasOutputs()) {
+      if (!(owner instanceof JFPrebuiltLibraryBinarySpec) ||
+          owner.getBuildDependencies() != null)
+        // Not prebuilt libraries should always have a build dependency!
+        dependency.add(owner.getBuildDependencies());
+    }
+    for (JFHeaderExportingDependentInterfaceSet interfaceSet : inputInterfaceSets.withType(JFHeaderExportingDependentInterfaceSet.class)) {
+      for (Object obj : interfaceSet.getLibs()) {
+        NativeBinaryResolveResult resolution = new NativeBinaryResolveResult(owner, Collections.singleton(obj));
+        owner.getResolver().resolve(resolution);
+        for (NativeLibraryBinary nativeLibraryBinary : resolution.getAllLibraryBinaries()) {
+          dependency.add(nativeLibraryBinary.getLinkFiles().getBuildDependencies());
+        }
+      }
+    }
+    logger.debug("getBuildDependencies() for "+getDisplayName()+" [DONE]");
     return dependency;
   }
 }

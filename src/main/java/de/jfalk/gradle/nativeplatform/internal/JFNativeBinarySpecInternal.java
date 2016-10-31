@@ -23,8 +23,4 @@ public interface JFNativeBinarySpecInternal extends NativeBinarySpec {
 
   NativeDependencyResolver getResolver();
 
-  /// This must return true if getStaticLibraryFile() / getSharedLibraryFile()
-  /// are really present or buildable. Otherwise, false must be returned.
-  boolean                  hasOutputs();
-
 }

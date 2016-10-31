@@ -55,7 +55,7 @@ import org.gradle.platform.base.BinaryTasksCollection;
 import org.gradle.platform.base.component.internal.DefaultComponentSpec;
 import org.gradle.platform.base.ComponentSpec;
 
-public class DefaultJFPrebuiltSharedLibraryBinarySpec extends DefaultComponentSpec implements JFPrebuiltSharedLibraryBinarySpec, JFPrebuiltLibraryBinaryInternal, JFSharedLibraryBinarySpecInternal {
+public class DefaultJFPrebuiltSharedLibraryBinarySpec extends DefaultComponentSpec implements JFPrebuiltSharedLibraryBinarySpec, JFPrebuiltLibraryBinaryInternal, JFNativeLibraryBinarySpecInternal {
 //public class DefaultJFPrebuiltSharedLibraryBinarySpec extends DefaultComponentSpec implements JFPrebuiltSharedLibraryBinarySpec, JFPrebuiltLibraryBinaryInternal {
   // Constants
   private static final ModelType<JFHeaderExportingDependentInterfaceSet>  INTERFACE_MODEL_TYPE = ModelType.of(JFHeaderExportingDependentInterfaceSet.class);
@@ -90,7 +90,7 @@ public class DefaultJFPrebuiltSharedLibraryBinarySpec extends DefaultComponentSp
     this.modelNode                           = getInfo().modelNode;
     this.interfaces                          = ModelMaps.addModelMapNode(modelNode, INTERFACE_MODEL_TYPE, "interfaces");
     this.headerDirs                          = new FileCollectionAdapter(new APIHeadersFileSet(this, inputs));
-    this.linkFiles                           = new FileCollectionAdapter(new APISharedLinkFileSet(this, inputs));
+    this.linkFiles                           = new FileCollectionAdapter(new APILinkFileSet(this, inputs));
     this.runtimeFiles                        = new FileCollectionAdapter(new APIRuntimeFileSet(this, inputs));
     this.exportedCompileAndLinkConfiguration = new JFExportedCompileAndLinkConfigurationImpl(this, inputs);
     this.flavor                              = null;
@@ -241,9 +241,24 @@ public class DefaultJFPrebuiltSharedLibraryBinarySpec extends DefaultComponentSp
     return this.resolver;
   }
 
+  // Implement interface of {@link de.jfalk.gradle.nativeplatform.internal.JFNativeLibraryBinarySpecInternal}.
+
   @Override
   public boolean                  hasOutputs() {
     return this.getSharedLibraryLinkFile() != null;
+  }
+
+  /// This must return the file used to link with this library
+  @Override
+  public File                     getLinkFile() {
+    return this.getSharedLibraryLinkFile();
+  }
+
+  /// This must return a potential runtime file required to execute programs linked to the library.
+  /// If not applicable, null must be returned.
+  @Override
+  public File                     getRuntimeFile() {
+    return this.getSharedLibraryFile();
   }
 
 //// Flummy

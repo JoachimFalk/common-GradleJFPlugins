@@ -17,9 +17,9 @@
 package de.jfalk.gradle.nativeplatform.internal;
 
 import java.io.File;
-import java.util.Set;
-import java.util.LinkedHashSet;
 import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -82,11 +82,6 @@ public class DefaultJFNativeExecutableBinarySpec extends DefaultNativeExecutable
     return this.resolver;
   }
 
-  @Override
-  public boolean                  hasOutputs() {
-    return this.hasSources();
-  }
-
   // Implement interface of {@link de.jfalk.gradle.nativeplatform.JFNativeExecutableBinarySpec}.
 
   @Override

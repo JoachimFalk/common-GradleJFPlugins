@@ -16,7 +16,26 @@
 
 package de.jfalk.gradle.nativeplatform.internal;
 
-import de.jfalk.gradle.nativeplatform.JFStaticLibraryBinary;
+import java.io.File;
 
-public interface JFStaticLibraryBinarySpecInternal extends JFStaticLibraryBinary, JFNativeBinarySpecInternal {
+import org.gradle.api.Nullable;
+import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;
+import org.gradle.nativeplatform.NativeBinarySpec;
+
+public interface JFNativeLibraryBinarySpecInternal extends JFNativeBinarySpecInternal {
+
+  NativeDependencyResolver getResolver();
+
+  /// This must return true if getStaticLibraryFile() / getSharedLibraryFile()
+  /// are really present or buildable. Otherwise, false must be returned.
+  boolean                  hasOutputs();
+
+  /// This must return the file used to link with this library
+  File                     getLinkFile();
+
+  /// This must return a potential runtime file required to execute programs linked to the library.
+  /// If not applicable, null must be returned.
+  @Nullable
+  File                     getRuntimeFile();
+
 }

@@ -55,7 +55,7 @@ import org.gradle.platform.base.BinaryTasksCollection;
 import org.gradle.platform.base.component.internal.DefaultComponentSpec;
 import org.gradle.platform.base.ComponentSpec;
 
-public class DefaultJFPrebuiltStaticLibraryBinarySpec extends DefaultComponentSpec implements JFPrebuiltStaticLibraryBinarySpec, JFPrebuiltLibraryBinaryInternal, JFStaticLibraryBinarySpecInternal {
+public class DefaultJFPrebuiltStaticLibraryBinarySpec extends DefaultComponentSpec implements JFPrebuiltStaticLibraryBinarySpec, JFPrebuiltLibraryBinaryInternal, JFNativeLibraryBinarySpecInternal {
   // Constants
   private static final ModelType<JFHeaderExportingDependentInterfaceSet>  INTERFACE_MODEL_TYPE = ModelType.of(JFHeaderExportingDependentInterfaceSet.class);
 
@@ -88,7 +88,7 @@ public class DefaultJFPrebuiltStaticLibraryBinarySpec extends DefaultComponentSp
     this.modelNode                           = getInfo().modelNode;
     this.interfaces                          = ModelMaps.addModelMapNode(modelNode, INTERFACE_MODEL_TYPE, "interfaces");
     this.headerDirs                          = new FileCollectionAdapter(new APIHeadersFileSet(this, inputs));
-    this.linkFiles                           = new FileCollectionAdapter(new APIStaticLinkFileSet(this, inputs));
+    this.linkFiles                           = new FileCollectionAdapter(new APILinkFileSet(this, inputs));
     this.runtimeFiles                        = new FileCollectionAdapter(new APIRuntimeFileSet(this, inputs));
     this.exportedCompileAndLinkConfiguration = new JFExportedCompileAndLinkConfigurationImpl(this, inputs);
     this.flavor                              = null;
@@ -222,9 +222,24 @@ public class DefaultJFPrebuiltStaticLibraryBinarySpec extends DefaultComponentSp
     return this.resolver;
   }
 
+  // Implement interface of {@link de.jfalk.gradle.nativeplatform.internal.JFNativeLibraryBinarySpecInternal}.
+
   @Override
   public boolean                  hasOutputs() {
     return this.getStaticLibraryFile() != null;
+  }
+
+  /// This must return the file used to link with this library
+  @Override
+  public File                     getLinkFile() {
+    return this.getStaticLibraryFile();
+  }
+
+  /// This must return a potential runtime file required to execute programs linked to the library.
+  /// If not applicable, null must be returned.
+  @Override
+  public File                     getRuntimeFile() {
+    return null;
   }
 
 //// Flummy

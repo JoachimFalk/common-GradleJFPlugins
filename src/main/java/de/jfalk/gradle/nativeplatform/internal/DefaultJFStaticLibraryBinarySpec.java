@@ -16,6 +16,8 @@
 
 package de.jfalk.gradle.nativeplatform.internal;
 
+import java.io.File;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +33,7 @@ import org.gradle.nativeplatform.PreprocessingTool;
 import org.gradle.nativeplatform.Tool;
 import org.gradle.platform.base.ComponentSpec;
 
-public class DefaultJFStaticLibraryBinarySpec extends DefaultStaticLibraryBinarySpec implements JFStaticLibraryBinarySpec, JFStaticLibraryBinarySpecInternal {
+public class DefaultJFStaticLibraryBinarySpec extends DefaultStaticLibraryBinarySpec implements JFStaticLibraryBinarySpec, JFNativeLibraryBinarySpecInternal {
 
   private final Logger                    logger;
 
@@ -56,7 +58,7 @@ public class DefaultJFStaticLibraryBinarySpec extends DefaultStaticLibraryBinary
     @SuppressWarnings("unchecked")
     DomainObjectSet<ComponentSpec> inputs = (DomainObjectSet) this.getInputs();
     this.headerDirs                          = new FileCollectionAdapter(new APIHeadersFileSet(this, inputs));
-    this.linkFiles                           = new FileCollectionAdapter(new APIStaticLinkFileSet(this, inputs));
+    this.linkFiles                           = new FileCollectionAdapter(new APILinkFileSet(this, inputs));
     this.runtimeFiles                        = new FileCollectionAdapter(new APIRuntimeFileSet(this, inputs));
     this.exportedCompileAndLinkConfiguration = new JFExportedCompileAndLinkConfigurationImpl(this, inputs);
     this.linker      = new ToolImpl(this, inputs,
@@ -112,9 +114,32 @@ public class DefaultJFStaticLibraryBinarySpec extends DefaultStaticLibraryBinary
     return this.resolver;
   }
 
+  // Implement interface of {@link de.jfalk.gradle.nativeplatform.internal.JFNativeLibraryBinarySpecInternal}.
+
   @Override
   public boolean                  hasOutputs() {
+//  for (LanguageSourceSet languageSourceSet : inputInterfaceSets.withType(LanguageSourceSet.class)) {
+//    if (!(languageSourceSet instanceof NativeResourceSet)) {
+//      if (!languageSourceSet.getSource().isEmpty()) {
+//        return true;
+//      }
+//    }
+//  }
+//  return false;
     return this.hasSources();
+  }
+
+  /// This must return the file used to link with this library
+  @Override
+  public File                     getLinkFile() {
+    return this.getStaticLibraryFile();
+  }
+
+  /// This must return a potential runtime file required to execute programs linked to the library.
+  /// If not applicable, null must be returned.
+  @Override
+  public File                     getRuntimeFile() {
+    return null;
   }
 
   // Implement interface of {@link de.jfalk.gradle.nativeplatform.JFStaticLibraryBinarySpec}.
