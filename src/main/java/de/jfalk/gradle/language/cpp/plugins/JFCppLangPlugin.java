@@ -32,12 +32,14 @@ import de.jfalk.gradle.language.cpp.JFCppSourceSet;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
+import org.gradle.api.internal.file.SourceDirectorySetFactory;
+import org.gradle.api.plugins.ExtraPropertiesExtension;
 import org.gradle.internal.reflect.Instantiator;
 import org.gradle.internal.service.ServiceRegistry;
-import org.gradle.api.internal.file.SourceDirectorySetFactory;
 import org.gradle.language.base.internal.registry.LanguageTransformContainer;
 import org.gradle.language.base.internal.SourceTransformTaskConfig;
 import org.gradle.language.base.plugins.ComponentModelBasePlugin;
+import org.gradle.language.cpp.CppSourceSet;
 import org.gradle.language.cpp.tasks.CppCompile;
 import org.gradle.language.cpp.tasks.CppPreCompiledHeaderCompile;
 import org.gradle.language.nativeplatform.internal.DependentSourceSetInternal;
@@ -49,6 +51,7 @@ import org.gradle.model.Each;
 import org.gradle.model.Finalize;
 import org.gradle.model.internal.core.Hidden;
 import org.gradle.model.internal.registry.ModelRegistry;
+import org.gradle.model.internal.type.ModelType;
 import org.gradle.model.Managed;
 import org.gradle.model.Model;
 import org.gradle.model.ModelMap;
@@ -59,8 +62,6 @@ import org.gradle.nativeplatform.internal.pch.PchEnabledLanguageTransform;
 import org.gradle.platform.base.component.internal.ComponentSpecFactory;
 import org.gradle.platform.base.ComponentType;
 import org.gradle.platform.base.TypeBuilder;
-import org.gradle.api.plugins.ExtraPropertiesExtension;
-import org.gradle.model.internal.type.ModelType;
 
 public class JFCppLangPlugin implements Plugin<Project> {
   private final Logger          logger;
@@ -95,6 +96,9 @@ public class JFCppLangPlugin implements Plugin<Project> {
   }
 
   static class Rules extends RuleSource {
+
+    private static final Logger logger = LoggerFactory.getLogger(Rules.class);
+
     @ComponentType
     void registerLanguage(TypeBuilder<JFCppSourceSet> builder) {
       builder.defaultImplementation(DefaultJFCppSourceSet.class);
@@ -117,6 +121,18 @@ public class JFCppLangPlugin implements Plugin<Project> {
     @Mutate
     void registerLanguageTransform(LanguageTransformContainer languages) {
       languages.add(new JFCpp());
+    }
+
+    @Finalize
+    public void finalizeForCppSourceSet(@Each final CppSourceSet cppSourceSet) {
+      logger.debug("finalizeForCppSourceSet(...) for " + cppSourceSet + " [CALLED]");
+      if (cppSourceSet.getSource().getIncludes().isEmpty()) {
+        logger.info("applying default includes **/*.c, **/*.cpp, and **/*.C to " + cppSourceSet);
+        cppSourceSet.getSource().include("**/*.c");
+        cppSourceSet.getSource().include("**/*.cpp");
+        cppSourceSet.getSource().include("**/*.C");
+      }
+      logger.debug("finalizeForCppSourceSet(...) for " + cppSourceSet + " [DONE]");
     }
   }
 

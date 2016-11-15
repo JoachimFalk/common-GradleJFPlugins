@@ -572,7 +572,8 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
     @Finalize
     public void finalizeForLanguageSourceSet(@Each final LanguageSourceSet langSourceSet) {
       logger.debug("finalizeForLanguageSourceSet(...) for " + langSourceSet + " [CALLED]");
-      langSourceSet.getSource().exclude("**/*.sw*");
+      logger.info("applying default excludes **/.*.sw*, **/*~, and **/*.bak to " + langSourceSet);
+      langSourceSet.getSource().exclude("**/.*.sw*");
       langSourceSet.getSource().exclude("**/*~");
       langSourceSet.getSource().exclude("**/*.bak");
       logger.debug("finalizeForLanguageSourceSet(...) for " + langSourceSet + " [DONE]");
