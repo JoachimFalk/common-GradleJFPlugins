@@ -41,6 +41,7 @@ import org.gradle.nativeplatform.Flavor;
 import org.gradle.nativeplatform.internal.resolve.ApiRequirementNativeDependencyResolver;
 import org.gradle.nativeplatform.internal.resolve.InputHandlingNativeDependencyResolver;
 import org.gradle.nativeplatform.internal.resolve.LibraryBinaryLocator;
+import org.gradle.nativeplatform.internal.resolve.LibraryIdentifier;
 import org.gradle.nativeplatform.internal.resolve.NativeBinaryRequirementResolveResult;
 import org.gradle.nativeplatform.internal.resolve.NativeBinaryResolveResult;
 import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;
@@ -150,7 +151,8 @@ public class JFNativeDependencyResolver implements NativeDependencyResolver {
     }
 
     private NativeLibraryBinary resolveLibraryBinary(NativeLibraryRequirement requirement, NativeBinarySpec context) {
-      DomainObjectSet<NativeLibraryBinary> allBinaries = libraryBinaryLocator.getBinaries(requirement);
+      DomainObjectSet<NativeLibraryBinary> allBinaries =
+        libraryBinaryLocator.getBinaries(new LibraryIdentifier(requirement.getProjectPath(), requirement.getLibraryName()));
       if (allBinaries == null) {
         throw new LibraryResolveException(requirement.getProjectPath() == null
           ? String.format("Could not locate library '%s'.", requirement.getLibraryName())

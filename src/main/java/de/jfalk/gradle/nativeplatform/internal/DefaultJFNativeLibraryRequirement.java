@@ -18,6 +18,8 @@ package de.jfalk.gradle.nativeplatform.internal;
 
 import de.jfalk.gradle.nativeplatform.JFNativeLibraryRequirement;
 
+import org.gradle.nativeplatform.NativeLibraryRequirement;
+
 public class DefaultJFNativeLibraryRequirement implements JFNativeLibraryRequirement {
   private final String projectPath;
   private final String libraryName;
@@ -29,6 +31,11 @@ public class DefaultJFNativeLibraryRequirement implements JFNativeLibraryRequire
     this.libraryName = libraryName;
     this.linkage = linkage;
     this.flavor = flavor;
+  }
+
+  @Override
+  public NativeLibraryRequirement withProjectPath(String projectPath) {
+    return new DefaultJFNativeLibraryRequirement(projectPath, libraryName, linkage, flavor);
   }
 
   @Override

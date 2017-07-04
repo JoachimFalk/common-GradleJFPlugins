@@ -25,6 +25,7 @@ import org.gradle.api.internal.resolve.ProjectModelResolver;
 import org.gradle.model.internal.registry.ModelRegistry;
 import org.gradle.model.ModelMap;
 import org.gradle.nativeplatform.internal.resolve.LibraryBinaryLocator;
+import org.gradle.nativeplatform.internal.resolve.LibraryIdentifier;
 import org.gradle.nativeplatform.NativeBinarySpec;
 import org.gradle.nativeplatform.NativeLibraryBinary;
 import org.gradle.nativeplatform.NativeLibraryRequirement;
@@ -40,12 +41,12 @@ public class JFPrebuiltLibraryBinaryLocator implements LibraryBinaryLocator {
 
   // Converts the binaries of a project library into regular binary instances
   @Override
-  public DomainObjectSet<NativeLibraryBinary> getBinaries(NativeLibraryRequirement requirement) {
+  public DomainObjectSet<NativeLibraryBinary> getBinaries(LibraryIdentifier libraryIdentifier) {
     DomainObjectSet<NativeLibraryBinary> retval       = null;
-    ModelRegistry                        projectModel = projectModelResolver.resolveProjectModel(requirement.getProjectPath());
+    ModelRegistry                        projectModel = projectModelResolver.resolveProjectModel(libraryIdentifier.getProjectPath());
     ComponentSpecContainer               components   = projectModel.find("components", ComponentSpecContainer.class);
     if (components != null) {
-      JFPrebuiltLibrarySpec library = components.withType(JFPrebuiltLibrarySpec.class).get(requirement.getLibraryName());
+      JFPrebuiltLibrarySpec library = components.withType(JFPrebuiltLibrarySpec.class).get(libraryIdentifier.getLibraryName());
       if (library != null) {
         retval = new DefaultDomainObjectSet<NativeLibraryBinary>(NativeLibraryBinary.class);
         retval.addAll(library.getBinaries().values());

@@ -107,7 +107,6 @@ import org.gradle.nativeplatform.internal.DefaultBuildType;
 import org.gradle.nativeplatform.internal.prebuilt.PrebuiltLibraryBinaryLocator;
 import org.gradle.nativeplatform.internal.ProjectNativeLibraryRequirement;
 import org.gradle.nativeplatform.internal.resolve.ChainedLibraryBinaryLocator;
-import org.gradle.nativeplatform.internal.resolve.CurrentProjectModelResolver;
 import org.gradle.nativeplatform.internal.resolve.LibraryBinaryLocator;
 import org.gradle.nativeplatform.internal.resolve.NativeBinaryResolveResult;
 import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;

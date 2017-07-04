@@ -333,6 +333,18 @@ public class DefaultJFPrebuiltSharedLibraryBinarySpec extends DefaultComponentSp
   public void builtBy(Object... tasks)
     {}
 
+  @Nullable @Override
+  public Task getCheckTask()
+    { return null; }
+
+  @Override
+  public void setCheckTask(Task checkTask)
+    {}
+
+  @Override
+  public void checkedBy(Object... tasks)
+    {}
+
   @Override
   public boolean hasBuildDependencies()
     { return false; }
