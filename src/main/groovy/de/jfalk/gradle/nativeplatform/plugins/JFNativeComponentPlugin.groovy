@@ -124,7 +124,7 @@ import org.gradle.nativeplatform.plugins.NativeComponentPlugin;
 import org.gradle.nativeplatform.Repositories;
 import org.gradle.nativeplatform.SharedLibraryBinarySpec;
 import org.gradle.nativeplatform.StaticLibraryBinarySpec;
-import org.gradle.nativeplatform.toolchain.internal.NativeToolChainRegistryInternal;
+import org.gradle.nativeplatform.toolchain.NativeToolChainRegistry;
 import org.gradle.platform.base.BinaryContainer;
 import org.gradle.platform.base.ComponentBinaries;
 import org.gradle.platform.base.component.internal.ComponentSpecFactory;
@@ -150,7 +150,7 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
 
 
   private FlavorContainer                 flavors;
-  private NativeToolChainRegistryInternal toolChains;
+  private NativeToolChainRegistry         toolChains;
   private BuildTypeContainer              buildTypes;
 
   @Inject
@@ -170,7 +170,7 @@ public class JFNativeComponentPlugin implements Plugin<Project> {
 //  ModelRegistry projectModel = project.getModelRegistry();
 //  JFHelperFunctions.analysis("modelRegistry.getRoot()", modelRegistry.getRoot())
     this.flavors         = project.getExtensions().getByType(FlavorContainer.class);
-    this.toolChains      = project.getExtensions().getByType(NativeToolChainRegistryInternal.class);
+    this.toolChains      = project.getExtensions().getByType(NativeToolChainRegistry.class);
     this.buildTypes      = project.getExtensions().getByType(BuildTypeContainer.class);
 
 //  this.serviceRegistry = project.getServices();
