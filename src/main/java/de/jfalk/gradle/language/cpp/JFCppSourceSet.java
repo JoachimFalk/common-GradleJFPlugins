@@ -16,8 +16,6 @@
 
 package de.jfalk.gradle.language.cpp;
 
-import java.util.Collection;
-
 import org.gradle.language.cpp.CppSourceSet;
 
 public interface JFCppSourceSet extends CppSourceSet, JFCppInterfaceSet {

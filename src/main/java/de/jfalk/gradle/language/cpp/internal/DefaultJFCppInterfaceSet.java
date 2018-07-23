@@ -30,10 +30,7 @@ import org.gradle.nativeplatform.internal.DefaultPreprocessingTool;
 import org.gradle.nativeplatform.internal.DefaultTool;
 import org.gradle.nativeplatform.PreprocessingTool;
 import org.gradle.nativeplatform.Tool;
-import org.gradle.platform.base.component.internal.AbstractComponentSpec;
 import org.gradle.util.CollectionUtils;
-
-import org.gradle.platform.base.component.internal.DefaultComponentSpec;
 
 public class DefaultJFCppInterfaceSet extends BaseJFHeaderExportingDependentInterfaceSet implements JFCppInterfaceSet {
 
@@ -54,7 +51,7 @@ public class DefaultJFCppInterfaceSet extends BaseJFHeaderExportingDependentInte
   @Override
   public void lib(Object library) {
     if (library instanceof Iterable<?>) {
-      Iterable<?> iterable = (Iterable) library;
+      Iterable<?> iterable = (Iterable<?>) library;
       CollectionUtils.addAll(libs, iterable);
     } else {
       libs.add(library);

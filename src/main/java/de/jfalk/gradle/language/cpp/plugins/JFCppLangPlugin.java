@@ -32,7 +32,6 @@ import de.jfalk.gradle.language.cpp.JFCppSourceSet;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
-import org.gradle.api.internal.file.SourceDirectorySetFactory;
 import org.gradle.api.plugins.ExtraPropertiesExtension;
 import org.gradle.internal.reflect.Instantiator;
 import org.gradle.internal.service.ServiceRegistry;
@@ -46,20 +45,14 @@ import org.gradle.language.nativeplatform.internal.DependentSourceSetInternal;
 import org.gradle.language.nativeplatform.internal.NativeLanguageTransform;
 import org.gradle.language.nativeplatform.internal.PCHCompileTaskConfig;
 import org.gradle.language.nativeplatform.internal.SourceCompileTaskConfig;
-import org.gradle.model.Defaults;
 import org.gradle.model.Each;
 import org.gradle.model.Finalize;
-import org.gradle.model.internal.core.Hidden;
 import org.gradle.model.internal.registry.ModelRegistry;
-import org.gradle.model.internal.type.ModelType;
-import org.gradle.model.Managed;
-import org.gradle.model.Model;
-import org.gradle.model.ModelMap;
 import org.gradle.model.Mutate;
 import org.gradle.model.RuleSource;
 import org.gradle.nativeplatform.internal.DefaultPreprocessingTool;
 import org.gradle.nativeplatform.internal.pch.PchEnabledLanguageTransform;
-import org.gradle.platform.base.component.internal.ComponentSpecFactory;
+import org.gradle.nativeplatform.toolchain.internal.ToolType;
 import org.gradle.platform.base.ComponentType;
 import org.gradle.platform.base.TypeBuilder;
 
@@ -152,6 +145,11 @@ public class JFCppLangPlugin implements Plugin<Project> {
     @Override
     public String getLanguageName() {
       return "cpp";
+    }
+
+    @Override
+    public ToolType getToolType() {
+        return ToolType.CPP_COMPILER;
     }
 
     @Override

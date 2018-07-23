@@ -18,9 +18,9 @@ package de.jfalk.gradle.nativeplatform.internal;
 
 import java.io.File;
 
-import org.gradle.api.Nullable;
 import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;
-import org.gradle.nativeplatform.NativeBinarySpec;
+
+import javax.annotation.Nullable;
 
 public interface JFNativeLibraryBinarySpecInternal extends JFNativeBinarySpecInternal {
 

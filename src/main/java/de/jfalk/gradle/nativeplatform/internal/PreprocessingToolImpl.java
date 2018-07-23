@@ -16,7 +16,6 @@
 
 package de.jfalk.gradle.nativeplatform.internal;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -26,7 +25,6 @@ import de.jfalk.gradle.nativeplatform.JFNativeLibraryBinary;
 
 import org.gradle.api.DomainObjectSet;
 import org.gradle.nativeplatform.internal.resolve.NativeBinaryResolveResult;
-import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;
 import org.gradle.nativeplatform.NativeLibraryBinary;
 import org.gradle.nativeplatform.PreprocessingTool;
 import org.gradle.platform.base.ComponentSpec;
@@ -53,7 +51,7 @@ public class PreprocessingToolImpl extends ToolImpl implements PreprocessingTool
 
   @Override
   protected ToolLocator getToolLocator() {
-    @SuppressWarnings("unchecked")
+//  @SuppressWarnings("unchecked")
     ToolLocator toolLocator = (ToolLocator) this.toolLocator;
     return toolLocator;
   }
@@ -76,7 +74,7 @@ public class PreprocessingToolImpl extends ToolImpl implements PreprocessingTool
       owner.getResolver().resolve(resolution);
       for (NativeLibraryBinary dependency : resolution.getAllLibraryBinaries()) {
         if (dependency instanceof JFNativeLibraryBinary) {
-          @SuppressWarnings("unchecked")
+//        @SuppressWarnings("unchecked")
           JFNativeLibraryBinary jfNativeLibraryBinary = (JFNativeLibraryBinary) dependency;
           definitions.putAll(getToolLocator().locateTool(jfNativeLibraryBinary.getExportedCompileAndLinkConfiguration()).getMacros());
         }

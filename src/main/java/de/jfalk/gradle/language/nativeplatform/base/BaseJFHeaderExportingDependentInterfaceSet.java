@@ -20,9 +20,8 @@ import de.jfalk.gradle.language.nativeplatform.JFHeaderExportingDependentInterfa
 
 import org.gradle.api.internal.AbstractBuildableComponentSpec;
 import org.gradle.api.internal.file.SourceDirectorySetFactory;
+import org.gradle.api.reflect.ObjectInstantiationException;
 import org.gradle.internal.reflect.DirectInstantiator;
-import org.gradle.internal.reflect.ObjectInstantiationException;
-import org.gradle.platform.base.component.internal.AbstractComponentSpec;
 import org.gradle.platform.base.internal.ComponentSpecIdentifier;
 import org.gradle.platform.base.ModelInstantiationException;
 

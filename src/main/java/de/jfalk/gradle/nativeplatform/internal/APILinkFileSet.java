@@ -35,7 +35,6 @@ import org.gradle.api.tasks.TaskDependency;
 //import org.gradle.model.ModelElement;
 import org.gradle.platform.base.ComponentSpec;
 import org.gradle.nativeplatform.NativeLibraryBinary;
-import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;
 import org.gradle.nativeplatform.internal.resolve.NativeBinaryResolveResult;
 
 class APILinkFileSet implements MinimalFileSet, Buildable {

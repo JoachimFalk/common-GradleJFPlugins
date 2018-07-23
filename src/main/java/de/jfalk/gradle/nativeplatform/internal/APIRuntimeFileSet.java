@@ -21,8 +21,8 @@ import java.util.Set;
 import java.util.LinkedHashSet;
 import java.util.Collections;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 
 import de.jfalk.gradle.language.nativeplatform.JFHeaderExportingDependentInterfaceSet;
 
@@ -32,14 +32,13 @@ import org.gradle.api.internal.file.collections.MinimalFileSet;
 import org.gradle.api.internal.tasks.DefaultTaskDependency;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.nativeplatform.internal.resolve.NativeBinaryResolveResult;
-import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;
 import org.gradle.nativeplatform.NativeLibraryBinary;
 import org.gradle.nativeplatform.SharedLibraryBinary;
 import org.gradle.platform.base.ComponentSpec;
 
 class APIRuntimeFileSet implements MinimalFileSet, Buildable {
 
-  private final Logger logger;
+//private final Logger logger;
 
   protected final JFNativeBinarySpecInternal           owner;
   protected final DomainObjectSet<ComponentSpec> inputInterfaceSets;
@@ -48,7 +47,7 @@ class APIRuntimeFileSet implements MinimalFileSet, Buildable {
       final JFNativeBinarySpecInternal           owner,
       final DomainObjectSet<ComponentSpec> inputInterfaceSets)
   {
-    this.logger             = LoggerFactory.getLogger(this.getClass());
+//  this.logger             = LoggerFactory.getLogger(this.getClass());
     this.owner              = owner;
     this.inputInterfaceSets = inputInterfaceSets;
   }

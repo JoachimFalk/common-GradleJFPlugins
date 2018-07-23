@@ -34,7 +34,6 @@ import org.gradle.api.tasks.TaskDependency;
 //import org.gradle.model.ModelElement;
 import org.gradle.platform.base.ComponentSpec;
 import org.gradle.nativeplatform.NativeDependencySet;
-import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;
 import org.gradle.nativeplatform.internal.resolve.NativeBinaryResolveResult;
 
 class APIHeadersFileSet implements MinimalFileSet, Buildable {

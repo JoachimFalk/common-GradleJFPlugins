@@ -33,12 +33,10 @@ import org.gradle.model.internal.type.ModelType;
 import org.gradle.model.ModelMap;
 import org.gradle.nativeplatform.BuildType;
 import org.gradle.nativeplatform.Flavor;
-import org.gradle.platform.base.BinarySpec;
 import org.gradle.platform.base.component.internal.DefaultComponentSpec;
 import org.gradle.platform.base.internal.DefaultPlatformRequirement;
 import org.gradle.platform.base.internal.PlatformRequirement;
 import org.gradle.platform.base.internal.HasIntermediateOutputsComponentSpec;
-import org.gradle.util.GUtil;
 import org.gradle.platform.base.TransformationFileType;
 import org.gradle.language.base.LanguageSourceSet;
 

@@ -33,8 +33,6 @@ import org.gradle.api.DomainObjectSet;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.internal.DefaultDomainObjectSet;
 import org.gradle.api.internal.file.collections.FileCollectionAdapter;
-import org.gradle.api.internal.file.collections.SimpleFileCollection;
-import org.gradle.api.Nullable;
 import org.gradle.api.Task;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.language.base.LanguageSourceSet;
@@ -45,7 +43,6 @@ import org.gradle.model.ModelMap;
 import org.gradle.nativeplatform.BuildType;
 import org.gradle.nativeplatform.Flavor;
 import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;
-import org.gradle.nativeplatform.NativeComponentSpec;
 import org.gradle.nativeplatform.NativeDependencySet;
 import org.gradle.nativeplatform.platform.NativePlatform;
 import org.gradle.nativeplatform.PreprocessingTool;
@@ -54,6 +51,8 @@ import org.gradle.nativeplatform.toolchain.NativeToolChain;
 import org.gradle.platform.base.BinaryTasksCollection;
 import org.gradle.platform.base.component.internal.DefaultComponentSpec;
 import org.gradle.platform.base.ComponentSpec;
+
+import javax.annotation.Nullable;
 
 public class DefaultJFPrebuiltSharedLibraryBinarySpec extends DefaultComponentSpec implements JFPrebuiltSharedLibraryBinarySpec, JFPrebuiltLibraryBinaryInternal, JFNativeLibraryBinarySpecInternal {
 //public class DefaultJFPrebuiltSharedLibraryBinarySpec extends DefaultComponentSpec implements JFPrebuiltSharedLibraryBinarySpec, JFPrebuiltLibraryBinaryInternal {

@@ -18,7 +18,6 @@ package de.jfalk.gradle.nativeplatform.internal;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +28,6 @@ import de.jfalk.gradle.nativeplatform.JFNativeLibraryBinary;
 
 import org.gradle.api.DomainObjectSet;
 import org.gradle.nativeplatform.internal.resolve.NativeBinaryResolveResult;
-import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;
 import org.gradle.nativeplatform.NativeLibraryBinary;
 import org.gradle.nativeplatform.Tool;
 import org.gradle.platform.base.ComponentSpec;
@@ -92,7 +90,7 @@ public class ToolImpl implements Tool {
       owner.getResolver().resolve(resolution);
       for (NativeLibraryBinary dependency : resolution.getAllLibraryBinaries()) {
         if (dependency instanceof JFNativeLibraryBinary) {
-          @SuppressWarnings("unchecked")
+//        @SuppressWarnings("unchecked")
           JFNativeLibraryBinary jfNativeLibraryBinary = (JFNativeLibraryBinary) dependency;
           args.addAll(getToolLocator().locateTool(jfNativeLibraryBinary.getExportedCompileAndLinkConfiguration()).getArgs());
         }

@@ -36,8 +36,6 @@ import org.gradle.internal.typeconversion.NotationParser;
 import org.gradle.internal.typeconversion.NotationParserBuilder;
 import org.gradle.internal.typeconversion.TypedNotationConverter;
 import org.gradle.language.base.internal.resolve.LibraryResolveException;
-import org.gradle.nativeplatform.BuildType;
-import org.gradle.nativeplatform.Flavor;
 import org.gradle.nativeplatform.internal.resolve.ApiRequirementNativeDependencyResolver;
 import org.gradle.nativeplatform.internal.resolve.InputHandlingNativeDependencyResolver;
 import org.gradle.nativeplatform.internal.resolve.LibraryBinaryLocator;
@@ -51,7 +49,6 @@ import org.gradle.nativeplatform.NativeBinarySpec;
 import org.gradle.nativeplatform.NativeLibraryBinary;
 import org.gradle.nativeplatform.NativeLibraryRequirement;
 import org.gradle.nativeplatform.NativeLibrarySpec;
-import org.gradle.nativeplatform.platform.NativePlatform;
 import org.gradle.nativeplatform.SharedLibraryBinary;
 import org.gradle.nativeplatform.StaticLibraryBinary;
 
@@ -167,7 +164,7 @@ public class JFNativeDependencyResolver implements NativeDependencyResolver {
       String platform  = context.getTargetPlatform() != null ? context.getTargetPlatform().getName() : null;
       String buildType = context.getBuildType() != null ? context.getBuildType().getName() : null;
       if (requirement instanceof JFNativeLibraryRequirement) {
-        @SuppressWarnings("unchecked")
+//      @SuppressWarnings("unchecked")
         JFNativeLibraryRequirement jfRequirement = (JFNativeLibraryRequirement) requirement;
         if (jfRequirement.getFlavor() != null) {
           flavor = jfRequirement.getFlavor();

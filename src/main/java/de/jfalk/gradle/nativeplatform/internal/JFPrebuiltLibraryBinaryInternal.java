@@ -16,9 +16,6 @@
 
 package de.jfalk.gradle.nativeplatform.internal;
 
-import java.util.List;
-import java.util.Set;
-
 import de.jfalk.gradle.language.nativeplatform.JFHeaderExportingDependentInterfaceSet;
 import de.jfalk.gradle.nativeplatform.JFPrebuiltLibraryBinarySpec;
 
